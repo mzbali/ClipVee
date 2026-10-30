@@ -77,4 +77,8 @@ The scope is the clipboard-history portion described in [Microsoft's Windows 11 
 - PASS: the final build without diagnostic logging passed global text paste without popup inspection, image paste, and outside-click/repeated-toggle checks (`.build/PublicationAcceptance.xcresult`).
 - PASS: the copy installed at `/Applications/Maccy Dev.app` passed global text and image paste into the disposable editor (`.build/InstalledAcceptance.xcresult`). The test verified the running app's installed bundle path. Its signature verifies, Accessibility remained granted, and normal history was preserved after relaunch.
 
-The local application is installed as **Maccy Dev** in `/Applications`. The official Homebrew app was uninstalled after installed-app acceptance, without zapping its preferences/history. Source is maintained in [mzbali/Maccy](https://github.com/mzbali/Maccy), on the `clipboard-panel` branch. Updates are local builds; there is no automatic updater or notarized release.
+The local application is installed as **Maccy Dev** in `/Applications`. The official Homebrew app and Flycut were removed after acceptance. Their retired data, the Tahoe helper, disposable test app, build products, result bundles, and temporary logs were moved to the Bin during cleanup. Source, test support, dependency downloads, and the installed fork's history remain intact.
+
+The UI runner's Accessibility grant was intentionally revoked after acceptance; only **Maccy Dev** retains the clipboard app's permission. Future desktop testing requires rebuilding the test apps and explicitly granting the runner access again. The historical result paths above describe completed runs; those artifacts are no longer in `.build`.
+
+Source is maintained in [mzbali/Maccy](https://github.com/mzbali/Maccy), on the `clipboard-panel` branch. Updates are local builds; there is no automatic updater or notarized release.
