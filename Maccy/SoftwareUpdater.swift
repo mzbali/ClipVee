@@ -2,8 +2,10 @@ import Sparkle
 
 @Observable
 class SoftwareUpdater {
+  static var isAvailable: Bool { Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil }
   var automaticallyChecksForUpdates = false {
     didSet {
+      guard Self.isAvailable else { return }
       updater.automaticallyChecksForUpdates = automaticallyChecksForUpdates
     }
   }
@@ -12,7 +14,7 @@ class SoftwareUpdater {
   private var automaticallyChecksForUpdatesObservation: NSKeyValueObservation?
 
   private let updaterController = SPUStandardUpdaterController(
-    startingUpdater: true,
+    startingUpdater: SoftwareUpdater.isAvailable,
     updaterDelegate: nil,
     userDriverDelegate: nil
   )
@@ -34,6 +36,7 @@ class SoftwareUpdater {
   }
 
   func checkForUpdates() {
+    guard Self.isAvailable else { return }
     updater.checkForUpdates()
   }
 }

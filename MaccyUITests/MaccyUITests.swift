@@ -21,8 +21,17 @@ private struct HistoryItemQuery {
 
 @MainActor
 class MaccyUITests: XCTestCase {
-  let app = XCUIApplication()
+  let app: XCUIApplication = {
+    if let path = ProcessInfo.processInfo.environment["MACCY_UI_APP_PATH"] {
+      return XCUIApplication(url: URL(fileURLWithPath: path))
+    }
+    return XCUIApplication()
+  }()
   let pasteboard = NSPasteboard.general
+  private lazy var pasteTarget = XCUIApplication(bundleIdentifier: "uk.co.mzbali.MaccyPasteTarget")
+  private var savedClipboard: [NSPasteboardItem] = []
+  private var didLaunch = false
+  private var popupKeyCode = kVK_ANSI_C
 
   let copy1 = UUID().uuidString
   let copy2 = UUID().uuidString
@@ -61,6 +70,16 @@ class MaccyUITests: XCTestCase {
 
   override func setUp() async throws {
     try await super.setUp()
+    continueAfterFailure = false
+    savedClipboard = (pasteboard.pasteboardItems ?? []).map { original in
+      let item = NSPasteboardItem()
+      for type in original.types {
+        if let data = original.data(forType: type) { item.setData(data, forType: type) }
+      }
+      return item
+    }
+
+    XCTAssertTrue(AXIsProcessTrusted(), "UI runner requires Accessibility access for real global input tests")
 
     try? "Hello world".write(to: file1, atomically: true, encoding: .utf8)
     try? "Hello world".write(to: file2, atomically: true, encoding: .utf8)
@@ -71,15 +90,26 @@ class MaccyUITests: XCTestCase {
     setKeyboardShortcut("delete", keyCode: kVK_Delete, modifiers: optionKey)
     setKeyboardShortcut("togglePreview", keyCode: kVK_Space, modifiers: controlKey)
     app.launch()
+    didLaunch = true
 
     copyToClipboard(copy2)
     copyToClipboard(copy1)
+    let fixture = URL(fileURLWithPath: #filePath)
+      .deletingLastPathComponent().deletingLastPathComponent()
+      .appendingPathComponent(".build/PasteTarget.app")
+    _ = try await NSWorkspace.shared.openApplication(at: fixture, configuration: NSWorkspace.OpenConfiguration())
+    pasteTarget.activate()
   }
 
   override func tearDown() async throws {
     try await super.tearDown()
 
-    app.terminate()
+    if didLaunch { app.terminate() }
+    if !NSRunningApplication.runningApplications(withBundleIdentifier: "uk.co.mzbali.MaccyPasteTarget").isEmpty {
+      pasteTarget.terminate()
+    }
+    pasteboard.clearContents()
+    pasteboard.writeObjects(savedClipboard)
   }
 
   func testPopupWithHotkey() throws {
@@ -541,6 +571,182 @@ class MaccyUITests: XCTestCase {
     assertPopupDismissed()
   }
 
+  func testHiddenHeaderKeyboardSelectionFromGlobalHotkey() {
+    relaunchWithMinimalCenteredPopup()
+    popUpWithHotkey()
+    postKey(kVK_DownArrow)
+    let selected = NSPredicate { [self] _, _ in items[copy2].isSelected }
+    expectation(for: selected, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    postKey(kVK_UpArrow)
+    let previous = NSPredicate { [self] _, _ in items[copy1].isSelected }
+    expectation(for: previous, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    postKey(kVK_DownArrow)
+    expectation(for: selected, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    postKey(kVK_Return)
+    assertPasteboardStringEquals(copy2)
+    assertPopupDismissed()
+    let destination = pasteTarget.textViews["paste-destination"]
+    let pasted = NSPredicate { _, _ in destination.value as? String == self.copy2 }
+    expectation(for: pasted, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+  }
+
+  func testKeyboardPasteWithoutInspectingPopup() {
+    relaunchWithMinimalCenteredPopup()
+    // Do not query or activate Maccy between the hotkey and paste. App-targeted
+    // accessibility inspection must not establish keyboard focus for this test.
+    simulatePopupHotkey()
+    Thread.sleep(forTimeInterval: 0.3)
+    postKey(kVK_DownArrow)
+    postKey(kVK_UpArrow)
+    postKey(kVK_DownArrow)
+    postKey(kVK_Return)
+    Thread.sleep(forTimeInterval: 0.3)
+    assertPasteboardStringEquals(copy2)
+    let destination = pasteTarget.textViews["paste-destination"]
+    let pasted = NSPredicate { _, _ in destination.value as? String == self.copy2 }
+    expectation(for: pasted, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    assertPopupDismissed()
+  }
+
+  func testInstalledKeyboardPasteWithoutInspectingPopup() {
+    let path = ProcessInfo.processInfo.environment["MACCY_UI_APP_PATH"]
+    XCTAssertEqual(path, "/Applications/Maccy Dev.app", "Run with TEST_RUNNER_MACCY_UI_APP_PATH set")
+    let running = NSRunningApplication.runningApplications(withBundleIdentifier: "uk.co.mzbali.MaccyDev")
+    XCTAssertEqual(running.first?.bundleURL?.path, path, "Must exercise the installed application")
+    testKeyboardPasteWithoutInspectingPopup()
+  }
+
+  func testImageCardPastesIntoOriginatingApp() {
+    relaunchWithMinimalCenteredPopup()
+    copyToClipboard(textImage("Clipboard image preview"))
+    copyToClipboard(copy1)
+    popUpWithHotkey()
+    let imageItem = items.query.matching(NSPredicate(format: "label BEGINSWITH %@", "Image, ")).firstMatch
+    assertExists(imageItem)
+    postKey(kVK_DownArrow)
+    let selected = NSPredicate { _, _ in imageItem.isSelected }
+    expectation(for: selected, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    postKey(kVK_Return)
+    assertPopupDismissed()
+    let pasted = NSPredicate { _, _ in
+      let summary = self.pasteTarget.staticTexts["paste-summary"]
+      return summary.label == "Images: 1" || summary.value as? String == "Images: 1"
+    }
+    expectation(for: pasted, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+  }
+
+  func testCardPinAndClearPreservePinnedItemWithoutPasting() {
+    relaunchWithMinimalCenteredPopup()
+    popUpWithHotkey()
+    items[copy1].buttons["pin-history-item"].click()
+    XCTAssertTrue(app.dialogs.firstMatch.exists, "Pinning must keep the panel open")
+    XCTAssertEqual(pasteTarget.textViews["paste-destination"].value as? String, "")
+    assertExists(items[copy1].buttons["Unpin item"])
+    app.buttons["Clear all"].click()
+    app.dialogs.firstMatch.sheets.buttons["Clear"].click()
+    assertExists(items[copy1])
+    assertNotExists(items[copy2])
+    postKey(kVK_Escape)
+    assertPopupDismissed()
+  }
+
+  func testCardMenuDeletesWithoutPasting() {
+    relaunchWithMinimalCenteredPopup()
+    popUpWithHotkey()
+    items[copy1].menuButtons["Item actions"].click()
+    app.dialogs.firstMatch.menuItems["Delete"].click()
+    assertNotExists(items[copy1])
+    assertExists(items[copy2])
+    XCTAssertEqual(pasteTarget.textViews["paste-destination"].value as? String, "")
+    postKey(kVK_Escape)
+    assertPopupDismissed()
+  }
+
+  func testHiddenHeaderOutsideClickDismissesAndCanReopen() {
+    relaunchWithMinimalCenteredPopup()
+    popUpWithHotkey()
+    closePopupByClickingOutside()
+    assertPopupDismissed()
+    popUpWithHotkey()
+    postKey(kVK_Escape)
+    assertPopupDismissed()
+    for _ in 0..<6 {
+      popUpWithHotkey()
+      simulatePopupHotkey()
+      assertPopupDismissed()
+    }
+  }
+
+  func testCardListScrollsWithKeyboardAtBottomRight() {
+    relaunchWithMinimalCenteredPopup(position: "bottomRight")
+    for index in 0..<14 { copyToClipboard("Scroll fixture \(index)") }
+    popUpWithHotkey()
+    let oldestVisible = NSPredicate { [self] _, _ in
+      items[copy2].exists && items[copy2].isSelected && items[copy2].isHittable
+    }
+    let newestVisible = NSPredicate { [self] _, _ in
+      items["Scroll fixture 13"].exists && items["Scroll fixture 13"].isSelected
+        && items["Scroll fixture 13"].isHittable
+    }
+    postKey(kVK_PageDown)
+    expectation(for: oldestVisible, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    postKey(kVK_PageUp)
+    expectation(for: newestVisible, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    for _ in 0..<15 { postKey(kVK_DownArrow) }
+    expectation(for: oldestVisible, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    postKey(kVK_PageUp)
+    expectation(for: newestVisible, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    let titles = (0..<13).reversed().map { "Scroll fixture \($0)" } + [copy1, copy2]
+    for title in titles {
+      postKey(kVK_DownArrow)
+      let visibleSelection = NSPredicate { [self] _, _ in
+        items[title].exists && items[title].isSelected && items[title].isHittable
+      }
+      expectation(for: visibleSelection, evaluatedWith: nil)
+      waitForExpectations(timeout: 3)
+    }
+    XCTAssertLessThanOrEqual(app.dialogs.firstMatch.frame.height, 560)
+    postKey(kVK_Return)
+    assertPopupDismissed()
+    let destination = pasteTarget.textViews["paste-destination"]
+    let pasted = NSPredicate { [self] _, _ in destination.value as? String == copy2 }
+    expectation(for: pasted, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+  }
+
+  private func relaunchWithMinimalCenteredPopup(position: String = "window") {
+    app.terminate()
+    setKeyboardShortcut("popup", keyCode: kVK_ANSI_V, modifiers: cmdKey | shiftKey)
+    app.launchArguments.append(contentsOf: [
+      "-showSearch", "NO", "-showFooter", "NO", "-popupPosition", position,
+      "-openPreviewAutomatically", "NO"
+    ])
+    app.launch()
+    copyToClipboard(copy2)
+    copyToClipboard(copy1)
+    pasteTarget.activate()
+  }
+
+  private func postKey(_ keyCode: Int) {
+    let source = CGEventSource(stateID: .privateState)
+    for down in [true, false] {
+      let event = CGEvent(keyboardEventSource: source, virtualKey: CGKeyCode(keyCode), keyDown: down)
+      event?.flags = []
+      event?.post(tap: .cghidEventTap)
+    }
+  }
+
   private func popUpWithHotkey() {
     simulatePopupHotkey()
     waitUntilPoppedUp()
@@ -549,6 +755,10 @@ class MaccyUITests: XCTestCase {
   // KeyboardShortcuts persists JSON strings in UserDefaults.standard. Passing them
   // as launch arguments places them in the isolated, higher-priority NSArgumentDomain.
   private func setKeyboardShortcut(_ name: String, keyCode: Int, modifiers: Int) {
+    if name == "popup" { popupKeyCode = keyCode }
+    if let index = app.launchArguments.firstIndex(of: "-KeyboardShortcuts_\(name)") {
+      app.launchArguments.removeSubrange(index...index + 1)
+    }
     app.launchArguments.append(contentsOf: [
       "-KeyboardShortcuts_\(name)",
       #""{\"carbonKeyCode\":\#(keyCode),\"carbonModifiers\":\#(modifiers)}""#
@@ -597,7 +807,7 @@ class MaccyUITests: XCTestCase {
   }
 
   private func pressStatusItemViaAccessibility() {
-    let pid = NSRunningApplication.runningApplications(withBundleIdentifier: "org.p0deje.Maccy")
+    let pid = NSRunningApplication.runningApplications(withBundleIdentifier: "uk.co.mzbali.MaccyDev")
       .max { ($0.launchDate ?? .distantPast) < ($1.launchDate ?? .distantPast) }?
       .processIdentifier
     guard let pid else {
@@ -653,8 +863,8 @@ class MaccyUITests: XCTestCase {
       keyboardEventSource: nil, virtualKey: CGKeyCode(kVK_Shift), keyDown: false)!
     shiftDown.flags = [.maskCommand]
     shiftUp.flags = [.maskCommand]
-    let cDown = CGEvent(keyboardEventSource: nil, virtualKey: CGKeyCode(kVK_ANSI_C), keyDown: true)!
-    let cUp = CGEvent(keyboardEventSource: nil, virtualKey: CGKeyCode(kVK_ANSI_C), keyDown: false)!
+    let cDown = CGEvent(keyboardEventSource: nil, virtualKey: CGKeyCode(popupKeyCode), keyDown: true)!
+    let cUp = CGEvent(keyboardEventSource: nil, virtualKey: CGKeyCode(popupKeyCode), keyDown: false)!
     cDown.flags = [.maskCommand, .maskShift]
     cUp.flags = [.maskCommand, .maskShift]
     commandDown.post(tap: .cghidEventTap)

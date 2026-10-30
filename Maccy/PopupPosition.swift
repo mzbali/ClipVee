@@ -8,6 +8,7 @@ enum PopupPosition: String, CaseIterable, Identifiable, CustomStringConvertible,
   case window
   case center
   case lastPosition
+  case bottomRight
 
   var id: Self { self }
 
@@ -23,11 +24,17 @@ enum PopupPosition: String, CaseIterable, Identifiable, CustomStringConvertible,
       return NSLocalizedString("PopupAtScreenCenter", tableName: "AppearanceSettings", comment: "")
     case .lastPosition:
       return NSLocalizedString("PopupAtLastPosition", tableName: "AppearanceSettings", comment: "")
+    case .bottomRight:
+      return NSLocalizedString("PopupAtBottomRight", tableName: "AppearanceSettings", comment: "")
     }
   }
 
   func origin(size: NSSize, statusBarButton: NSStatusBarButton?) -> NSPoint {
     switch self {
+    case .bottomRight:
+      if let frame = NSScreen.forPopup?.visibleFrame {
+        return NSPoint(x: max(frame.minX, frame.maxX - size.width - 20), y: frame.minY + 20)
+      }
     case .center:
       if let frame = NSScreen.forPopup?.visibleFrame {
         return NSRect.centered(ofSize: size, in: frame).origin

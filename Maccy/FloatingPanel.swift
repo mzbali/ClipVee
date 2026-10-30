@@ -7,6 +7,11 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
   var isPresented: Bool = false
   var statusBarButton: NSStatusBarButton?
   let onClose: () -> Void
+  private var localMouseMonitor: Any?
+  private var globalMouseMonitor: Any?
+  private var menuObservers: [NSObjectProtocol] = []
+  private var menuTrackingDepth = 0
+  private var presentationPosition: PopupPosition = .bottomRight
 
   override var isMovable: Bool {
     get { Defaults[.popupPosition] != .statusItem }
@@ -83,6 +88,7 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
   }
 
   func open(height: CGFloat, at popupPosition: PopupPosition = Defaults[.popupPosition]) {
+    presentationPosition = popupPosition
     let size = Defaults[.windowSize]
     let miniumHeight: CGFloat = AppState.shared.popup.minimumHeight
     let finalWidth = min(frame.width, size.width)
@@ -92,6 +98,7 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
     orderFrontRegardless()
     makeKey()
     isPresented = true
+    monitorOutsideClicks()
 
     if popupPosition == .statusItem {
       DispatchQueue.main.async {
@@ -104,7 +111,9 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
     var newSize = frame.size
     newSize.height = newHeight
     var newOrigin = frame.origin
-    newOrigin.y += (frame.height - newSize.height)
+    if presentationPosition != .bottomRight {
+      newOrigin.y += (frame.height - newSize.height)
+    }
 
     NSAnimationContext.runAnimationGroup { (context) in
       context.duration = 0.2
@@ -210,12 +219,13 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
   override func resignKey() {
     super.resignKey()
     // Don't hide while a modal interaction from this panel is active.
-    if NSApp.alertWindow == nil && !AppState.shared.suppressPopupAutoClose {
+    if NSApp.alertWindow == nil && menuTrackingDepth == 0 && !AppState.shared.suppressPopupAutoClose {
       close()
     }
   }
 
   override func close() {
+    stopMonitoringOutsideClicks()
     super.close()
     let appState = AppState.shared
     appState.preview.state = .closed
@@ -225,6 +235,53 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
     isPresented = false
     statusBarButton?.isHighlighted = false
     onClose()
+  }
+
+  private func monitorOutsideClicks() {
+    stopMonitoringOutsideClicks()
+    let center = NotificationCenter.default
+    menuObservers = [
+      center.addObserver(forName: NSMenu.didBeginTrackingNotification, object: nil, queue: .main) { [weak self] _ in
+        MainActor.assumeIsolated { self?.menuTrackingDepth += 1 }
+      },
+      center.addObserver(forName: NSMenu.didEndTrackingNotification, object: nil, queue: .main) { [weak self] _ in
+        MainActor.assumeIsolated {
+          guard let self else { return }
+          self.menuTrackingDepth = max(0, self.menuTrackingDepth - 1)
+        }
+      }
+    ]
+    let mouseDown: NSEvent.EventTypeMask = [.leftMouseDown, .rightMouseDown, .otherMouseDown]
+    localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: mouseDown) { [weak self] event in
+      self?.dismissIfOutside(at: NSEvent.mouseLocation)
+      return event
+    }
+    globalMouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: mouseDown) { [weak self] _ in
+      self?.dismissIfOutside(at: NSEvent.mouseLocation)
+    }
+  }
+
+  // A nonactivating panel can stay visible without receiving resignKey.
+  // Observe the click itself as well, without consuming it from the target app.
+  func dismissIfOutside(at location: NSPoint) {
+    guard isPresented, menuTrackingDepth == 0, !frame.contains(location),
+          NSApp.alertWindow == nil,
+          !AppState.shared.suppressPopupAutoClose else { return }
+    close()
+  }
+
+  private func stopMonitoringOutsideClicks() {
+    menuObservers.forEach(NotificationCenter.default.removeObserver)
+    menuObservers.removeAll()
+    menuTrackingDepth = 0
+    if let localMouseMonitor {
+      NSEvent.removeMonitor(localMouseMonitor)
+      self.localMouseMonitor = nil
+    }
+    if let globalMouseMonitor {
+      NSEvent.removeMonitor(globalMouseMonitor)
+      self.globalMouseMonitor = nil
+    }
   }
 
   // Allow text inputs inside the panel can receive focus

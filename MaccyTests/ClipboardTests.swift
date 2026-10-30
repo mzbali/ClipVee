@@ -7,8 +7,8 @@ extension SharedStateTests {
   // swiftlint:disable type_body_length
   @MainActor
   final class ClipboardTests {
-    let clipboard = Clipboard.shared
-    let pasteboard = NSPasteboard.general
+    let pasteboard: NSPasteboard
+    let clipboard: Clipboard
     let image: NSImage
     let coloredString = NSAttributedString(string: "foo",
                                            attributes: [.foregroundColor: NSColor.red])
@@ -30,6 +30,9 @@ extension SharedStateTests {
     let savedIgnoredPasteboardTypes = Defaults[.ignoredPasteboardTypes]
 
     init() throws {
+      let pasteboard = NSPasteboard.withUniqueName()
+      self.pasteboard = pasteboard
+      self.clipboard = Clipboard(pasteboard: pasteboard)
       image = try #require(NSImage(named: "NSInfo"))
       Defaults[.ignoreAllAppsExceptListed] = false
       Defaults[.ignoreEvents] = false
@@ -305,6 +308,10 @@ extension SharedStateTests {
       var copies: [HistoryItem] = []
       clipboard.onNewCopy { copies.append($0) }
       clipboard.start()
+      defer {
+        clipboard.stop()
+        pasteboard.releaseGlobally()
+      }
       trigger()
       let deadline = ContinuousClock.now + .seconds(2)
       while (!expectingCopy || copies.isEmpty) && ContinuousClock.now < deadline {

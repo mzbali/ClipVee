@@ -145,9 +145,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       Defaults.reset(.migrations)
 
       // Inverse hide* configuration keys.
-      Defaults[.showFooter] = !UserDefaults.standard.bool(forKey: "hideFooter")
-      Defaults[.showSearch] = !UserDefaults.standard.bool(forKey: "hideSearch")
-      Defaults[.showTitle] = !UserDefaults.standard.bool(forKey: "hideTitle")
+      // A fresh install has no legacy keys: retain this fork's defaults.
+      if let hidden = UserDefaults.standard.object(forKey: "hideFooter") as? Bool {
+        Defaults[.showFooter] = !hidden
+      }
+      if let hidden = UserDefaults.standard.object(forKey: "hideSearch") as? Bool {
+        Defaults[.showSearch] = !hidden
+      }
+      if let hidden = UserDefaults.standard.object(forKey: "hideTitle") as? Bool {
+        Defaults[.showTitle] = !hidden
+      }
       UserDefaults.standard.removeObject(forKey: "hideFooter")
       UserDefaults.standard.removeObject(forKey: "hideSearch")
       UserDefaults.standard.removeObject(forKey: "hideTitle")

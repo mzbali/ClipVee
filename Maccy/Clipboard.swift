@@ -10,7 +10,7 @@ class Clipboard {
   private var onNewCopyHooks: [OnNewCopyHook] = []
   var changeCount: Int
 
-  private let pasteboard = NSPasteboard.general
+  private let pasteboard: NSPasteboard
 
   private var timer: Timer?
 
@@ -39,7 +39,8 @@ class Clipboard {
 
   private var sourceApp: NSRunningApplication? { NSWorkspace.shared.frontmostApplication }
 
-  init() {
+  init(pasteboard: NSPasteboard = .general) {
+    self.pasteboard = pasteboard
     changeCount = pasteboard.changeCount
   }
 
@@ -52,6 +53,7 @@ class Clipboard {
   }
 
   func start() {
+    stop()
     timer = Timer.scheduledTimer(
       timeInterval: Defaults[.clipboardCheckInterval],
       target: self,
@@ -62,8 +64,12 @@ class Clipboard {
   }
 
   func restart() {
-    timer?.invalidate()
     start()
+  }
+
+  func stop() {
+    timer?.invalidate()
+    timer = nil
   }
 
   func isPersistable(_ type: NSPasteboard.PasteboardType) -> Bool {
@@ -121,7 +127,7 @@ class Clipboard {
 
   // Based on https://github.com/Clipy/Clipy/blob/develop/Clipy/Sources/Services/PasteService.swift.
   func paste() {
-    Accessibility.check()
+    guard Accessibility.check() else { return }
 
     // Add flag that left/right modifier key has been pressed.
     // See https://github.com/TermiT/Flycut/pull/18 for details.

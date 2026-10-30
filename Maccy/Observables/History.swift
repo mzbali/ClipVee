@@ -235,7 +235,7 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
   }
 
   @MainActor
-  func clear() {
+  func clear(dismissPopup: Bool = true) {
     withLogging("Clearing history") {
       allUnpinnedItems.forEach(cleanup)
       allUnpinnedItems.removeAll()
@@ -257,7 +257,7 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
     }
 
     Clipboard.shared.clear()
-    AppState.shared.popup.close()
+    if dismissPopup { AppState.shared.popup.close() }
     Task {
       AppState.shared.popup.needsResize = true
     }

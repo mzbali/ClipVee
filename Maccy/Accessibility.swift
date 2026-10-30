@@ -1,11 +1,9 @@
 import AppKit
+@preconcurrency import ApplicationServices
 
 struct Accessibility {
-  private static var allowed: Bool { AXIsProcessTrustedWithOptions(nil) }
-
-  static func check() {
-    guard !allowed else {
-      return
-    }
+  static func check() -> Bool {
+    let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
+    return AXIsProcessTrustedWithOptions(options as CFDictionary)
   }
 }

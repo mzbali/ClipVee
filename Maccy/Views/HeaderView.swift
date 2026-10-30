@@ -3,48 +3,53 @@ import SwiftUI
 
 struct HeaderView: View {
   @State private var appState = AppState.shared
+  @State private var confirmClear = false
 
   let controller: SlideoutController
   @FocusState.Binding var searchFocused: Bool
 
-  var previewPlacement: SlideoutPlacement {
-    return controller.placement
-  }
-
   var body: some View {
-    HStack(alignment: .top, spacing: 0) {
-      HStack(alignment: .center, spacing: 0) {
-        ListHeaderView(
-          searchFocused: $searchFocused,
-          searchQuery: $appState.history.searchQuery
-        )
-        .padding(.horizontal, Popup.horizontalPadding)
-
-        ToolbarButton {
-          controller.togglePreview()
-        } label: {
-          Image(
-            systemName: previewPlacement == .right
-              ? "sidebar.left" : "sidebar.right"
-          )
+    VStack(spacing: 10) {
+      HStack(spacing: 8) {
+        Image(systemName: "clipboard")
+          .foregroundStyle(.secondary)
+        Text("Clipboard")
+          .font(.system(size: 14, weight: .semibold))
+        Spacer()
+        Button("Clear all") { confirmClear = true }
+          .font(.system(size: 11))
+          .buttonStyle(.borderless)
+          .disabled(appState.history.unpinnedItems.isEmpty)
+        Button { appState.openPreferences() } label: {
+          Image(systemName: "gearshape")
         }
-        .shortcutKeyHelp(
-          name: .togglePreview,
-          key: controller.state.isOpen ? "ClosePreview" : "OpenPreview",
-          tableName: "PreviewItemView",
-          replacementKey: "previewKey"
-        )
-        .padding(.trailing, Popup.horizontalPadding)
+        .help("Settings")
+        .accessibilityLabel("Clipboard settings")
+        Button { appState.popup.close() } label: {
+          Image(systemName: "xmark")
+        }
+        .help("Close")
+        .accessibilityLabel("Close clipboard")
+        .accessibilityIdentifier("close-clipboard")
       }
-      .opacity(appState.searchVisible ? 1 : 0)
-      .accessibilityHidden(!appState.searchVisible)
-      .layoutPriority(1)
+      .buttonStyle(.borderless)
+      .font(.system(size: 12))
+      .padding(.horizontal, 6)
+
+      ListHeaderView(searchFocused: $searchFocused, searchQuery: $appState.history.searchQuery)
+        .opacity(appState.searchVisible ? 1 : 0)
+        .accessibilityHidden(!appState.searchVisible)
+        .frame(maxHeight: appState.searchVisible ? nil : 0)
     }
-    .padding(.top, Popup.verticalPadding)
-    .padding(.horizontal, 10)
-    .animation(.default.speed(3), value: appState.navigator.leadSelection)
-    .background(.clear)
-    .frame(maxHeight: !appState.searchVisible ? 0 : nil, alignment: .top)
+    .padding(.horizontal, 12)
+    .padding(.top, 14)
+    .padding(.bottom, 8)
     .readHeight(appState, into: \.popup.headerHeight)
+    .alert("Clear clipboard history?", isPresented: $confirmClear) {
+      Button("Cancel", role: .cancel) { }
+      Button("Clear", role: .destructive) { appState.history.clear(dismissPopup: false) }
+    } message: {
+      Text("Pinned items will be kept.")
+    }
   }
 }
