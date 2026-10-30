@@ -1,8 +1,7 @@
 import SwiftUI
 import Defaults
-import Settings
 
-struct StorageSettingsPane: View {
+struct HistorySettingsPane: View {
   @Observable
   class ViewModel {
     var saveFiles = false {
@@ -70,63 +69,60 @@ struct StorageSettingsPane: View {
   }()
 
   var body: some View {
-    Settings.Container(contentWidth: 450) {
-      Settings.Section(
-        bottomDivider: true,
-        label: { Text("Save", tableName: "StorageSettings") }
-      ) {
-        Toggle(
-          isOn: $viewModel.saveFiles,
-          label: { Text("Files", tableName: "StorageSettings") }
-        )
-        Toggle(
-          isOn: $viewModel.saveImages,
-          label: { Text("Images", tableName: "StorageSettings") }
-        )
-        Toggle(
-          isOn: $viewModel.saveText,
-          label: { Text("Text", tableName: "StorageSettings") }
-        )
-        Text("SaveDescription", tableName: "StorageSettings")
-          .controlSize(.small)
-          .foregroundStyle(.gray)
+    SettingsPageView(title: "History") {
+      SettingsSectionHeader("Keep")
+      SettingsCard(icon: "doc.plaintext", title: "Text") {
+        Toggle("Text", isOn: $viewModel.saveText)
+      }
+      SettingsCard(icon: "photo", title: "Images", description: "Including screenshots copied to the clipboard.") {
+        Toggle("Images", isOn: $viewModel.saveImages)
+      }
+      SettingsCard(icon: "folder", title: "Files", description: "Files copied in Finder.") {
+        Toggle("Files", isOn: $viewModel.saveFiles)
       }
 
-      Settings.Section(label: { Text("Size", tableName: "StorageSettings") }) {
-        HStack {
-          TextField("", value: $size, formatter: sizeFormatter)
-            .frame(width: 80)
-            .help(Text("SizeTooltip", tableName: "StorageSettings"))
-            .accessibilityLabel(Text("Size", tableName: "StorageSettings"))
-          Stepper("", value: $size, in: 1...999)
-            .labelsHidden()
-            .accessibilityLabel(Text("Size", tableName: "StorageSettings"))
-          Text(storageSize)
-            .controlSize(.small)
-            .foregroundStyle(.gray)
-            .help(Text("CurrentSizeTooltip", tableName: "StorageSettings"))
-            .onAppear {
-              storageSize = Storage.shared.size
-            }
+      SettingsSectionHeader("Size")
+      SettingsCard(
+        icon: "number",
+        title: "Items to keep",
+        description: "Pinned items don't count. Using \(storageSize) on disk."
+      ) {
+        HStack(spacing: 4) {
+          TextField("Items to keep", value: $size, formatter: sizeFormatter)
+            .frame(width: 50)
+            .multilineTextAlignment(.trailing)
+          Stepper("Items to keep", value: $size, in: 1...999)
         }
       }
-
-      Settings.Section(label: { Text("SortBy", tableName: "StorageSettings") }) {
-        Picker("", selection: $sortBy) {
+      SettingsCard(icon: "arrow.up.arrow.down", title: "Sort by") {
+        Picker("Sort by", selection: $sortBy) {
           ForEach(Sorter.By.allCases) { mode in
             Text(mode.description)
           }
         }
-        .labelsHidden()
-        .frame(width: 160, alignment: .leading)
-        .help(Text("SortByTooltip", tableName: "StorageSettings"))
-        .accessibilityLabel(Text("SortBy", tableName: "StorageSettings"))
+        .fixedSize()
+      }
+
+      SettingsSectionHeader("Clearing")
+      SettingsCard(
+        icon: "trash",
+        title: "Clear history on quit",
+        description: "Remove all unpinned items when ClipVee quits."
+      ) {
+        Defaults.Toggle("Clear history on quit", key: .clearOnQuit)
+      }
+      SettingsCard(
+        icon: "clipboard",
+        title: "Clear the system clipboard too",
+        description: "Clear all also empties what Command-V would paste."
+      ) {
+        Defaults.Toggle("Clear the system clipboard too", key: .clearSystemClipboard)
       }
     }
+    .onAppear { storageSize = Storage.shared.size }
   }
 }
 
 #Preview {
-  StorageSettingsPane()
-    .environment(\.locale, .init(identifier: "en"))
+  HistorySettingsPane()
 }

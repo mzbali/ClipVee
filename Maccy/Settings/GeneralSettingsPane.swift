@@ -1,8 +1,6 @@
 import SwiftUI
 import Defaults
-import KeyboardShortcuts
 import LaunchAtLogin
-import Settings
 
 struct GeneralSettingsPane: View {
   private let notificationsURL = URL(
@@ -11,120 +9,66 @@ struct GeneralSettingsPane: View {
 
   @Default(.searchMode) private var searchMode
 
-  @State private var copyModifier = HistoryItemAction.copy.modifierFlags.description
-  @State private var pasteModifier = HistoryItemAction.paste.modifierFlags.description
-  @State private var pasteWithoutFormatting = HistoryItemAction.pasteWithoutFormatting.modifierFlags.description
-
   @State private var updater = SoftwareUpdater()
 
   var body: some View {
-    Settings.Container(contentWidth: 450) {
-      Settings.Section(title: "", bottomDivider: true) {
-        LaunchAtLogin.Toggle {
-          Text("LaunchAtLogin", tableName: "GeneralSettings")
-        }
-        if SoftwareUpdater.isAvailable {
-          Toggle(isOn: $updater.automaticallyChecksForUpdates) {
-            Text("CheckForUpdates", tableName: "GeneralSettings")
+    SettingsPageView(title: "General") {
+      SettingsCard(icon: "power", title: "Launch at login") {
+        LaunchAtLogin.Toggle { Text("Launch at login") }
+      }
+      if SoftwareUpdater.isAvailable {
+        SettingsCard(icon: "arrow.down.circle", title: "Check for updates automatically") {
+          HStack {
+            Button("Check now") { updater.checkForUpdates() }
+            Toggle("Check for updates automatically", isOn: $updater.automaticallyChecksForUpdates)
           }
-          Button(
-            action: { updater.checkForUpdates() },
-            label: { Text("CheckNow", tableName: "GeneralSettings") }
-          )
         }
       }
 
-      Settings.Section(label: { Text("Open", tableName: "GeneralSettings") }) {
-        KeyboardShortcuts.Recorder(for: .popup, onChange: { newShortcut in
-          if newShortcut == nil {
-            // No shortcut is recorded. Remove keys monitor
-            AppState.shared.popup.deinitEventsMonitor()
-          } else {
-            // User is using shortcut. Ensure keys monitor is initialized
-            AppState.shared.popup.initEventsMonitor()
-          }
-        })
-          .help(Text("OpenTooltip", tableName: "GeneralSettings"))
-          .accessibilityLabel(Text("Open", tableName: "GeneralSettings"))
+      SettingsSectionHeader("Pasting")
+      SettingsCard(
+        icon: "doc.on.clipboard",
+        title: "Paste automatically",
+        description: "Return or a click pastes into the app you were using. When off, it only copies."
+      ) {
+        Defaults.Toggle("Paste automatically", key: .pasteByDefault)
+      }
+      SettingsCard(
+        icon: "textformat",
+        title: "Paste as plain text",
+        description: "Remove fonts, colours and links when pasting."
+      ) {
+        Defaults.Toggle("Paste as plain text", key: .removeFormattingByDefault)
       }
 
-      Settings.Section(label: { Text("Pin", tableName: "GeneralSettings") }) {
-        KeyboardShortcuts.Recorder(for: .pin)
-          .help(Text("PinTooltip", tableName: "GeneralSettings"))
-          .accessibilityLabel(Text("Pin", tableName: "GeneralSettings"))
-      }
-      Settings.Section(label: { Text("Delete", tableName: "GeneralSettings") }
+      SettingsSectionHeader("Search")
+      SettingsCard(
+        icon: "magnifyingglass",
+        title: "Matching",
+        description: "How typing in the panel finds items."
       ) {
-        KeyboardShortcuts.Recorder(for: .delete)
-          .help(Text("DeleteTooltip", tableName: "GeneralSettings"))
-          .accessibilityLabel(Text("Delete", tableName: "GeneralSettings"))
-      }
-      Settings.Section(
-        bottomDivider: true,
-        label: { Text("ShowPreview", tableName: "GeneralSettings") }
-      ) {
-        KeyboardShortcuts.Recorder(for: .togglePreview)
-          .help(Text("ShowPreviewTooltip", tableName: "GeneralSettings"))
-          .accessibilityLabel(Text("ShowPreview", tableName: "GeneralSettings"))
-      }
-
-      Settings.Section(
-        bottomDivider: true,
-        label: { Text("Search", tableName: "GeneralSettings") }
-      ) {
-        Picker("", selection: $searchMode) {
+        Picker("Matching", selection: $searchMode) {
           ForEach(Search.Mode.allCases) { mode in
             Text(mode.description)
           }
         }
-        .labelsHidden()
-        .accessibilityLabel(Text("Search", tableName: "GeneralSettings"))
-        .frame(width: 180, alignment: .leading)
+        .fixedSize()
       }
 
-      Settings.Section(
-        bottomDivider: true,
-        label: { Text("Behavior", tableName: "GeneralSettings") }
-      ) {
-        Defaults.Toggle(key: .pasteByDefault) {
-          Text("PasteAutomatically", tableName: "GeneralSettings")
-        }
-        .onChange(refreshModifiers)
-        .fixedSize()
-
-        Defaults.Toggle(key: .removeFormattingByDefault) {
-          Text("PasteWithoutFormatting", tableName: "GeneralSettings")
-        }
-        .onChange(refreshModifiers)
-        .fixedSize()
-
-        Text(String(
-          format: NSLocalizedString("Modifiers", tableName: "GeneralSettings", comment: ""),
-          copyModifier, pasteModifier, pasteWithoutFormatting
-        ))
-        .fixedSize(horizontal: false, vertical: true)
-        .foregroundStyle(.gray)
-        .controlSize(.small)
-      }
-
-      Settings.Section(title: "") {
-        if let notificationsURL = notificationsURL {
-          Link(destination: notificationsURL, label: {
-            Text("NotificationsAndSounds", tableName: "GeneralSettings")
-          })
+      if let notificationsURL {
+        SettingsSectionHeader("Notifications")
+        SettingsCard(
+          icon: "bell",
+          title: "Notifications and sounds",
+          description: "Managed in System Settings."
+        ) {
+          Link("Open", destination: notificationsURL)
         }
       }
     }
-  }
-
-  private func refreshModifiers(_ sender: Sendable) {
-    copyModifier = HistoryItemAction.copy.modifierFlags.description
-    pasteModifier = HistoryItemAction.paste.modifierFlags.description
-    pasteWithoutFormatting = HistoryItemAction.pasteWithoutFormatting.modifierFlags.description
   }
 }
 
 #Preview {
   GeneralSettingsPane()
-    .environment(\.locale, .init(identifier: "en"))
 }
