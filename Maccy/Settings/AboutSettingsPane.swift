@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct AboutSettingsPane: View {
-  private let sourceURL = URL(string: "https://github.com/mzbali/Maccy")!
+  private let sourceURL = URL(string: "https://github.com/mzbali/ClipVee")!
   private let maccyURL = URL(string: "https://maccy.app")!
-  private let licenseURL = URL(string: "https://github.com/mzbali/Maccy/blob/clipboard-panel/LICENSE")!
+  private let licenseURL = URL(string: "https://github.com/mzbali/ClipVee/blob/clipboard-panel/LICENSE")!
 
   private var version: String {
     let info = Bundle.main.infoDictionary

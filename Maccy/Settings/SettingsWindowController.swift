@@ -34,7 +34,14 @@ enum SettingsPage: String, CaseIterable, Identifiable {
   }
 }
 
+@Observable
+final class SettingsNavigation {
+  var page: SettingsPage = .general
+}
+
 final class SettingsWindowController: NSWindowController {
+  private let navigation = SettingsNavigation()
+
   convenience init() {
     let window = NSWindow(
       contentRect: NSRect(x: 0, y: 0, width: 720, height: 540),
@@ -46,12 +53,15 @@ final class SettingsWindowController: NSWindowController {
     window.titleVisibility = .hidden
     window.titlebarAppearsTransparent = true
     window.isReleasedWhenClosed = false
-    window.contentViewController = NSHostingController(rootView: SettingsView())
-    window.center()
     self.init(window: window)
+    window.contentViewController = NSHostingController(rootView: SettingsView(navigation: navigation))
+    window.center()
   }
 
-  func show() {
+  func show(_ page: SettingsPage? = nil) {
+    if let page {
+      navigation.page = page
+    }
     NSApp.activate()
     showWindow(nil)
     window?.makeKeyAndOrderFront(nil)
@@ -59,14 +69,14 @@ final class SettingsWindowController: NSWindowController {
 }
 
 struct SettingsView: View {
-  @State private var page: SettingsPage = .general
+  @Bindable var navigation: SettingsNavigation
 
   var body: some View {
     HStack(spacing: 0) {
       sidebar
       Divider()
       Group {
-        switch page {
+        switch navigation.page {
         case .general: GeneralSettingsPane()
         case .panel: PanelSettingsPane()
         case .history: HistorySettingsPane()
@@ -96,7 +106,7 @@ struct SettingsView: View {
       .padding(.bottom, 12)
 
       ForEach(SettingsPage.allCases) { item in
-        SidebarRow(page: item, isSelected: page == item) { page = item }
+        SidebarRow(page: item, isSelected: navigation.page == item) { navigation.page = item }
       }
       Spacer()
     }

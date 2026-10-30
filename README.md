@@ -1,4 +1,4 @@
-# Maccy clipboard panel
+# ClipVee
 
 A personal fork of [Maccy 2.8.0](https://github.com/p0deje/Maccy/tree/2.8.0), with a macOS clipboard panel inspired by Windows 11 clipboard history.
 
@@ -21,9 +21,9 @@ Requires macOS 14 or later and full Xcode. Build locally:
 MACCY_SIGN_IDENTITY='<your Apple Development signing identity>' ./scripts/build-local.sh
 ```
 
-The output is `.build/DerivedData/Build/Products/Debug/Maccy Dev.app`. Quit any running copy, then copy this app to `/Applications` and open it. Enable **Maccy Dev** in System Settings → Privacy & Security → Accessibility for direct paste. Use the same signing identity for later builds so permissions remain valid. Omitting the identity produces an ad-hoc build, which may require granting Accessibility again after rebuilding.
+The output is `.build/DerivedData/Build/Products/Debug/ClipVee.app`. Quit any running copy, then copy this app to `/Applications` and open it. Enable **ClipVee** in System Settings → Privacy & Security → Accessibility for direct paste. Use the same signing identity for later builds so permissions remain valid. Omitting the identity produces an ad-hoc build, which may require granting Accessibility again after rebuilding.
 
-This fork uses the separate bundle identifier `uk.co.mzbali.MaccyDev`. Its settings and history are separate from official Maccy. Run only one clipboard manager with Command–Shift–V registered at a time.
+This fork uses the separate bundle identifier `uk.co.mzbali.ClipVee`. Its settings and history are separate from official Maccy; `scripts/migrate-history.sh` copies them over. Run only one clipboard manager with Command–Shift–V registered at a time.
 
 This is a local development build, without a notarized release or automatic updates. Homebrew's `maccy` package installs the original app. Build this repository to use this version.
 

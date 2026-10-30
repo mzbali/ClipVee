@@ -1,4 +1,4 @@
-# Maccy clipboard panel fork
+# ClipVee local development
 
 Based on [Maccy 2.8.0](https://github.com/p0deje/Maccy/tree/2.8.0), under its MIT license.
 This fork keeps clipboard capture and persistence, with a compact macOS panel inspired by Windows clipboard history.
@@ -23,16 +23,16 @@ Full Xcode is required. The script selects Xcode for this process without changi
 ./scripts/build-local.sh
 ```
 
-Output: `.build/DerivedData/Build/Products/Debug/Maccy Dev.app`.
-The app uses `uk.co.mzbali.MaccyDev`, with separate preferences and sandbox storage from official Maccy.
-It does not overwrite `/Applications/Maccy.app`, migrate its history, or use the official Sparkle update feed.
+Output: `.build/DerivedData/Build/Products/Debug/ClipVee.app`.
+The app uses `uk.co.mzbali.ClipVee`, with separate preferences and sandbox storage from official Maccy.
+It does not overwrite `/Applications/Maccy.app` or use the official Sparkle update feed. To bring over history and settings from Maccy, quit both apps and run `scripts/migrate-history.sh` (pass a bundle identifier to copy from another build).
 Updates to this development fork are manual builds.
 
 Builds are ad-hoc signed by default. For a consistent local signing identity across rebuilds, set `MACCY_SIGN_IDENTITY` to an existing Apple Development certificate. Do not commit a certificate, private key, clipboard contents, or local test artifacts.
 
-Direct paste requires Accessibility permission for **Maccy Dev**. Only run one app with Command–Shift–V registered at a time.
+Direct paste requires Accessibility permission for **ClipVee**. Only run one app with Command–Shift–V registered at a time.
 
-If Accessibility shows an enabled switch but the runner still reports no access, an earlier ad-hoc build may have a stale grant. Remove that entry in System Settings, then add the current signed app from the output folder above. Add **Maccy Dev.app** separately. Keep using the same signing identity for subsequent builds.
+If Accessibility shows an enabled switch but the runner still reports no access, an earlier ad-hoc build may have a stale grant. Remove that entry in System Settings, then add the current signed app from the output folder above. Add **ClipVee.app** separately. Keep using the same signing identity for subsequent builds.
 
 ## Validation
 
@@ -59,7 +59,7 @@ After the build, run the focused global-input tests with the same command, repla
 
 The focused tests use Command–Shift–V with isolated test preferences; legacy UI tests use Command–Shift–C. The runner posts global keyboard events and verifies the destination editor's text or image attachments. Their success does not replace acceptance with a physical keyboard and direct image paste in the user's development apps.
 
-To check the installed copy rather than the build output, prefix the command with `TEST_RUNNER_MACCY_UI_APP_PATH='/Applications/Maccy Dev.app'` and run `testInstalledKeyboardPasteWithoutInspectingPopup` plus `testImageCardPastesIntoOriginatingApp`. The installed-app test checks the actual running bundle path before sending global keys. Test history/preferences remain isolated.
+To check the installed copy rather than the build output, prefix the command with `TEST_RUNNER_MACCY_UI_APP_PATH='/Applications/ClipVee.app'` and run `testInstalledKeyboardPasteWithoutInspectingPopup` plus `testImageCardPastesIntoOriginatingApp`. The installed-app test checks the actual running bundle path before sending global keys. Test history/preferences remain isolated.
 
 ## Windows behaviour reference
 
@@ -86,4 +86,4 @@ The local application is installed as **Maccy Dev** in `/Applications`. The offi
 
 The UI runner's Accessibility grant was intentionally revoked after acceptance; only **Maccy Dev** retains the clipboard app's permission. Future desktop testing requires rebuilding the test apps and explicitly granting the runner access again. The historical result paths above describe completed runs; those artifacts are no longer in `.build`.
 
-Source is maintained in [mzbali/Maccy](https://github.com/mzbali/Maccy), on the `clipboard-panel` branch. Updates are local builds; there is no automatic updater or notarized release.
+Source is maintained in [mzbali/ClipVee](https://github.com/mzbali/ClipVee), on the `clipboard-panel` branch. Updates are local builds; there is no automatic updater or notarized release.

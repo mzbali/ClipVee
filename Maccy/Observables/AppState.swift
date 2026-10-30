@@ -36,7 +36,6 @@ class AppState: Sendable {
     return title.shortened(to: 20)
   }
 
-  private let about = About()
   private var settingsWindowController: SettingsWindowController?
 
   init(history: History, footer: Footer) {
@@ -114,16 +113,17 @@ class AppState: Sendable {
     history.delete(item)
   }
 
+  @MainActor
   func openAbout() {
-    about.openAbout(nil)
+    openPreferences(.about)
   }
 
   @MainActor
-  func openPreferences() {
+  func openPreferences(_ page: SettingsPage? = nil) {
     if settingsWindowController == nil {
       settingsWindowController = SettingsWindowController()
     }
-    settingsWindowController?.show()
+    settingsWindowController?.show(page)
   }
 
   func quit() {

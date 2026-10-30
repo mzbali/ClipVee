@@ -5,8 +5,8 @@ struct Select: AppIntent, CustomIntentMigratedAppIntent {
 
   static let title: LocalizedStringResource = "Select Item in Clipboard History"
   static let description = IntentDescription("""
-  Selects an item in Maccy clipboard history.
-  Depending on Maccy settings, it might trigger pasting of the selected item.
+  Selects an item in ClipVee clipboard history.
+  Depending on ClipVee settings, it might trigger pasting of the selected item.
   """)
 
   static var parameterSummary: some ParameterSummary {

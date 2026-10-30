@@ -615,8 +615,8 @@ class MaccyUITests: XCTestCase {
 
   func testInstalledKeyboardPasteWithoutInspectingPopup() {
     let path = ProcessInfo.processInfo.environment["MACCY_UI_APP_PATH"]
-    XCTAssertEqual(path, "/Applications/Maccy Dev.app", "Run with TEST_RUNNER_MACCY_UI_APP_PATH set")
-    let running = NSRunningApplication.runningApplications(withBundleIdentifier: "uk.co.mzbali.MaccyDev")
+    XCTAssertEqual(path, "/Applications/ClipVee.app", "Run with TEST_RUNNER_MACCY_UI_APP_PATH set")
+    let running = NSRunningApplication.runningApplications(withBundleIdentifier: "uk.co.mzbali.ClipVee")
     XCTAssertEqual(running.first?.bundleURL?.path, path, "Must exercise the installed application")
     testKeyboardPasteWithoutInspectingPopup()
   }
@@ -807,7 +807,7 @@ class MaccyUITests: XCTestCase {
   }
 
   private func pressStatusItemViaAccessibility() {
-    let pid = NSRunningApplication.runningApplications(withBundleIdentifier: "uk.co.mzbali.MaccyDev")
+    let pid = NSRunningApplication.runningApplications(withBundleIdentifier: "uk.co.mzbali.ClipVee")
       .max { ($0.launchDate ?? .distantPast) < ($1.launchDate ?? .distantPast) }?
       .processIdentifier
     guard let pid else {
