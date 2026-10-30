@@ -6,7 +6,7 @@
 "PopupAtScreenCenter" = "Screen center";
 "PopupAtLastPosition" = "Last position";
 "PopupAtLastLocationReset" = "Reset position";
-"PopupAtTooltip" = "Change the location where popup appears.\nDefault: Cursor.";
+"PopupAtTooltip" = "Change the location where popup appears.\nDefault: Window center.";
 "SearchVisibilityAlways" = "Always";
 "SearchVisibilityDuringSearch" = "During search";
 "ActiveScreen" = "Active screen";

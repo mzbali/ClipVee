@@ -61,7 +61,12 @@ struct HistoryListView: View {
         guard appState.navigator.scrollTarget != nil else { return }
         try? await Task.sleep(for: .milliseconds(10))
         guard !Task.isCancelled, let target = appState.navigator.scrollTarget else { return }
-        proxy.scrollTo(target)
+        if pinTo == .top && target == appState.history.firstUnpinnedItem?.id {
+          // Show as many pins above the newest item as fit, rather than cutting them off.
+          proxy.scrollTo(target, anchor: .bottom)
+        } else {
+          proxy.scrollTo(target)
+        }
         appState.navigator.scrollTarget = nil
       }
       .onChange(of: scenePhase) {

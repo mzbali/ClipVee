@@ -80,6 +80,41 @@ extension SharedStateTests {
       #expect(try #require(itemDecorator.thumbnailImage).size == NSSize(width: 40, height: 40))
     }
 
+    @Test("Screenshot thumbnails decode at card size, and again after cleanup")
+    func screenshotThumbnails() async throws {
+      let itemDecorator = historyItemDecorator(try screenshotPNG(width: 2000, height: 1000), .png)
+
+      itemDecorator.ensureThumbnailImage()
+      _ = await itemDecorator.thumbnailImageGenerationTask?.result
+      #expect(itemDecorator.thumbnailImage?.size == NSSize(width: 80, height: 40))
+
+      itemDecorator.cleanupImages()
+      #expect(itemDecorator.thumbnailImage == nil)
+      itemDecorator.ensureThumbnailImage()
+      _ = await itemDecorator.thumbnailImageGenerationTask?.result
+      #expect(itemDecorator.thumbnailImage?.size == NSSize(width: 80, height: 40))
+    }
+
+    @Test("Thumbnail pixels are limited to the card size at the display scale")
+    func thumbnailPixelSize() throws {
+      let data = try screenshotPNG(width: 2000, height: 1000)
+      let thumbnail = try #require(
+        HistoryItemDecorator.thumbnail(from: data, fitting: NSSize(width: 340, height: 40), scale: 2)
+      )
+      #expect(thumbnail.width == 160)
+      #expect(thumbnail.height == 80)
+
+      let small = try #require(
+        HistoryItemDecorator.thumbnail(
+          from: try screenshotPNG(width: 30, height: 20),
+          fitting: NSSize(width: 340, height: 40),
+          scale: 2
+        )
+      )
+      #expect(small.width == 30)
+      #expect(small.height == 20)
+    }
+
     @Test("File", arguments: ["/tmp/foo.bar", "/tmp/产品培训/产品培训.txt"])
     func file(path: String) {
       let url = URL(fileURLWithPath: path)
@@ -215,6 +250,22 @@ extension SharedStateTests {
       item.numberOfCopies = 2
 
       return HistoryItemDecorator(item)
+    }
+
+    private func screenshotPNG(width: Int, height: Int) throws -> Data {
+      let bitmap = try #require(NSBitmapImageRep(
+        bitmapDataPlanes: nil,
+        pixelsWide: width,
+        pixelsHigh: height,
+        bitsPerSample: 8,
+        samplesPerPixel: 4,
+        hasAlpha: true,
+        isPlanar: false,
+        colorSpaceName: .deviceRGB,
+        bytesPerRow: 0,
+        bitsPerPixel: 0
+      ))
+      return try #require(bitmap.representation(using: .png, properties: [:]))
     }
 
     // swiftlint:disable:next identifier_name

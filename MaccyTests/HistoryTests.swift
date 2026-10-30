@@ -228,6 +228,30 @@ extension SharedStateTests {
       try assertStorageCounts(items: 1, contents: 1)
     }
 
+    @Test("Clearing from the open panel selects a remaining item")
+    func clearingKeepsValidSelection() {
+      let pinned = history.add(historyItem("foo"))
+      history.togglePin(pinned)
+      let unpinned = history.add(historyItem("bar"))
+      AppState.shared.navigator.select(item: unpinned)
+
+      history.clear(dismissPopup: false)
+
+      #expect(AppState.shared.navigator.leadHistoryItem == pinned)
+    }
+
+    @Test("Deleting the selected card selects its neighbour")
+    func deletingSelectedItemMovesSelection() {
+      let first = history.add(historyItem("foo"))
+      let second = history.add(historyItem("bar"))
+      AppState.shared.navigator.select(item: second)
+
+      AppState.shared.delete(second)
+
+      #expect(history.items.toArray() == [first])
+      #expect(AppState.shared.navigator.leadHistoryItem == first)
+    }
+
     @Test("Clearing all")
     func clearingAll() throws {
       history.add(historyItem("foo"))

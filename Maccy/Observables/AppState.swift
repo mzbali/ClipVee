@@ -106,6 +106,15 @@ class AppState: Sendable {
     }
   }
 
+  @MainActor
+  func delete(_ item: HistoryItemDecorator) {
+    // Move the selection first, so Return never targets the deleted item.
+    if item.isSelected {
+      navigator.select(item: history.nearestVisible(to: item) { $0 != item })
+    }
+    history.delete(item)
+  }
+
   func openAbout() {
     about.openAbout(nil)
   }

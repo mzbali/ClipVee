@@ -1,6 +1,7 @@
 import AppKit.NSWorkspace
 import Defaults
 import Foundation
+import ImageIO
 import Observation
 import Sauce
 
@@ -58,6 +59,10 @@ class HistoryItemDecorator: Identifiable, Hashable, HasVisibility {
     ByteCountFormatter.string(fromByteCount: Int64($0.count), countStyle: .file)
   }
 
+  // Read from the image header, without decoding the pixels.
+  @ObservationIgnored
+  private(set) lazy var imagePixelSize: NSSize? = item.imageData.flatMap(Self.pixelSize(of:))
+
   // 10k characters seems to be more than enough on large displays
   var text: String { previewText.string.shortened(to: 10_000) }
 
@@ -83,8 +88,7 @@ class HistoryItemDecorator: Identifiable, Hashable, HasVisibility {
   // Describe the complete item independently of its potentially truncated visual content.
   var accessibilityLabel: String {
     var parts: [String] = []
-    if hasImage, let image = item.image {
-      let size = image.pixelSize
+    if hasImage, let size = imagePixelSize ?? item.image?.pixelSize {
       parts.append(
         String(
           format: NSLocalizedString("history_item_image_accessibility_label_no_app", comment: ""),
@@ -126,18 +130,62 @@ class HistoryItemDecorator: Identifiable, Hashable, HasVisibility {
 
   @MainActor
   func ensureThumbnailImage() {
-    guard item.image != nil else {
+    guard thumbnailImage == nil, thumbnailImageGenerationTask == nil,
+          let data = item.imageData else {
       return
     }
-    guard thumbnailImage == nil else {
-      return
-    }
-    guard thumbnailImageGenerationTask == nil else {
-      return
-    }
+    let size = HistoryItemDecorator.thumbnailImageSize
+    let scale = NSScreen.screens.map(\.backingScaleFactor).max() ?? 2
     thumbnailImageGenerationTask = Task { [weak self] in
-      self?.generateThumbnailImage()
+      let thumbnail = await Task.detached(priority: .userInitiated) {
+        HistoryItemDecorator.thumbnail(from: data, fitting: size, scale: scale)
+      }.value
+      guard let self, !Task.isCancelled else { return }
+
+      if let thumbnail {
+        thumbnailImage = NSImage(
+          cgImage: thumbnail,
+          size: NSSize(width: CGFloat(thumbnail.width) / scale, height: CGFloat(thumbnail.height) / scale)
+        )
+      } else {
+        generateThumbnailImage()
+      }
+      thumbnailImageGenerationTask = nil
     }
+  }
+
+  // Decode only at card size. Drawing the original into a smaller image keeps
+  // the full-resolution bitmap alive, which is tens of MB per Retina screenshot.
+  nonisolated static func thumbnail(from data: Data, fitting size: NSSize, scale: CGFloat) -> CGImage? {
+    let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+    guard let source = CGImageSourceCreateWithData(data as CFData, sourceOptions),
+          let pixelSize = pixelSize(of: source) else {
+      return nil
+    }
+
+    let ratio = min(size.width * scale / pixelSize.width, size.height * scale / pixelSize.height, 1)
+    let options: [CFString: Any] = [
+      kCGImageSourceCreateThumbnailFromImageAlways: true,
+      kCGImageSourceCreateThumbnailWithTransform: true,
+      kCGImageSourceShouldCacheImmediately: true,
+      kCGImageSourceThumbnailMaxPixelSize: max(1, (max(pixelSize.width, pixelSize.height) * ratio).rounded())
+    ]
+    return CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary)
+  }
+
+  nonisolated private static func pixelSize(of data: Data) -> NSSize? {
+    let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+    return CGImageSourceCreateWithData(data as CFData, sourceOptions).flatMap(pixelSize(of:))
+  }
+
+  nonisolated private static func pixelSize(of source: CGImageSource) -> NSSize? {
+    guard let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+          let width = (properties[kCGImagePropertyPixelWidth] as? NSNumber)?.doubleValue,
+          let height = (properties[kCGImagePropertyPixelHeight] as? NSNumber)?.doubleValue,
+          width > 0, height > 0 else {
+      return nil
+    }
+    return NSSize(width: width, height: height)
   }
 
   @MainActor
@@ -170,6 +218,9 @@ class HistoryItemDecorator: Identifiable, Hashable, HasVisibility {
   func cleanupImages() {
     thumbnailImageGenerationTask?.cancel()
     previewImageGenerationTask?.cancel()
+    // Allow the images to be generated again, e.g. after the thumbnail height changes.
+    thumbnailImageGenerationTask = nil
+    previewImageGenerationTask = nil
     thumbnailImage?.recache()
     previewImage?.recache()
     thumbnailImage = nil

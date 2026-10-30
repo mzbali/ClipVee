@@ -29,6 +29,12 @@ enum PopupPosition: String, CaseIterable, Identifiable, CustomStringConvertible,
     }
   }
 
+  // Where the popup opens, and whether later height changes keep its bottom
+  // edge in place (growing upwards) rather than its top edge.
+  func placement(size: NSSize, statusBarButton: NSStatusBarButton?) -> (origin: NSPoint, growsUpward: Bool) {
+    (origin(size: size, statusBarButton: statusBarButton), self == .bottomRight)
+  }
+
   func origin(size: NSSize, statusBarButton: NSStatusBarButton?) -> NSPoint {
     switch self {
     case .bottomRight:
@@ -41,7 +47,9 @@ enum PopupPosition: String, CaseIterable, Identifiable, CustomStringConvertible,
       }
     case .window:
       if let frame = NSWorkspace.shared.frontmostApplication?.windowFrame {
-        return NSRect.centered(ofSize: size, in: frame).origin
+        // A window shorter than the popup would otherwise push it off screen.
+        let screen = NSScreen.screens.first { NSMouseInRect(NSPoint(x: frame.midX, y: frame.midY), $0.frame, false) }
+        return constrained(NSRect.centered(ofSize: size, in: frame).origin, ofSize: size, to: screen)
       }
     case .statusItem:
       if let statusBarButton {

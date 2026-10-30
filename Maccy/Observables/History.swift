@@ -257,7 +257,12 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
     }
 
     Clipboard.shared.clear()
-    if dismissPopup { AppState.shared.popup.close() }
+    if dismissPopup {
+      AppState.shared.popup.close()
+    } else {
+      // The selection may have been cleared; Return must not paste a deleted item.
+      AppState.shared.navigator.select(item: firstUnpinnedItem ?? firstPinnedItem)
+    }
     Task {
       AppState.shared.popup.needsResize = true
     }

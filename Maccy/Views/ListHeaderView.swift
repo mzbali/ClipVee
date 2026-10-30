@@ -27,8 +27,10 @@ struct ListHeaderView: View {
             searchQuery = ""
           }
         }
-        // Only reliable way to disable the cursor. allowsHitTesting() does not work
-        .offset(y: appState.searchVisible ? 0 : -Popup.itemHeight)
+        // Only reliable way to disable the cursor. allowsHitTesting() does not work.
+        // Move it above the panel: anywhere inside, the invisible field would take
+        // clicks and stop the header from dragging the panel.
+        .offset(y: appState.searchVisible ? 0 : -(appState.popup.headerHeight + Popup.itemHeight))
     }
   }
 }

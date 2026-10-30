@@ -11,7 +11,7 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
   private var globalMouseMonitor: Any?
   private var menuObservers: [NSObjectProtocol] = []
   private var menuTrackingDepth = 0
-  private var presentationPosition: PopupPosition = .bottomRight
+  private var growsUpward = true
 
   override var isMovable: Bool {
     get { Defaults[.popupPosition] != .statusItem }
@@ -88,13 +88,18 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
   }
 
   func open(height: CGFloat, at popupPosition: PopupPosition = Defaults[.popupPosition]) {
-    presentationPosition = popupPosition
+    // The pasteboard is polled, so a copy made just before the shortcut, such
+    // as a screenshot, may not be in history yet.
+    Clipboard.shared.checkForChangesInPasteboard()
+
     let size = Defaults[.windowSize]
     let miniumHeight: CGFloat = AppState.shared.popup.minimumHeight
     let finalWidth = min(frame.width, size.width)
     let finalHeight = max(min(height, size.height), miniumHeight)
     setContentSize(NSSize(width: finalWidth, height: finalHeight))
-    setFrameOrigin(popupPosition.origin(size: frame.size, statusBarButton: statusBarButton))
+    let placement = popupPosition.placement(size: frame.size, statusBarButton: statusBarButton)
+    growsUpward = placement.growsUpward
+    setFrameOrigin(placement.origin)
     orderFrontRegardless()
     makeKey()
     isPresented = true
@@ -111,13 +116,23 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
     var newSize = frame.size
     newSize.height = newHeight
     var newOrigin = frame.origin
-    if presentationPosition != .bottomRight {
+    if !growsUpward {
       newOrigin.y += (frame.height - newSize.height)
+    }
+    if let visibleFrame = screen?.visibleFrame {
+      newOrigin.y = min(max(newOrigin.y, visibleFrame.minY), visibleFrame.maxY - newSize.height)
     }
 
     NSAnimationContext.runAnimationGroup { (context) in
       context.duration = 0.2
       animator().setFrame(NSRect(origin: newOrigin, size: newSize), display: true)
+    } completionHandler: {
+      // The selection was scrolled into view at the old height, such as when a
+      // search is cleared. Scroll again so the pins above it are not left cut off.
+      MainActor.assumeIsolated {
+        let navigator = AppState.shared.navigator
+        navigator.scrollTarget = navigator.leadSelection
+      }
     }
   }
 
@@ -191,6 +206,11 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
   }
 
   func windowDidMove(_ notification: Notification) {
+    // Once the user drags the panel, keep its header where they put it when
+    // searching changes the height.
+    if NSEvent.pressedMouseButtons & 1 != 0 && !inLiveResize {
+      growsUpward = false
+    }
     determinePreviewPlacement()
   }
 
@@ -253,7 +273,7 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
     ]
     let mouseDown: NSEvent.EventTypeMask = [.leftMouseDown, .rightMouseDown, .otherMouseDown]
     localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: mouseDown) { [weak self] event in
-      self?.dismissIfOutside(at: NSEvent.mouseLocation)
+      self?.dismissIfOutside(at: NSEvent.mouseLocation, in: event.window)
       return event
     }
     globalMouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: mouseDown) { [weak self] _ in
@@ -263,7 +283,9 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
 
   // A nonactivating panel can stay visible without receiving resignKey.
   // Observe the click itself as well, without consuming it from the target app.
-  func dismissIfOutside(at location: NSPoint) {
+  func dismissIfOutside(at location: NSPoint, in window: NSWindow? = nil) {
+    // The status item toggles the panel itself; closing here would make that click reopen it.
+    if let window, window === statusBarButton?.window { return }
     guard isPresented, menuTrackingDepth == 0, !frame.contains(location),
           NSApp.alertWindow == nil,
           !AppState.shared.suppressPopupAutoClose else { return }

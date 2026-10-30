@@ -3,12 +3,16 @@
 Based on [Maccy 2.8.0](https://github.com/p0deje/Maccy/tree/2.8.0), under its MIT license.
 This fork keeps clipboard capture and persistence, with a compact macOS panel inspired by Windows clipboard history.
 
-- Command–Shift–V opens the panel near the bottom-right of the active screen.
-- Text and image cards have pin and delete controls.
+- Command–Shift–V opens the panel in the middle of the frontmost window. Settings → Appearance → Popup at changes this. Windows opens at the text cursor, but the App Sandbox blocks reading another app's caret.
+- Drag the panel by its header to move it. After a move, searching keeps the header in place.
+- A copy made just before the shortcut (for example a Shottr screenshot) is picked up when the panel opens.
+- Text and image cards have pin and delete controls. Formatted text also offers Paste as plain text.
+- Each card shows its source app, when it was copied, and its quick-paste shortcut (⌘1–⌘9, or ⌘ plus the pin's letter). Hex colours such as `#FF8800` get a swatch; hovering a long item shows it in full.
 - Arrow keys select; Return pastes into the originating app.
 - Escape, another shortcut press, and clicking outside dismiss the panel.
 - Clear all keeps pinned items.
-- Search, metadata preview, and the footer are hidden by default. There are no AI, emoji, or GIF tabs.
+- The search field appears only once you start typing. Metadata preview and the footer are hidden by default. There are no AI, emoji, or GIF tabs.
+- Unpinned history keeps 200 items (Settings → Storage). Pins do not count towards that limit; about 29 receive a letter shortcut, and further pins are kept without one.
 
 ## Local build
 

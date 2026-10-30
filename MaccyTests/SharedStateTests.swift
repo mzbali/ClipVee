@@ -62,5 +62,25 @@ extension SharedStateTests {
       popup.dismissIfOutside(at: NSPoint(x: popup.frame.maxX + 20, y: popup.frame.midY))
       #expect(popup.isPresented)
     }
+
+    @Test("A status item click is left to the status item's own toggle")
+    func statusItemClickDoesNotDismiss() {
+      let popup = panel()
+      let statusWindow = NSWindow(
+        contentRect: NSRect(x: 0, y: 0, width: 40, height: 22),
+        styleMask: [], backing: .buffered, defer: true
+      )
+      let button = NSStatusBarButton(frame: NSRect(x: 0, y: 0, width: 40, height: 22))
+      statusWindow.contentView?.addSubview(button)
+      popup.statusBarButton = button
+      popup.isPresented = true
+      defer { popup.close() }
+
+      let outside = NSPoint(x: popup.frame.maxX + 20, y: popup.frame.midY)
+      popup.dismissIfOutside(at: outside, in: statusWindow)
+      #expect(popup.isPresented)
+      popup.dismissIfOutside(at: outside, in: NSWindow())
+      #expect(!popup.isPresented)
+    }
   }
 }
