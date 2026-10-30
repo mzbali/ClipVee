@@ -5,6 +5,7 @@ This fork keeps clipboard capture and persistence, with a compact macOS panel in
 
 - Command–Shift–V opens the panel in the middle of the frontmost window. Settings → Appearance → Popup at changes this. Windows opens at the text cursor, but the App Sandbox blocks reading another app's caret.
 - Drag the panel by its header to move it. After a move, searching keeps the header in place.
+- The panel is sized to show about three text cards and scrolls for more. Drag its bottom edge to change the height.
 - A copy made just before the shortcut (for example a Shottr screenshot) is picked up when the panel opens.
 - Text and image cards have pin and delete controls. Formatted text also offers Paste as plain text.
 - Each card shows its source app, when it was copied, and its quick-paste shortcut (⌘1–⌘9, or ⌘ plus the pin's letter). Hex colours such as `#FF8800` get a swatch; hovering a long item shows it in full.

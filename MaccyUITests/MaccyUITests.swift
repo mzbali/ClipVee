@@ -716,7 +716,7 @@ class MaccyUITests: XCTestCase {
       expectation(for: visibleSelection, evaluatedWith: nil)
       waitForExpectations(timeout: 3)
     }
-    XCTAssertLessThanOrEqual(app.dialogs.firstMatch.frame.height, 560)
+    XCTAssertLessThanOrEqual(app.dialogs.firstMatch.frame.height, 440)
     postKey(kVK_Return)
     assertPopupDismissed()
     let destination = pasteTarget.textViews["paste-destination"]
