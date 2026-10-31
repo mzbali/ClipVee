@@ -2,10 +2,13 @@ import Sparkle
 
 @Observable
 class SoftwareUpdater {
+  static let shared = SoftwareUpdater()
   static var isAvailable: Bool { Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil }
   var automaticallyChecksForUpdates = false {
     didSet {
-      guard Self.isAvailable else { return }
+      // Writing the value Sparkle already has would count as the user's answer, and Sparkle
+      // would then never ask whether to check automatically.
+      guard Self.isAvailable, updater.automaticallyChecksForUpdates != automaticallyChecksForUpdates else { return }
       updater.automaticallyChecksForUpdates = automaticallyChecksForUpdates
     }
   }

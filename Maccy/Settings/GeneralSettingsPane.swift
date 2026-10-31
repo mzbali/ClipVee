@@ -9,7 +9,7 @@ struct GeneralSettingsPane: View {
 
   @Default(.searchMode) private var searchMode
 
-  @State private var updater = SoftwareUpdater()
+  @State private var updater = SoftwareUpdater.shared
 
   var body: some View {
     SettingsPageView(title: "General") {

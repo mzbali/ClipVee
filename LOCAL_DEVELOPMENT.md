@@ -37,9 +37,19 @@ UI tests (`MaccyUITests`) press real keys and paste into a throwaway editor (`te
 
 Releases are signed with a self-signed certificate called **ClipVee**, so macOS keeps ClipVee's Accessibility permission across updates. Create it once with `./scripts/create-signing-identity.sh`, and back it up from Keychain Access (File → Export Items): a new certificate would make every user turn Accessibility on again. It has no Apple Team ID, so the app turns off library validation to load Sparkle.
 
+Updates are delivered by [Sparkle](https://sparkle-project.org). The app reads `appcast.xml` from the latest GitHub release, and only installs updates signed with the update key in your login keychain, whose public half is `SUPublicEDKey` in `Maccy/Info.plist`. Back the key up too, since without it existing copies can't update:
+
+```sh
+.build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -x clipvee-update-key
+```
+
+Store the file in your password manager and delete it. On a new Mac, import it with `generate_keys -f clipvee-update-key`.
+
 1. Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`.
-2. Run `./scripts/build-release.sh`. It builds a universal Release copy, signed with the ClipVee certificate, and writes `.build/release/ClipVee-<version>.dmg` and `.zip`. The first run installs [dmgbuild](https://github.com/dmgbuild/dmgbuild) into `.build/dmg-venv`. The disk image's background is `Design/dmg-background.png`, rendered from `Design/dmg-background.html`.
-3. Attach both files to a GitHub release tagged `v<version>`.
+2. Write the release notes as a short Markdown list. The app shows them when it offers the update.
+3. Run `./scripts/build-release.sh <notes.md>`. It builds a universal Release copy, signed with the ClipVee certificate, and writes `.build/release/ClipVee-<version>.dmg`, `.zip` and a signed `appcast.xml`. The first run installs [dmgbuild](https://github.com/dmgbuild/dmgbuild) into `.build/dmg-venv`, and macOS asks once whether `generate_appcast` may use the update key. The disk image's background is `Design/dmg-background.png`, rendered from `Design/dmg-background.html`.
+4. Attach all three files to a GitHub release tagged `v<version>`, and mark it as the latest release. Copies already installed find the update within a day.
+5. Update the version and `sha256` in [mzbali/homebrew-tap](https://github.com/mzbali/homebrew-tap).
 
 The app isn't notarised, so the README explains Gatekeeper's **Open Anyway** step.
 

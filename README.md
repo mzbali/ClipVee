@@ -29,7 +29,7 @@ On Windows, <kbd>Win</kbd> + <kbd>V</kbd> opens a small panel of everything you'
 - **Type to search.** The search field appears as soon as you start typing.
 - **Put it where you like.** In the middle of the window, at the pointer, by the menu bar icon, or wherever you last dragged it. Drag the bottom edge to make it taller.
 - **Plain text when you need it.** Paste any formatted card without its fonts and colours, or make that the default.
-- **Private.** Passwords copied from password managers are skipped. You can ignore whole apps, pause history, or skip just the next copy. Your history never leaves your Mac.
+- **Private.** Passwords copied from password managers are skipped. You can ignore whole apps, pause history, or skip just the next copy. Your history never leaves your Mac: ClipVee only goes online to check GitHub for updates, if you allow it.
 - **Colour swatches** for hex codes such as `#FF8800`.
 
 <p align="center">
@@ -50,7 +50,7 @@ ClipVee needs macOS 14 Sonoma or later, on an Apple silicon or Intel Mac.
 3. In System Settings → Privacy & Security → Accessibility, turn on **ClipVee**. It needs this to paste for you. Updates keep this setting. If you're updating from 1.0.0, remove ClipVee from the list with the minus button once, then turn the new copy on.
 4. Press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>.
 
-To update, replace ClipVee in Applications with the new version, or run `brew upgrade --cask mzbali/tap/clipvee`. Your history and settings carry over.
+ClipVee asks whether to check for updates automatically, and installs new versions when you click **Install**. You can also click **Check now** in Settings → General. Your history and settings carry over. Version 1.0.1 and earlier can't check for updates, so replace it with the new version once.
 
 ### Build it yourself
 
