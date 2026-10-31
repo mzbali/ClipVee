@@ -36,9 +36,9 @@ On Windows, <kbd>Win</kbd> + <kbd>V</kbd> opens a small panel of everything you'
 
 ClipVee needs macOS 14 Sonoma or later, on an Apple silicon or Intel Mac.
 
-1. Download the zip from the [latest release](https://github.com/mzbali/ClipVee/releases/latest), open it, and drag **ClipVee** to your Applications folder.
+1. Download the disk image (`.dmg`) from the [latest release](https://github.com/mzbali/ClipVee/releases/latest), open it, and drag **ClipVee** to Applications.
 2. Open ClipVee. The first time, macOS says it can't check the app, because ClipVee isn't notarised by Apple. Click **Done**, then open System Settings → Privacy & Security, scroll down, and click **Open Anyway** next to ClipVee. You only need to do this once.
-3. In System Settings → Privacy & Security → Accessibility, turn on **ClipVee**. It needs this to paste for you. After installing a new version, macOS may ask again: remove ClipVee from the list with the minus button, then turn the new copy on.
+3. In System Settings → Privacy & Security → Accessibility, turn on **ClipVee**. It needs this to paste for you. Updates keep this setting. If you're updating from 1.0.0, remove ClipVee from the list with the minus button once, then turn the new copy on.
 4. Press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>.
 
 ### Build it yourself

@@ -35,9 +35,11 @@ UI tests (`MaccyUITests`) press real keys and paste into a throwaway editor (`te
 
 ## Making a release
 
+Releases are signed with a self-signed certificate called **ClipVee**, so macOS keeps ClipVee's Accessibility permission across updates. Create it once with `./scripts/create-signing-identity.sh`, and back it up from Keychain Access (File → Export Items): a new certificate would make every user turn Accessibility on again. It has no Apple Team ID, so the app turns off library validation to load Sparkle.
+
 1. Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`.
-2. Run `./scripts/build-release.sh`. It builds a universal Release copy, signed ad hoc, and writes `.build/release/ClipVee-<version>.zip`.
-3. Attach the zip to a GitHub release tagged `v<version>`.
+2. Run `./scripts/build-release.sh`. It builds a universal Release copy, signed with the ClipVee certificate, and writes `.build/release/ClipVee-<version>.dmg` and `.zip`. The first run installs [dmgbuild](https://github.com/dmgbuild/dmgbuild) into `.build/dmg-venv`. The disk image's background is `Design/dmg-background.png`, rendered from `Design/dmg-background.html`.
+3. Attach both files to a GitHub release tagged `v<version>`.
 
 The app isn't notarised, so the README explains Gatekeeper's **Open Anyway** step.
 
