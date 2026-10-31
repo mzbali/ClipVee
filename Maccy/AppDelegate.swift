@@ -6,6 +6,7 @@ import SwiftUI
 class AppDelegate: NSObject, NSApplicationDelegate {
   nonisolated static let isTesting = CommandLine.arguments.contains("enable-testing")
   var panel: FloatingPanel<ContentView>!
+  private var welcomeWindowController: WelcomeWindowController?
 
   @objc
   private lazy var statusItem: NSStatusItem = {
@@ -120,6 +121,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       onClose: { AppState.shared.popup.reset() }
     ) {
       ContentView()
+    }
+
+    // People updating from a version without this window have already set ClipVee up.
+    if !Self.isTesting && !Defaults[.showedWelcome] {
+      Defaults[.showedWelcome] = true
+      if !AXIsProcessTrusted() {
+        welcomeWindowController = WelcomeWindowController()
+        welcomeWindowController?.show()
+      }
     }
   }
 

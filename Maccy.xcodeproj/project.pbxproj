@@ -146,6 +146,7 @@
 		D03923AE1B5F4B4D13D3153D /* PopupPositionPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588132629E209F1294B6A873 /* PopupPositionPicker.swift */; };
 		A6FA973DDC07EDD21FE49867 /* SettingsComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B36FFBC03A2F81AC289BF0A /* SettingsComponents.swift */; };
 		5986E4372A2996497B018097 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE327AB9C5DDC539163454D6 /* SettingsWindowController.swift */; };
+		0DF369AB11E4F81CAB5EBD46 /* WelcomeWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4392E0F91FE3086FC286500E /* WelcomeWindowController.swift */; };
 		DAA5ACB22C1B3F8800B58513 /* GeneralSettingsPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5ACB12C1B3F8800B58513 /* GeneralSettingsPane.swift */; };
 		DAA5ACB52C1B803000B58513 /* GeneralSettings.strings in Resources */ = {isa = PBXBuildFile; fileRef = DAA5ACB32C1B803000B58513 /* GeneralSettings.strings */; };
 		DAA5ACCA2C1BEE8A00B58513 /* SoftwareUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5ACC92C1BEE8A00B58513 /* SoftwareUpdater.swift */; };
@@ -540,6 +541,7 @@
 		588132629E209F1294B6A873 /* PopupPositionPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupPositionPicker.swift; sourceTree = "<group>"; };
 		2B36FFBC03A2F81AC289BF0A /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
 		FE327AB9C5DDC539163454D6 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
+		4392E0F91FE3086FC286500E /* WelcomeWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeWindowController.swift; sourceTree = "<group>"; };
 		DAA5ACB12C1B3F8800B58513 /* GeneralSettingsPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsPane.swift; sourceTree = "<group>"; };
 		DAA5ACB42C1B803000B58513 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/GeneralSettings.strings; sourceTree = "<group>"; };
 		DAA5ACB72C1BA34800B58513 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/GeneralSettings.strings; sourceTree = "<group>"; };
@@ -717,6 +719,7 @@
 				588132629E209F1294B6A873 /* PopupPositionPicker.swift */,
 				2B36FFBC03A2F81AC289BF0A /* SettingsComponents.swift */,
 				FE327AB9C5DDC539163454D6 /* SettingsWindowController.swift */,
+				4392E0F91FE3086FC286500E /* WelcomeWindowController.swift */,
 				DAA5ACB12C1B3F8800B58513 /* GeneralSettingsPane.swift */,
 				DAA5ACB32C1B803000B58513 /* GeneralSettings.strings */,
 				DA9C3C632C20E1E80056795D /* IgnoreSettingsPane */,
@@ -1203,6 +1206,7 @@
 				D03923AE1B5F4B4D13D3153D /* PopupPositionPicker.swift in Sources */,
 				A6FA973DDC07EDD21FE49867 /* SettingsComponents.swift in Sources */,
 				5986E4372A2996497B018097 /* SettingsWindowController.swift in Sources */,
+				0DF369AB11E4F81CAB5EBD46 /* WelcomeWindowController.swift in Sources */,
 				DAA5ACB22C1B3F8800B58513 /* GeneralSettingsPane.swift in Sources */,
 				DA1969122C3F0DD200258481 /* HistoryItemView.swift in Sources */,
 				DA0EF1881E444B2A00E58577 /* Clipboard.swift in Sources */,
