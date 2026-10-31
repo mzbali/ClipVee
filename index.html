@@ -1,12 +1,431 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>ClipVee</title>
-    <meta http-equiv="refresh" content="0; url=https://github.com/mzbali/ClipVee">
-    <link rel="canonical" href="https://github.com/mzbali/ClipVee">
-  </head>
-  <body>
-    <p>ClipVee lives at <a href="https://github.com/mzbali/ClipVee">github.com/mzbali/ClipVee</a>.</p>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClipVee — Win+V clipboard history for the Mac</title>
+<meta name="description" content="Free, open-source clipboard history for the Mac that works like Windows' Win+V. Press ⌘⇧V, pick a card, and it's pasted into the app you're using.">
+<link rel="canonical" href="https://mzbali.github.io/ClipVee/">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="apple-touch-icon" href="images/icon.png">
+<meta name="theme-color" content="#0B1230">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ClipVee">
+<meta property="og:title" content="ClipVee — Win+V, now on your Mac">
+<meta property="og:description" content="Free, open-source clipboard history for the Mac. Press ⌘⇧V, pick a card, and it's pasted.">
+<meta property="og:url" content="https://mzbali.github.io/ClipVee/">
+<meta property="og:image" content="https://mzbali.github.io/ClipVee/images/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root {
+    --navy: #0B1230; --navy-2: #0F1838; --blue: #2563EB; --blue-hi: #3B82F6; --sky: #8DB7FF;
+    --ink: #E8ECF6; --sub: #9AA6C3; --dim: #7E8AA8; --line: rgba(255,255,255,.09);
+    --max: 1080px;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, Roboto, sans-serif;
+    color: var(--ink); background: var(--navy); -webkit-font-smoothing: antialiased; line-height: 1.5;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; height: auto; display: block; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .glow { background: radial-gradient(1100px 520px at 50% -120px, #1F4ED8 0%, rgba(31,78,216,.28) 42%, transparent 72%), var(--navy); }
+
+  /* Nav */
+  nav { display: flex; align-items: center; gap: 26px; padding: 18px 0; font-size: 14px; color: var(--sub); }
+  nav .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 650; font-size: 17px; text-decoration: none; margin-right: auto; }
+  nav .brand img { width: 30px; height: 30px; }
+  nav a { text-decoration: none; }
+  nav a:hover { color: var(--ink); }
+  nav .gh { display: flex; align-items: center; gap: 7px; color: var(--ink); border: 1px solid var(--line); background: rgba(255,255,255,.04); padding: 7px 12px; border-radius: 8px; }
+  nav .gh:hover { background: rgba(255,255,255,.08); }
+
+  /* Hero */
+  .hero { text-align: center; padding: 48px 0 0; }
+  .eyebrow { display: inline-block; font-size: 13px; color: #BFD3FF; border: 1px solid rgba(120,160,255,.35); background: rgba(37,99,235,.18); padding: 5px 13px; border-radius: 99px; }
+  h1 { font-size: clamp(40px, 7vw, 72px); line-height: 1.03; letter-spacing: -.03em; margin: 20px 0 18px; font-weight: 760; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, #7DB2FF, #4C97FF 50%, #A5C8FF); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { font-size: clamp(17px, 2vw, 20px); color: var(--sub); max-width: 580px; margin: 0 auto; }
+  kbd, .k {
+    font: 600 .82em/1 -apple-system, BlinkMacSystemFont, sans-serif; color: var(--ink); display: inline-block;
+    background: linear-gradient(#2A3150, #1B2140); border: 1px solid rgba(255,255,255,.14); border-bottom-width: 2px;
+    border-radius: 6px; padding: 4px 7px; vertical-align: 1px;
+  }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 30px 0 12px; }
+  .btn { display: inline-flex; align-items: center; gap: 9px; font-size: 16px; font-weight: 600; padding: 13px 22px; border-radius: 11px; text-decoration: none; color: #fff; transition: transform .15s, box-shadow .15s, background .15s; }
+  .btn svg { width: 18px; height: 18px; }
+  .btn.primary { background: linear-gradient(#3B82F6, #1D4FD7); box-shadow: 0 8px 26px rgba(37,99,235,.45), inset 0 1px 0 rgba(255,255,255,.25); }
+  .btn.primary:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(37,99,235,.55), inset 0 1px 0 rgba(255,255,255,.25); }
+  .btn.ghost { border: 1px solid var(--line); background: rgba(255,255,255,.04); }
+  .btn.ghost:hover { background: rgba(255,255,255,.08); }
+  .meta { font-size: 13px; color: var(--dim); }
+
+  /* Animated demo */
+  .stage {
+    position: relative; text-align: left; margin: 48px auto 0; max-width: 900px; height: 380px;
+    border-radius: 14px 14px 0 0; background: #1C1E24; border: 1px solid var(--line); border-bottom: 0;
+    box-shadow: 0 -12px 80px rgba(37,99,235,.28); overflow: hidden;
+  }
+  .stage .bar { height: 34px; display: flex; align-items: center; gap: 7px; padding: 0 13px; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 12.5px; color: #8a8d95; }
+  .stage .bar i { width: 11px; height: 11px; border-radius: 50%; background: #3a3c42; }
+  .stage .bar span { margin-left: 8px; }
+  .doc { padding: 22px 28px; font-size: 16px; line-height: 1.7; color: #d9dbe0; max-width: 52%; }
+  .doc h4 { font-size: 21px; margin-bottom: 8px; color: #fff; }
+  .paste { display: inline-block; vertical-align: bottom; max-width: 0; overflow: hidden; white-space: nowrap; color: #fff; background: rgba(37,99,235,.35); border-radius: 3px; animation: paste 9s infinite; }
+  .caret { display: inline-block; width: 2px; height: 17px; background: #ddd; vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+  .keys { position: absolute; left: 28px; bottom: 24px; display: flex; gap: 6px; }
+  .keys .k { font-size: 17px; padding: 9px 13px; animation: press 9s infinite; }
+  .keys .nav { margin-left: 12px; animation-name: pressdown; }
+  .keys .ret { animation-name: pressret; }
+  .panel {
+    position: absolute; right: 56px; top: 54px; width: 340px; padding: 12px; border-radius: 14px;
+    background: rgba(16,18,24,.94); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 24px 60px rgba(0,0,0,.6);
+    opacity: 0; transform: translateY(10px) scale(.98); animation: panel 9s infinite;
+  }
+  .panel header { display: flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 600; padding: 2px 4px 11px; }
+  .panel header svg { width: 15px; height: 15px; color: #aaa; }
+  .panel header small { margin-left: auto; font-weight: 400; color: #8a8d95; font-size: 12px; }
+  .card { border: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.04); border-radius: 9px; padding: 10px 11px; margin-bottom: 7px; font-size: 13.5px; color: #ddd; }
+  .card .src { font-size: 11px; color: #8a8d95; margin-top: 7px; display: flex; }
+  .card .src span { margin-left: auto; }
+  .card.s1 { animation: sel1 9s infinite; }
+  .card.s2 { animation: sel2 9s infinite; }
+  .thumb { height: 74px; border-radius: 6px; background: linear-gradient(160deg, #5b8fc7, #25507f 45%, #b4472d 70%, #7a2b1c); }
+  .sw { display: inline-block; width: 15px; height: 15px; border-radius: 4px; background: #2563EB; vertical-align: -3px; margin-right: 7px; }
+  /* Every step names its values: an empty step would make the browser fade across the whole loop. */
+  @keyframes press { 0%, 6% { background: linear-gradient(#2A3150, #1B2140); color: var(--ink); transform: none; } 8%, 13% { background: #3B82F6; color: #fff; transform: translateY(1px); } 15%, 100% { background: linear-gradient(#2A3150, #1B2140); color: var(--ink); transform: none; } }
+  @keyframes pressdown { 0%, 31% { background: linear-gradient(#2A3150, #1B2140); color: var(--ink); transform: none; } 33%, 37% { background: #3B82F6; color: #fff; transform: translateY(1px); } 39%, 100% { background: linear-gradient(#2A3150, #1B2140); color: var(--ink); transform: none; } }
+  @keyframes pressret { 0%, 52% { background: linear-gradient(#2A3150, #1B2140); color: var(--ink); transform: none; } 54%, 58% { background: #3B82F6; color: #fff; transform: translateY(1px); } 60%, 100% { background: linear-gradient(#2A3150, #1B2140); color: var(--ink); transform: none; } }
+  @keyframes panel { 0%, 12% { opacity: 0; transform: translateY(10px) scale(.98); } 16%, 56% { opacity: 1; transform: none; } 60%, 100% { opacity: 0; transform: translateY(6px) scale(.98); } }
+  @keyframes sel1 { 0%, 32% { border-color: #3B82F6; background: rgba(37,99,235,.16); box-shadow: 0 0 0 1px #3B82F6; } 34%, 100% { border-color: rgba(255,255,255,.07); background: rgba(255,255,255,.04); box-shadow: 0 0 0 0 transparent; } }
+  @keyframes sel2 { 0%, 32% { border-color: rgba(255,255,255,.07); background: rgba(255,255,255,.04); box-shadow: 0 0 0 0 transparent; } 34%, 58% { border-color: #3B82F6; background: rgba(37,99,235,.16); box-shadow: 0 0 0 1px #3B82F6; } 60%, 100% { border-color: rgba(255,255,255,.07); background: rgba(255,255,255,.04); box-shadow: 0 0 0 0 transparent; } }
+  @keyframes paste { 0%, 58% { max-width: 0; } 59%, 95% { max-width: 340px; } 96%, 100% { max-width: 0; } }
+  @keyframes blink { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+    .panel { opacity: 1; transform: none; }
+    .paste { max-width: none; }
+    .card.s2 { border-color: #3B82F6; background: rgba(37,99,235,.16); box-shadow: 0 0 0 1px #3B82F6; }
+  }
+
+  /* Sections */
+  section { padding: 96px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: clamp(28px, 4vw, 40px); letter-spacing: -.025em; line-height: 1.15; margin-bottom: 14px; }
+  .center { text-align: center; }
+  .sub { color: var(--sub); font-size: 17px; max-width: 620px; }
+  .center .sub, .sub.center { margin-left: auto; margin-right: auto; }
+
+  .switch { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 22px; margin-top: 34px; font-size: 15px; color: var(--sub); }
+  .switch .k { font-size: 22px; padding: 11px 16px; border-radius: 9px; }
+  .switch .arrow { font-size: 24px; color: var(--sky); }
+  .switch figure { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .switch figcaption { font-size: 13px; color: var(--dim); }
+
+  .shot { margin: 40px auto 0; max-width: 880px; }
+  .caption { text-align: center; font-size: 14px; color: var(--dim); margin-top: 8px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 44px; }
+  .feat { background: rgba(255,255,255,.035); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+  .feat .ic { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: rgba(37,99,235,.22); color: var(--sky); margin-bottom: 14px; }
+  .feat .ic svg { width: 20px; height: 20px; }
+  .feat h3 { font-size: 17px; margin-bottom: 6px; }
+  .feat p { font-size: 15px; color: var(--sub); }
+
+  .split { display: grid; grid-template-columns: 1fr 1.25fr; gap: 48px; align-items: center; }
+  .split.flip { grid-template-columns: 1.1fr 1fr; }
+  .ticks { list-style: none; padding: 0; margin-top: 22px; display: grid; gap: 10px; color: var(--sub); font-size: 16px; }
+  .ticks li { display: flex; gap: 10px; }
+  .ticks li::before { content: ""; flex: none; width: 18px; height: 18px; margin-top: 3px; border-radius: 50%; background: rgba(37,99,235,.3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%238DB7FF' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 10.5l3 3 6-7'/%3E%3C/svg%3E") center/12px no-repeat; }
+
+  .term { border: 1px solid var(--line); border-radius: 14px; background: rgba(0,0,0,.3); overflow: hidden; }
+  .term .bar { display: flex; gap: 7px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  .term .bar i { width: 11px; height: 11px; border-radius: 50%; background: #3a3c42; }
+  .term pre { margin: 0; padding: 18px 20px; font: 14px/1.8 ui-monospace, "SF Mono", Menlo, monospace; color: #9fb0d6; overflow-x: auto; }
+  .term .ok { color: #6EE7A8; }
+  .term .no { color: #F87171; }
+  .term .c { color: var(--dim); }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 44px; counter-reset: s; }
+  .step { border: 1px solid var(--line); border-radius: 14px; padding: 22px; font-size: 15px; color: var(--sub); background: rgba(255,255,255,.02); }
+  .step::before { counter-increment: s; content: counter(s); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; font-size: 14px; margin-bottom: 14px; }
+  .step b { color: var(--ink); }
+  .brew { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin-top: 30px; color: var(--sub); font-size: 15px; }
+  .brew code { display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(0,0,0,.3); padding: 9px 9px 9px 16px; font: 14px ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink); }
+  .brew button { font: 600 13px -apple-system, BlinkMacSystemFont, sans-serif; color: var(--ink); background: rgba(255,255,255,.08); border: 1px solid var(--line); border-radius: 7px; padding: 5px 10px; cursor: pointer; }
+  .brew button:hover { background: rgba(255,255,255,.14); }
+  .aside { margin-top: 26px; text-align: center; color: var(--dim); font-size: 15px; }
+  .aside a { color: var(--sky); }
+
+  .faq { max-width: 760px; margin: 40px auto 0; }
+  details { border-bottom: 1px solid var(--line); padding: 18px 2px; }
+  summary { cursor: pointer; font-size: 17px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--sky); font-size: 22px; line-height: 1; transition: transform .2s; }
+  details[open] summary::after { transform: rotate(45deg); }
+  details p { color: var(--sub); font-size: 16px; margin-top: 10px; }
+  details a { color: var(--sky); }
+  details code { white-space: nowrap; font: 14px ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink); }
+
+  .final { text-align: center; background: linear-gradient(180deg, transparent, rgba(37,99,235,.2)); }
+  .final img { width: 88px; height: 88px; margin: 0 auto 20px; }
+
+  footer { border-top: 1px solid var(--line); padding: 28px 0 40px; font-size: 14px; color: var(--dim); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+  footer nav { padding: 0; margin-left: auto; gap: 20px; font-size: 14px; }
+
+  @media (max-width: 860px) {
+    nav .hide-sm { display: none; }
+    .grid, .steps { grid-template-columns: 1fr 1fr; }
+    .split, .split.flip { grid-template-columns: 1fr; gap: 32px; }
+    .stage { height: 340px; }
+    .panel { right: 20px; width: 300px; }
+    .doc { max-width: 45%; font-size: 14px; padding: 18px 20px; }
+  }
+  @media (max-width: 600px) {
+    section { padding: 64px 0; }
+    .grid, .steps { grid-template-columns: 1fr; }
+    .stage { height: 340px; margin-top: 36px; }
+    .thumb { height: 40px; }
+    .doc { max-width: none; font-size: 13.5px; }
+    .doc .rest { display: none; }
+    .panel { right: 12px; left: 12px; width: auto; top: 130px; }
+    .switch { flex-direction: column; gap: 14px; }
+    .switch .arrow { transform: rotate(90deg); }
+    .term pre { font-size: 11.5px; padding: 16px; }
+    .brew code { font-size: 12px; }
+    .keys { display: none; }
+    footer nav { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="glow">
+  <div class="wrap">
+    <nav aria-label="Main">
+      <a class="brand" href="#"><img src="images/icon.png" alt="" width="30" height="30">ClipVee</a>
+      <a class="hide-sm" href="#features">Features</a>
+      <a class="hide-sm" href="#privacy">Privacy</a>
+      <a class="hide-sm" href="#install">Install</a>
+      <a class="hide-sm" href="#faq">FAQ</a>
+      <a class="gh" href="https://github.com/mzbali/ClipVee">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </nav>
+
+    <header class="hero">
+      <span class="eyebrow">Free and open source · macOS 14 or later</span>
+      <h1>Win+V, <em>now on your Mac.</em></h1>
+      <p class="lede">Everything you copy, one shortcut away. Press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>, pick a card, and it's pasted into the app you're using.</p>
+      <div class="ctas">
+        <a class="btn primary" data-download href="https://github.com/mzbali/ClipVee/releases/latest">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v10m0 0l-4-4m4 4l4-4M4 16h12"/></svg>
+          Download for Mac
+        </a>
+        <a class="btn ghost" href="https://github.com/mzbali/ClipVee">View on GitHub</a>
+      </div>
+      <p class="meta"><span data-release>Latest release</span> · Apple silicon and Intel</p>
+
+      <p class="sr-only">Animation: in a text editor, pressing Command Shift V opens the ClipVee panel of recent copies. The Down arrow selects a copied message, and Return pastes it into the document.</p>
+      <div class="stage" aria-hidden="true">
+        <div class="bar"><i></i><i></i><i></i><span>Weekend plan.txt</span></div>
+        <div class="doc">
+          <h4>Weekend plan</h4>
+          <span class="rest">Ferry to Sausalito on Saturday, then lunch by the water.<br></span>
+          Meet at: <span class="paste">10:30 by the Ferry Building clock</span><span class="caret"></span>
+        </div>
+        <div class="panel">
+          <header>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="2.5" width="10" height="12" rx="2"/><rect x="5.5" y="1" width="5" height="3" rx="1"/></svg>
+            Clipboard <small>Clear all</small>
+          </header>
+          <div class="card s1"><div class="thumb"></div><div class="src">Finder · 2 min ago<span>⌘1</span></div></div>
+          <div class="card s2">10:30 by the Ferry Building clock<div class="src">Messages · 1 min ago<span>⌘2</span></div></div>
+          <div class="card"><span class="sw"></span>#2563EB<div class="src">Figma · 5 min ago<span>⌘3</span></div></div>
+        </div>
+        <div class="keys"><span class="k">⌘</span><span class="k">⇧</span><span class="k">V</span><span class="k nav">↓</span><span class="k ret">↩</span></div>
+      </div>
+    </header>
+  </div>
+</div>
+
+<main>
+  <section class="center">
+    <div class="wrap">
+      <h2>Moving from Windows? Your muscle memory works.</h2>
+      <p class="sub">Same idea, Mac keys. Your clipboard history opens right next to what you're doing, not in a separate app.</p>
+      <div class="switch">
+        <figure><div><span class="k">⊞ Win</span> + <span class="k">V</span></div><figcaption>Windows</figcaption></figure>
+        <span class="arrow" aria-hidden="true">→</span>
+        <figure><div><span class="k">⌘</span> <span class="k">⇧</span> <span class="k">V</span></div><figcaption>ClipVee on the Mac</figcaption></figure>
+      </div>
+      <div class="shot">
+        <img src="images/panel.webp" width="1440" height="998" alt="The ClipVee panel open over a text document, showing a photo card, a text card and a colour swatch card">
+      </div>
+      <p class="caption">The real panel: text, images and colours, newest first.</p>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2 class="center">Small, fast, and out of your way</h2>
+      <p class="sub center">It lives in the menu bar and shows up only when you ask for it.</p>
+      <div class="grid">
+        <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="5" rx="1.5"/><rect x="3" y="11" width="14" height="6" rx="1.5"/></svg></div><h3>Text, images and files</h3><p>Newest first, with thumbnails, and where and when you copied each one.</p></div>
+        <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4v6a3 3 0 01-3 3H4m0 0l4-4m-4 4l4 4"/></svg></div><h3>Pastes for you</h3><p>Arrow keys and Return, or a click. <kbd>⌘1</kbd> to <kbd>⌘9</kbd> paste the nine newest.</p></div>
+        <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h6M8 3v5l-3 3h10l-3-3V3M10 11v6"/></svg></div><h3>Pins</h3><p>Keep the snippets you reuse at the top. Pins survive Clear all.</p></div>
+        <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg></div><h3>Type to search</h3><p>Just start typing. The search field appears as soon as you do.</p></div>
+        <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h12M4 10h8M4 15h5"/><path d="M14 13l3 3m0-3l-3 3"/></svg></div><h3>Plain text on demand</h3><p>Paste without the fonts and colours, once or always.</p></div>
+        <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14" rx="3"/><rect x="6.5" y="6.5" width="7" height="7" rx="1.5" fill="currentColor" stroke="none" opacity=".5"/></svg></div><h3>Colour swatches</h3><p>Copy a hex code like #FF8800 and see the colour on its card.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <h2>Put it where you like.</h2>
+        <p class="sub">Choose where the panel opens from a picture of your screen, or drag it once and it remembers.</p>
+        <ul class="ticks">
+          <li>In the middle of the window you're in</li>
+          <li>At the pointer, or in the middle of the screen</li>
+          <li>By the menu bar icon, or the bottom-right corner</li>
+          <li>Wherever you last dragged it</li>
+        </ul>
+      </div>
+      <img src="images/settings.webp" width="1440" height="1116" alt="ClipVee Settings on the Panel page, with a picture of the screen and a list of places the panel can open">
+    </div>
+  </section>
+
+  <section id="privacy">
+    <div class="wrap split flip">
+      <div>
+        <h2>It can't send your clipboard anywhere.</h2>
+        <p class="sub">ClipVee runs in Apple's app sandbox and doesn't ask for network access, so it has no way to reach the internet. No account, no analytics, no cloud.</p>
+        <ul class="ticks">
+          <li>Passwords copied from password managers are skipped</li>
+          <li>Ignore whole apps, pause history, or skip just the next copy</li>
+          <li>Everything is open source, so anyone can check</li>
+        </ul>
+      </div>
+      <div class="term" aria-label="Terminal output listing ClipVee's permissions">
+        <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
+<pre><span class="c">$ codesign -d --entitlements - ClipVee.app</span>
+<span class="ok">✓ app-sandbox</span>
+<span class="ok">✓ files.user-selected.read-only</span>
+<span class="no">✗ network.client</span>   <span class="c">not requested</span>
+<span class="no">✗ network.server</span>   <span class="c">not requested</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2 class="center">Install in a minute</h2>
+      <p class="sub center">ClipVee is free, so it isn't notarised by Apple. macOS asks you to confirm it once.</p>
+      <div class="steps">
+        <div class="step"><b>Download</b> ClipVee, open the disk image, and drag <b>ClipVee</b> to Applications.</div>
+        <div class="step"><b>Open ClipVee.</b> If macOS says it can't check it, click Done, then go to System Settings → Privacy &amp; Security and click <b>Open Anyway</b>.</div>
+        <div class="step"><b>Allow Accessibility</b> in Privacy &amp; Security so ClipVee can paste for you. Then press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>.</div>
+      </div>
+      <p class="brew">Or with Homebrew: <code><span>brew install --cask mzbali/tap/clipvee</span><button type="button" data-copy>Copy</button></code></p>
+      <p class="aside">Using Maccy? ClipVee can <a href="https://github.com/mzbali/ClipVee#coming-from-maccy">bring over your history and pins</a>. Prefer to build it yourself? <a href="https://github.com/mzbali/ClipVee#build-it-yourself">It takes one command</a>.</p>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <h2 class="center">Questions</h2>
+      <div class="faq">
+        <details>
+          <summary>Why does macOS warn me when I first open it?</summary>
+          <p>Apple charges developers a yearly fee to notarise apps. ClipVee is a free project and isn't notarised yet, so macOS asks you to confirm it once with Open Anyway. The full source is on GitHub if you'd like to check it or build it yourself.</p>
+        </details>
+        <details>
+          <summary>Why does it need Accessibility access?</summary>
+          <p>To paste for you, ClipVee presses <kbd>⌘</kbd> <kbd>V</kbd> in the app you were using, and macOS only allows that with Accessibility turned on. Without it, ClipVee still copies the card you choose, and you paste it yourself.</p>
+        </details>
+        <details>
+          <summary>Is it really free?</summary>
+          <p>Yes. ClipVee is open source under the MIT licence. There's no paid version, account or subscription.</p>
+        </details>
+        <details>
+          <summary>Does my history sync to my iPhone or other Macs?</summary>
+          <p>No. Your history stays on this Mac, and ClipVee has no network access to send it anywhere.</p>
+        </details>
+        <details>
+          <summary>How do I update it?</summary>
+          <p>Download the new version and drag it to Applications, replacing the old copy. Your history, pins, settings and Accessibility permission carry over. With Homebrew, run <code>brew upgrade --cask mzbali/tap/clipvee</code>. Watch the <a href="https://github.com/mzbali/ClipVee">GitHub repo</a> for releases to hear about new versions.</p>
+        </details>
+        <details>
+          <summary>Can I change the shortcut?</summary>
+          <p>Yes, in Settings → Shortcuts. You can also choose whether picking a card pastes it or only copies it.</p>
+        </details>
+        <details>
+          <summary>How is it related to Maccy?</summary>
+          <p>ClipVee is built on <a href="https://maccy.app">Maccy</a>, a popular open-source clipboard manager by Alex Rodionov. It keeps Maccy's clipboard capture, storage and privacy features, and replaces the menu-style list with a Windows-style panel of cards that pastes for you.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <img src="images/icon.png" alt="" width="88" height="88">
+      <h2>Give your clipboard a memory.</h2>
+      <div class="ctas">
+        <a class="btn primary" data-download href="https://github.com/mzbali/ClipVee/releases/latest">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v10m0 0l-4-4m4 4l4-4M4 16h12"/></svg>
+          Download ClipVee
+        </a>
+        <a class="btn ghost" href="https://github.com/mzbali/ClipVee">★ Star on GitHub</a>
+      </div>
+      <p class="meta">Free · macOS 14 or later · Apple silicon and Intel</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>ClipVee is built on <a href="https://maccy.app">Maccy</a> by Alex Rodionov and contributors · <a href="https://github.com/mzbali/ClipVee/blob/clipboard-panel/LICENSE">MIT licence</a></span>
+    <nav aria-label="Footer">
+      <a href="https://github.com/mzbali/ClipVee">GitHub</a>
+      <a href="https://github.com/mzbali/ClipVee/releases">Releases</a>
+      <a href="https://github.com/mzbali/ClipVee/issues">Report a problem</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+  // Point the download buttons straight at the newest disk image, so the page never needs editing for a release.
+  fetch("https://api.github.com/repos/mzbali/ClipVee/releases/latest")
+    .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+    .then((release) => {
+      const file =
+        release.assets.find((asset) => asset.name.endsWith(".dmg")) ??
+        release.assets.find((asset) => asset.name.endsWith(".zip"));
+      if (!file) return;
+      document.querySelectorAll("[data-download]").forEach((link) => (link.href = file.browser_download_url));
+      const size = Math.round(file.size / 1e6);
+      document.querySelector("[data-release]").textContent = `Version ${release.tag_name.replace(/^v/, "")} · ${size} MB`;
+    })
+    .catch(() => {});
+
+  document.querySelectorAll("[data-copy]").forEach((button) =>
+    button.addEventListener("click", () => {
+      navigator.clipboard.writeText(button.previousElementSibling.textContent).then(() => {
+        button.textContent = "Copied";
+        setTimeout(() => (button.textContent = "Copy"), 1500);
+      });
+    }),
+  );
+</script>
+</body>
 </html>
