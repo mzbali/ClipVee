@@ -54,7 +54,12 @@ final class SettingsWindowController: NSWindowController {
     window.titlebarAppearsTransparent = true
     window.isReleasedWhenClosed = false
     self.init(window: window)
-    window.contentViewController = NSHostingController(rootView: SettingsView(navigation: navigation))
+    // Keep the window at its fixed size; with a full-size content view the
+    // hosting controller would otherwise add the title bar height on top.
+    let hostingController = NSHostingController(rootView: SettingsView(navigation: navigation))
+    hostingController.sizingOptions = []
+    window.contentViewController = hostingController
+    window.setContentSize(NSSize(width: 720, height: 540))
     window.center()
   }
 
@@ -88,7 +93,7 @@ struct SettingsView: View {
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
       .background(Color(nsColor: .windowBackgroundColor))
     }
-    .frame(width: 720, height: 540)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
     .ignoresSafeArea()
   }
 
