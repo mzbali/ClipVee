@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4C97FF"/>
+      <stop offset="1" stop-color="#1D4FD7"/>
+    </linearGradient>
+    <linearGradient id="board" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22357A"/>
+      <stop offset="1" stop-color="#121D48"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#tile)" filter="url(#shadow)"/>
+  <rect x="232" y="232" width="560" height="620" rx="72" fill="url(#board)"/>
+  <rect x="292" y="296" width="440" height="430" rx="32" fill="#fff" opacity="0.4"/>
+  <rect x="292" y="338" width="440" height="430" rx="32" fill="#fff" opacity="0.68"/>
+  <rect x="292" y="380" width="440" height="420" rx="32" fill="#fff"/>
+  <rect x="447" y="200" width="130" height="96" rx="48" fill="#C9D3E3"/>
+  <circle cx="512" cy="246" r="20" fill="#121D48"/>
+  <rect x="372" y="268" width="280" height="76" rx="26" fill="#C9D3E3"/>
+  <rect x="372" y="322" width="280" height="22" rx="11" fill="#AAB6CA"/>
+  <polyline points="407,497 512,693 617,497" fill="none" stroke="#2259E3" stroke-width="66" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
