@@ -4,6 +4,7 @@ import SwiftUI
 struct HeaderView: View {
   @State private var appState = AppState.shared
   @State private var confirmClear = false
+  @State private var updater = SoftwareUpdater.shared
 
   let controller: SlideoutController
   @FocusState.Binding var searchFocused: Bool
@@ -16,6 +17,17 @@ struct HeaderView: View {
         Text("Clipboard")
           .font(.system(size: 14, weight: .semibold))
         Spacer()
+        if let version = updater.availableVersion {
+          Button {
+            appState.popup.close()
+            updater.checkForUpdates()
+          } label: {
+            Image(systemName: "arrow.down.circle.fill")
+          }
+          .foregroundStyle(Color.accentColor)
+          .help("ClipVee \(version) is available")
+          .accessibilityLabel("Update to ClipVee \(version)")
+        }
         Button("Clear all") { confirmClear = true }
           .font(.system(size: 11))
           .buttonStyle(.borderless)

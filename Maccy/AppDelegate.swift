@@ -218,6 +218,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   private func showStatusItemMenu() {
     let menu = NSMenu()
+    if let version = SoftwareUpdater.shared.availableVersion {
+      menu.addItem(withTitle: "Update to ClipVee \(version)…", action: #selector(checkForUpdates), keyEquivalent: "")
+      menu.addItem(.separator())
+    }
     let open = menu.addItem(withTitle: "Open Clipboard", action: #selector(openPanel), keyEquivalent: "")
     open.setShortcut(KeyboardShortcuts.getShortcut(for: .popup))
     menu.addItem(
@@ -279,7 +283,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   @objc
   private func checkForUpdates() {
-    NSApp.activate()
     SoftwareUpdater.shared.checkForUpdates()
   }
 
