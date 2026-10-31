@@ -38,7 +38,7 @@ struct HistoryItemView: View {
             .resizable()
             .interpolation(.high)
             .scaledToFit()
-            .frame(maxWidth: .infinity, maxHeight: 144, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: thumbnailMaxHeight, alignment: .leading)
             .clipShape(RoundedRectangle(cornerRadius: 6))
             .accessibilityHidden(true)
         } else if let size = item.imagePixelSize {
@@ -46,7 +46,7 @@ struct HistoryItemView: View {
           RoundedRectangle(cornerRadius: 6)
             .fill(.quaternary)
             .aspectRatio(size.width / size.height, contentMode: .fit)
-            .frame(maxWidth: .infinity, maxHeight: 144, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: thumbnailMaxHeight, alignment: .leading)
             .accessibilityHidden(true)
         } else {
           HStack(alignment: .top, spacing: 8) {
@@ -154,6 +154,8 @@ struct HistoryItemView: View {
 
   private var isSelected: Bool { item.isSelected }
   private var isLongText: Bool { item.text.utf8.count > 160 || item.text.contains("\n") }
+  // Tall enough that a typical 4:3 photo reaches the pin button; wider images fill the card.
+  private var thumbnailMaxHeight: CGFloat { HistoryItemDecorator.thumbnailImageSize.height }
 
   // Only "#RRGGBB"-style values: bare words such as "bad" are valid hex too.
   private var colorSwatch: Color? {
