@@ -99,8 +99,8 @@
   .card .src svg { width: 12px; height: 12px; color: #9a9da5; }
   .card.s1 { animation: sel1 9s infinite; }
   .card.s2 { animation: sel2 9s infinite; }
-  /* Like the app, the photo keeps its shape and reaches a little past the pin button below it. */
-  .thumb { width: 88%; aspect-ratio: 16 / 10; border-radius: 6px; overflow: hidden; }
+  /* Like the app, a landscape photo fills the card's width. */
+  .thumb { aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden; }
   .thumb svg { display: block; width: 100%; height: 100%; }
   .sw { display: inline-block; width: 15px; height: 15px; border-radius: 4px; background: #2563EB; vertical-align: -3px; margin-right: 7px; }
   /* Every step names its values: an empty step would make the browser fade across the whole loop. */
@@ -197,7 +197,7 @@
     section { padding: 64px 0; }
     .grid, .steps { grid-template-columns: 1fr; }
     .stage { height: 470px; margin-top: 36px; }
-    .thumb { width: 55%; }
+    .thumb { aspect-ratio: 3 / 1; }
     .doc { max-width: none; font-size: 13.5px; }
     .doc .rest { display: none; }
     .panel { right: 12px; left: 12px; width: auto; top: 130px; }
