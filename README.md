@@ -10,6 +10,10 @@
 </p>
 
 <p align="center">
+  <a href="https://mzbali.github.io/ClipVee/">Website</a> · <a href="https://github.com/mzbali/ClipVee/releases/latest">Download</a>
+</p>
+
+<p align="center">
   <img src="docs/screenshots/panel.png" width="720" alt="The ClipVee panel open over a document, showing text and image cards">
 </p>
 
@@ -36,10 +40,17 @@ On Windows, <kbd>Win</kbd> + <kbd>V</kbd> opens a small panel of everything you'
 
 ClipVee needs macOS 14 Sonoma or later, on an Apple silicon or Intel Mac.
 
-1. Download the disk image (`.dmg`) from the [latest release](https://github.com/mzbali/ClipVee/releases/latest), open it, and drag **ClipVee** to Applications.
+1. Download the disk image (`.dmg`) from the [latest release](https://github.com/mzbali/ClipVee/releases/latest), open it, and drag **ClipVee** to Applications. Or install it with [Homebrew](https://brew.sh):
+
+   ```sh
+   brew install --cask mzbali/tap/clipvee
+   ```
+
 2. Open ClipVee. The first time, macOS says it can't check the app, because ClipVee isn't notarised by Apple. Click **Done**, then open System Settings → Privacy & Security, scroll down, and click **Open Anyway** next to ClipVee. You only need to do this once.
 3. In System Settings → Privacy & Security → Accessibility, turn on **ClipVee**. It needs this to paste for you. Updates keep this setting. If you're updating from 1.0.0, remove ClipVee from the list with the minus button once, then turn the new copy on.
 4. Press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>.
+
+To update, replace ClipVee in Applications with the new version, or run `brew upgrade --cask mzbali/tap/clipvee`. Your history and settings carry over.
 
 ### Build it yourself
 
