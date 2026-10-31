@@ -12,6 +12,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     statusItem.behavior = .removalAllowed
     statusItem.button?.action = #selector(performStatusItemClick)
+    statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseDown])
     statusItem.button?.image = Defaults[.menuIcon].image
     statusItem.button?.imagePosition = .imageLeft
     statusItem.button?.target = self
@@ -197,6 +198,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       .union(NSEvent.modifierFlags)
       .intersection(.deviceIndependentFlagsMask)
 
+    if NSApp.currentEvent?.type == .rightMouseDown || modifierFlags.contains(.control) {
+      showStatusItemMenu()
+      return
+    }
+
     if modifierFlags.contains(.option) {
       Defaults[.ignoreEvents].toggle()
 
@@ -208,6 +214,78 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     panel.toggle(height: AppState.shared.popup.height, at: .statusItem)
+  }
+
+  private func showStatusItemMenu() {
+    let menu = NSMenu()
+    let open = menu.addItem(withTitle: "Open Clipboard", action: #selector(openPanel), keyEquivalent: "")
+    open.setShortcut(KeyboardShortcuts.getShortcut(for: .popup))
+    menu.addItem(
+      withTitle: Defaults[.ignoreEvents] ? "Resume Clipboard History" : "Pause Clipboard History",
+      action: #selector(togglePause),
+      keyEquivalent: ""
+    )
+    let clear = menu.addItem(withTitle: "Clear History…", action: #selector(confirmClearHistory), keyEquivalent: "")
+    clear.isEnabled = !AppState.shared.history.unpinnedItems.isEmpty
+    menu.addItem(.separator())
+    menu.addItem(withTitle: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
+    if SoftwareUpdater.isAvailable {
+      menu.addItem(withTitle: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "")
+    }
+    menu.addItem(withTitle: "About ClipVee", action: #selector(openAbout), keyEquivalent: "")
+    menu.addItem(.separator())
+    menu.addItem(withTitle: "Quit ClipVee", action: #selector(NSApplication.terminate), keyEquivalent: "q")
+    menu.autoenablesItems = false
+    for item in menu.items where item.action != #selector(NSApplication.terminate) {
+      item.target = self
+    }
+
+    // The menu blocks until it closes. Meanwhile the global shortcut would queue up and
+    // open the panel afterwards, so the menu item handles it instead.
+    KeyboardShortcuts.disable(.popup)
+    statusItem.menu = menu
+    statusItem.button?.performClick(nil)
+    statusItem.menu = nil
+    KeyboardShortcuts.enable(.popup)
+  }
+
+  @objc
+  private func openPanel() {
+    panel.open(height: AppState.shared.popup.height, at: .statusItem)
+  }
+
+  @objc
+  private func togglePause() {
+    Defaults[.ignoreEvents].toggle()
+  }
+
+  @objc
+  private func confirmClearHistory() {
+    let alert = NSAlert()
+    alert.messageText = "Clear clipboard history?"
+    alert.informativeText = "Pinned items will be kept."
+    alert.addButton(withTitle: "Clear").hasDestructiveAction = true
+    alert.addButton(withTitle: "Cancel")
+    NSApp.activate()
+    if alert.runModal() == .alertFirstButtonReturn {
+      AppState.shared.history.clear()
+    }
+  }
+
+  @objc
+  private func openSettings() {
+    AppState.shared.openPreferences()
+  }
+
+  @objc
+  private func checkForUpdates() {
+    NSApp.activate()
+    SoftwareUpdater.shared.checkForUpdates()
+  }
+
+  @objc
+  private func openAbout() {
+    AppState.shared.openAbout()
   }
 
   private func synchronizeMenuIconText() {

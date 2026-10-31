@@ -10,10 +10,10 @@ Full Xcode is required. The script uses it for this build only and leaves your s
 
 This writes `.build/DerivedData/Build/Products/Debug/ClipVee.app`. Copy it to `/Applications` and turn it on in System Settings → Privacy & Security → Accessibility.
 
-Builds are signed ad hoc, so macOS forgets the Accessibility grant after every rebuild. To keep it, sign with your Apple Development certificate:
+Builds are signed ad hoc, so macOS forgets the Accessibility grant after every rebuild. To keep it, sign with the ClipVee release certificate (see [Making a release](#making-a-release)). macOS then treats the build and the released app as the same app, so you can switch between them without turning Accessibility on again. Quit the installed copy first, since both share the same history:
 
 ```sh
-CLIPVEE_SIGN_IDENTITY='Apple Development: you@example.com (TEAMID)' ./scripts/build-local.sh
+CLIPVEE_SIGN_IDENTITY=ClipVee ./scripts/build-local.sh
 ```
 
 If Accessibility shows ClipVee as on but pasting still doesn't work, an old build has left a stale grant. Remove ClipVee from the list with the minus button, then add the current copy again.
