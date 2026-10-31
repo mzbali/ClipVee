@@ -38,7 +38,7 @@ ClipVee needs macOS 14 Sonoma or later, on an Apple silicon or Intel Mac.
 
 1. Download the zip from the [latest release](https://github.com/mzbali/ClipVee/releases/latest), open it, and drag **ClipVee** to your Applications folder.
 2. Open ClipVee. The first time, macOS says it can't check the app, because ClipVee isn't notarised by Apple. Click **Done**, then open System Settings → Privacy & Security, scroll down, and click **Open Anyway** next to ClipVee. You only need to do this once.
-3. In System Settings → Privacy & Security → Accessibility, turn on **ClipVee**. It needs this to paste for you.
+3. In System Settings → Privacy & Security → Accessibility, turn on **ClipVee**. It needs this to paste for you. After installing a new version, macOS may ask again: remove ClipVee from the list with the minus button, then turn the new copy on.
 4. Press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>.
 
 ### Build it yourself
@@ -56,7 +56,7 @@ Copy `.build/DerivedData/Build/Products/Debug/ClipVee.app` to your Applications 
 Builds without a signing identity are signed ad hoc, and macOS asks for Accessibility again after every rebuild. To avoid that, sign with your own Apple Development certificate:
 
 ```sh
-MACCY_SIGN_IDENTITY='Apple Development: you@example.com (TEAMID)' ./scripts/build-local.sh
+CLIPVEE_SIGN_IDENTITY='Apple Development: you@example.com (TEAMID)' ./scripts/build-local.sh
 ```
 
 ### Coming from Maccy

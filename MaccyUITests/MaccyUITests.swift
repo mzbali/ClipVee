@@ -22,7 +22,7 @@ private struct HistoryItemQuery {
 @MainActor
 class MaccyUITests: XCTestCase {
   let app: XCUIApplication = {
-    if let path = ProcessInfo.processInfo.environment["MACCY_UI_APP_PATH"] {
+    if let path = ProcessInfo.processInfo.environment["CLIPVEE_UI_APP_PATH"] {
       return XCUIApplication(url: URL(fileURLWithPath: path))
     }
     return XCUIApplication()
@@ -614,8 +614,8 @@ class MaccyUITests: XCTestCase {
   }
 
   func testInstalledKeyboardPasteWithoutInspectingPopup() {
-    let path = ProcessInfo.processInfo.environment["MACCY_UI_APP_PATH"]
-    XCTAssertEqual(path, "/Applications/ClipVee.app", "Run with TEST_RUNNER_MACCY_UI_APP_PATH set")
+    let path = ProcessInfo.processInfo.environment["CLIPVEE_UI_APP_PATH"]
+    XCTAssertEqual(path, "/Applications/ClipVee.app", "Run with TEST_RUNNER_CLIPVEE_UI_APP_PATH set")
     let running = NSRunningApplication.runningApplications(withBundleIdentifier: "uk.co.mzbali.ClipVee")
     XCTAssertEqual(running.first?.bundleURL?.path, path, "Must exercise the installed application")
     testKeyboardPasteWithoutInspectingPopup()

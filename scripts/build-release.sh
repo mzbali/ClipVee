@@ -1,6 +1,6 @@
 #!/bin/bash
 # Builds a Release copy of ClipVee and zips it for a GitHub release.
-# Signs ad hoc unless CLIPVEE_SIGN_IDENTITY names a code-signing identity.
+# Always signed ad hoc, so no personal certificate details end up in the download.
 set -euo pipefail
 task_root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$task_root"
@@ -11,10 +11,10 @@ version=$(xcodebuild -project Maccy.xcodeproj -target Maccy -configuration Relea
 output="$task_root/.build/release"
 rm -rf "$output"
 
-xcodebuild -project Maccy.xcodeproj -scheme Maccy -configuration Release \
+xcodebuild -project Maccy.xcodeproj -scheme ClipVee -configuration Release \
   -destination 'generic/platform=macOS' -derivedDataPath .build/ReleaseDerivedData \
   -clonedSourcePackagesDirPath .build/SourcePackages -skipPackageUpdates \
-  CODE_SIGN_IDENTITY="${CLIPVEE_SIGN_IDENTITY:--}" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
+  CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
   CONFIGURATION_BUILD_DIR="$output" \
   build
 
