@@ -1,36 +1,108 @@
-# ClipVee
+<p align="center">
+  <img src="docs/images/icon.png" width="128" height="128" alt="">
+</p>
 
-A personal fork of [Maccy 2.8.0](https://github.com/p0deje/Maccy/tree/2.8.0), with a macOS clipboard panel inspired by Windows 11 clipboard history.
+<h1 align="center">ClipVee</h1>
 
-## Everyday use
+<p align="center">
+  Windows-style clipboard history for the Mac.<br>
+  Press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>, pick a card, and it's pasted.
+</p>
 
-- **Command–Shift–V** opens the clipboard history.
-- Text cards and image thumbnails show what you copied.
-- **↑ / ↓** select an item; **Return** pastes it directly into the app you came from.
-- Click an item to paste it, or use its pin and item-menu controls.
-- **Escape**, the shortcut again, or a click outside closes the panel.
-- **Clear all** removes unpinned items and keeps your pins.
+<p align="center">
+  <img src="docs/screenshots/panel.png" width="720" alt="The ClipVee panel open over a document, showing text and image cards">
+</p>
 
-The default panel is 360 points wide, near the bottom-right of the active screen. Position and size can be changed in settings. Search, the metadata sidebar, and the footer are hidden by default. There are no emoji, GIF, or AI tabs.
+## Why ClipVee
 
-## Build and install
+On Windows, <kbd>Win</kbd> + <kbd>V</kbd> opens a small panel of everything you've copied. macOS has nothing like it built in. ClipVee brings that panel to the Mac: it opens next to your work, you choose a card with the keyboard or mouse, and it's pasted into the app you were using.
 
-Requires macOS 14 or later and full Xcode. Build locally:
+## Features
+
+- **Your history as cards.** Text, images with thumbnails, and files, newest first. Each card shows where and when it was copied.
+- **Pastes straight in.** Select with <kbd>↑</kbd> <kbd>↓</kbd> and press <kbd>Return</kbd>, or click. <kbd>⌘1</kbd> to <kbd>⌘9</kbd> paste the nine newest items.
+- **Pins.** Keep snippets you reuse at the top. Pins survive **Clear all** and get their own letter shortcut.
+- **Type to search.** The search field appears as soon as you start typing.
+- **Put it where you like.** In the middle of the window, at the pointer, by the menu bar icon, or wherever you last dragged it. Drag the bottom edge to make it taller.
+- **Plain text when you need it.** Paste any formatted card without its fonts and colours, or make that the default.
+- **Private.** Passwords copied from password managers are skipped. You can ignore whole apps, pause history, or skip just the next copy. Your history never leaves your Mac.
+- **Colour swatches** for hex codes such as `#FF8800`.
+
+<p align="center">
+  <img src="docs/screenshots/settings.png" width="720" alt="ClipVee Settings on the Panel page, with a picture of the screen for choosing where the panel opens">
+</p>
+
+## Install
+
+ClipVee needs macOS 14 Sonoma or later, on an Apple silicon or Intel Mac.
+
+1. Download the zip from the [latest release](https://github.com/mzbali/ClipVee/releases/latest), open it, and drag **ClipVee** to your Applications folder.
+2. Open ClipVee. The first time, macOS says it can't check the app, because ClipVee isn't notarised by Apple. Click **Done**, then open System Settings → Privacy & Security, scroll down, and click **Open Anyway** next to ClipVee. You only need to do this once.
+3. In System Settings → Privacy & Security → Accessibility, turn on **ClipVee**. It needs this to paste for you.
+4. Press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>.
+
+### Build it yourself
+
+With Xcode installed:
 
 ```sh
-MACCY_SIGN_IDENTITY='<your Apple Development signing identity>' ./scripts/build-local.sh
+git clone https://github.com/mzbali/ClipVee.git
+cd ClipVee
+./scripts/build-local.sh
 ```
 
-The output is `.build/DerivedData/Build/Products/Debug/ClipVee.app`. Quit any running copy, then copy this app to `/Applications` and open it. Enable **ClipVee** in System Settings → Privacy & Security → Accessibility for direct paste. Use the same signing identity for later builds so permissions remain valid. Omitting the identity produces an ad-hoc build, which may require granting Accessibility again after rebuilding.
+Copy `.build/DerivedData/Build/Products/Debug/ClipVee.app` to your Applications folder, then follow steps 3 and 4 above.
 
-This fork uses the separate bundle identifier `uk.co.mzbali.ClipVee`. Its settings and history are separate from official Maccy; `scripts/migrate-history.sh` copies them over. Run only one clipboard manager with Command–Shift–V registered at a time.
+Builds without a signing identity are signed ad hoc, and macOS asks for Accessibility again after every rebuild. To avoid that, sign with your own Apple Development certificate:
 
-This is a local development build, without a notarized release or automatic updates. Homebrew's `maccy` package installs the original app. Build this repository to use this version.
+```sh
+MACCY_SIGN_IDENTITY='Apple Development: you@example.com (TEAMID)' ./scripts/build-local.sh
+```
 
-## Validation and development
+### Coming from Maccy
 
-See [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) for the build and test workflow, signing details, and known limits. Validation includes 94 unit tests, focused desktop workflow checks with a disposable paste destination, and physical arrow/Return acceptance in T3. The earlier intermittent keyboard failure stopped after restarting; its cause remains unconfirmed.
+ClipVee can bring over your Maccy history, pins and settings. Open ClipVee once and quit it, quit Maccy, then run:
 
-## Credits and license
+```sh
+./scripts/migrate-history.sh
+```
 
-Clipboard capture, persistence, and the original application are from [Maccy by Alex Rodionov and contributors](https://github.com/p0deje/Maccy). This fork retains the [MIT license](LICENSE) and upstream attribution. The official project's website is [maccy.app](https://maccy.app); this fork is maintained separately.
+Maccy's own data isn't changed. Only run one of the two with <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd> at a time.
+
+## Keyboard
+
+| Keys | What it does |
+| --- | --- |
+| <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd> | Open or close the panel |
+| <kbd>↑</kbd> <kbd>↓</kbd> | Select a card |
+| <kbd>Return</kbd> or click | Paste |
+| <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>Return</kbd> | Paste as plain text |
+| <kbd>⌥</kbd> <kbd>Return</kbd> | Copy without pasting |
+| <kbd>⌘1</kbd> to <kbd>⌘9</kbd> | Paste one of the nine newest items |
+| <kbd>⌥</kbd> <kbd>P</kbd> | Pin or unpin |
+| <kbd>⌥</kbd> <kbd>⌫</kbd> | Delete |
+| <kbd>Esc</kbd> | Close |
+| <kbd>⌘</kbd> <kbd>,</kbd> | Settings |
+
+All of these can be changed in Settings → Shortcuts, and Settings → General decides whether choosing a card pastes or only copies.
+
+## How it differs from Maccy
+
+ClipVee is a fork of [Maccy](https://github.com/p0deje/Maccy) 2.8.0. It keeps Maccy's clipboard capture, storage and privacy features, and changes how you see and use your history.
+
+| | Maccy | ClipVee |
+| --- | --- | --- |
+| Look | A menu-style list | A panel of cards, like Windows 11 |
+| Shortcut | <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>C</kbd> | <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd> |
+| Choosing an item | Copies it | Pastes it into the app you were using |
+| Settings | Tabs | A sidebar, with a picture of the screen for placing the panel |
+
+## Contributing
+
+Issues and pull requests are welcome. ClipVee is about clipboard history only, so it won't gain emoji, GIF or AI tabs.
+
+[LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) covers building, signing and tests. Inside the project, the code still uses Maccy's names, so fixes from Maccy can be merged in easily.
+
+## Credits and licence
+
+ClipVee is built on [Maccy](https://maccy.app) by Alex Rodionov and contributors, released under the [MIT License](LICENSE). ClipVee is maintained separately, so please report ClipVee problems here rather than to Maccy.

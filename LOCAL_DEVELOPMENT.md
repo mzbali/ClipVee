@@ -3,7 +3,7 @@
 Based on [Maccy 2.8.0](https://github.com/p0deje/Maccy/tree/2.8.0), under its MIT license.
 This fork keeps clipboard capture and persistence, with a compact macOS panel inspired by Windows clipboard history.
 
-- Command–Shift–V opens the panel in the middle of the frontmost window. Settings → Appearance → Popup at changes this. Windows opens at the text cursor, but the App Sandbox blocks reading another app's caret.
+- Command–Shift–V opens the panel in the middle of the frontmost window. Settings → Panel changes this. Windows opens at the text cursor, but the App Sandbox blocks reading another app's caret.
 - Drag the panel by its header to move it. After a move, searching keeps the header in place.
 - The panel is sized to show about three text cards and scrolls for more. Drag its bottom edge to change the height.
 - A copy made just before the shortcut (for example a Shottr screenshot) is picked up when the panel opens.
@@ -13,7 +13,7 @@ This fork keeps clipboard capture and persistence, with a compact macOS panel in
 - Escape, another shortcut press, and clicking outside dismiss the panel.
 - Clear all keeps pinned items.
 - The search field appears only once you start typing. Metadata preview and the footer are hidden by default. There are no AI, emoji, or GIF tabs.
-- Unpinned history keeps 200 items (Settings → Storage). Pins do not count towards that limit; about 29 receive a letter shortcut, and further pins are kept without one.
+- Unpinned history keeps 200 items (Settings → History). Pins do not count towards that limit; about 29 receive a letter shortcut, and further pins are kept without one.
 
 ## Local build
 
@@ -33,6 +33,14 @@ Builds are ad-hoc signed by default. For a consistent local signing identity acr
 Direct paste requires Accessibility permission for **ClipVee**. Only run one app with Command–Shift–V registered at a time.
 
 If Accessibility shows an enabled switch but the runner still reports no access, an earlier ad-hoc build may have a stale grant. Remove that entry in System Settings, then add the current signed app from the output folder above. Add **ClipVee.app** separately. Keep using the same signing identity for subsequent builds.
+
+## Making a release
+
+```sh
+./scripts/build-release.sh
+```
+
+This builds a universal Release copy and writes `.build/release/ClipVee-<version>.zip`. It is signed ad hoc unless `CLIPVEE_SIGN_IDENTITY` names a signing identity. The app isn't notarised, so the README explains Gatekeeper's **Open Anyway** step. Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` first, then attach the zip to a GitHub release tagged `v<version>`.
 
 ## Validation
 
