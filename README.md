@@ -47,7 +47,7 @@ ClipVee needs macOS 14 Sonoma or later, on an Apple silicon or Intel Mac.
    ```
 
 2. Open ClipVee. The first time, macOS says it can't check the app, because ClipVee isn't notarised by Apple. Click **Done**, then open System Settings → Privacy & Security, scroll down, and click **Open Anyway** next to ClipVee. You only need to do this once.
-3. In System Settings → Privacy & Security → Accessibility, turn on **ClipVee**. It needs this to paste for you. Updates keep this setting. If you're updating from 1.0.0, remove ClipVee from the list with the minus button once, then turn the new copy on.
+3. ClipVee opens a welcome window. Click **Allow…**, then turn on **ClipVee** in System Settings → Privacy & Security → Accessibility. It needs this to paste for you. Updates keep this setting. If you're updating from 1.0.0, remove ClipVee from the list with the minus button once, then turn the new copy on.
 4. Press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>.
 
 ClipVee asks whether to check for updates automatically, and installs new versions when you click **Install**. You can also click **Check now** in Settings → General. Your history and settings carry over. Version 1.0.1 and earlier can't check for updates, so replace it with the new version once.
