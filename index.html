@@ -427,11 +427,11 @@
     .catch(() => {});
 
   // The demo loops, with a button to pause it. With Reduce Motion it plays once and stops with the
-  // panel open, and the button replays it.
+  // pasted text visible, and the button replays the complete sequence.
   const stage = document.querySelector(".stage");
   const toggle = document.querySelector("[data-demo-toggle]");
   const loop = 9000;
-  const picked = 4700; // The panel is open with the message selected, just before it's pasted.
+  const completed = 7000; // After Return and the paste, before the loop clears the document.
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
   const labels = {
     playing: ["Pause", "Pause the animation"],
@@ -461,9 +461,9 @@
       stopTimer = setTimeout(() => {
         const animations = stage.getAnimations({ subtree: true });
         animations.forEach((animation) => animation.pause());
-        seek(Math.floor(animations[0].currentTime / loop) * loop + picked);
+        seek(Math.floor(animations[0].currentTime / loop) * loop + completed);
         show("ended");
-      }, time <= picked ? picked - time : loop - time + picked);
+      }, time <= completed ? completed - time : loop - time + completed);
     }
   }
 
