@@ -18,7 +18,10 @@ final class WelcomeWindowController: NSWindowController {
     window.titlebarAppearsTransparent = true
     window.isReleasedWhenClosed = false
     self.init(window: window)
-    window.contentViewController = NSHostingController(rootView: WelcomeView { [weak window] in window?.close() })
+    let hostingController = NSHostingController(rootView: WelcomeView { [weak window] in window?.close() })
+    window.contentViewController = hostingController
+    // Centre the window at the size of its content, which SwiftUI would otherwise apply later.
+    window.setContentSize(hostingController.view.fittingSize)
     window.center()
   }
 
@@ -26,6 +29,9 @@ final class WelcomeWindowController: NSWindowController {
     NSApp.activate()
     showWindow(nil)
     window?.makeKeyAndOrderFront(nil)
+    // macOS can refuse to activate ClipVee, such as when an app in the background opened it,
+    // and the window would then open behind other windows.
+    window?.orderFrontRegardless()
   }
 }
 
