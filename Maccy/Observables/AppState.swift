@@ -119,7 +119,7 @@ class AppState: Sendable {
   }
 
   @MainActor
-  func openPreferences(_ page: SettingsPage? = nil) {
+  func openPreferences(_ page: SettingsPage = .general) {
     if settingsWindowController == nil {
       settingsWindowController = SettingsWindowController()
     }

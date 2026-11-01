@@ -131,6 +131,58 @@ class MaccyUITests: XCTestCase {
     assertExists(items[copy2])
   }
 
+  func testMenuBarPanelAndOptionsRespectPanelPositionAndPaste() throws {
+    relaunchWithMinimalCenteredPopup(position: "center")
+    popUpWithHotkey()
+    let shortcutFrame = app.dialogs.firstMatch.frame
+    postKey(kVK_Escape)
+    assertPopupDismissed()
+
+    let statusItem = app.statusItems.firstMatch
+    try XCTSkipUnless(statusItem.waitForExistence(timeout: 3) && statusItem.isHittable,
+                      "A visible status item is required for physical mouse clicks")
+    for rightClick in [false, true] {
+      pasteTarget.activate()
+      let destination = pasteTarget.textViews["paste-destination"]
+      destination.click()
+      pasteTarget.typeKey("a", modifierFlags: .command)
+      pasteTarget.typeKey(.delete, modifierFlags: [])
+      if rightClick {
+        statusItem.rightClick()
+        XCTAssertTrue(app.menuItems["Settings…"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.menuItems["Quit ClipVee"].exists)
+        XCTAssertFalse(app.dialogs.firstMatch.exists)
+        app.menuItems["Open Clipboard"].click()
+      } else {
+        statusItem.click()
+      }
+      waitUntilPoppedUp()
+      let frame = app.dialogs.firstMatch.frame
+      XCTAssertEqual(frame.minX, shortcutFrame.minX, accuracy: 2)
+      XCTAssertEqual(frame.minY, shortcutFrame.minY, accuracy: 2)
+      XCTAssertTrue(app.buttons["Clipboard settings"].exists)
+      items[copy1].click()
+      assertPopupDismissed()
+      let pasted = NSPredicate { [self] _, _ in destination.value as? String == copy1 }
+      expectation(for: pasted, evaluatedWith: nil)
+      waitForExpectations(timeout: 3)
+    }
+  }
+
+  func testSettingsReopensOnGeneral() {
+    popUpWithHotkey()
+    app.buttons["Clipboard settings"].click()
+    let settings = app.windows["ClipVee Settings"]
+    XCTAssertTrue(settings.waitForExistence(timeout: 3))
+    settings.buttons["Panel"].click()
+    settings.buttons[XCUIIdentifierCloseWindow].click()
+    pasteTarget.activate()
+    popUpWithHotkey()
+    app.buttons["Clipboard settings"].click()
+    XCTAssertTrue(settings.buttons["General"].isSelected)
+    XCTAssertFalse(settings.buttons["Panel"].isSelected)
+  }
+
   func testNewCopyIsAdded() {
     popUpWithMouse()
     let copy3 = UUID().uuidString

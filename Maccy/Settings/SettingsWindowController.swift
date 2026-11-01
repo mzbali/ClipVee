@@ -63,10 +63,8 @@ final class SettingsWindowController: NSWindowController {
     window.center()
   }
 
-  func show(_ page: SettingsPage? = nil) {
-    if let page {
-      navigation.page = page
-    }
+  func show(_ page: SettingsPage = .general) {
+    navigation.page = page
     NSApp.activate()
     showWindow(nil)
     window?.makeKeyAndOrderFront(nil)
@@ -100,7 +98,7 @@ struct SettingsView: View {
   private var sidebar: some View {
     VStack(alignment: .leading, spacing: 2) {
       HStack(spacing: 8) {
-        Image(nsImage: NSApp.applicationIconImage)
+        Image(nsImage: .clipVeeAppIcon)
           .resizable()
           .frame(width: 24, height: 24)
           .accessibilityHidden(true)

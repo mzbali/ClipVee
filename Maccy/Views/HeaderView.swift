@@ -2,6 +2,7 @@ import Defaults
 import SwiftUI
 
 struct HeaderView: View {
+  @Default(.ignoreEvents) private var ignoreEvents
   @State private var appState = AppState.shared
   @State private var confirmClear = false
   @State private var updater = SoftwareUpdater.shared
@@ -37,6 +38,20 @@ struct HeaderView: View {
         }
         .help("Settings")
         .accessibilityLabel("Clipboard settings")
+        Menu {
+          Button(ignoreEvents ? "Resume Clipboard History" : "Pause Clipboard History") {
+            ignoreEvents.toggle()
+          }
+          Button("About ClipVee") { appState.openAbout() }
+          Divider()
+          Button("Quit ClipVee") { appState.quit() }
+        } label: {
+          Image(systemName: "ellipsis")
+        }
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .help("More actions")
+        .accessibilityLabel("More clipboard actions")
         Button { appState.popup.close() } label: {
           Image(systemName: "xmark")
         }

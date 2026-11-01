@@ -1,5 +1,11 @@
 # ClipVee local development
 
+## Daily development
+
+Use the signed local Debug build in `/Applications/ClipVee.app` as the everyday app while iterating. After a change, run the relevant checks, rebuild with `CLIPVEE_SIGN_IDENTITY=ClipVee`, quit the running app, replace it and relaunch. Source edits only take effect after rebuilding and restarting.
+
+Keep the published GitHub and Homebrew release stable. Gather fixes from everyday use, then test and publish a numbered release when requested. Installing a development build does not require a public version bump. Keep a rollback copy of the previous installed app under `.build/local-install-backups/`; both builds use the same history and settings, so run only one at a time.
+
 ## Build
 
 Full Xcode is required. The script uses it for this build only and leaves your system developer directory alone.

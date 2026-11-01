@@ -15,7 +15,7 @@ struct AboutSettingsPane: View {
   var body: some View {
     SettingsPageView(title: "About") {
       HStack(spacing: 16) {
-        Image(nsImage: NSApp.applicationIconImage)
+        Image(nsImage: .clipVeeAppIcon)
           .resizable()
           .frame(width: 64, height: 64)
           .accessibilityHidden(true)

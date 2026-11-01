@@ -219,7 +219,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       return
     }
 
-    panel.toggle(height: AppState.shared.popup.height, at: .statusItem)
+    panel.toggle(height: AppState.shared.popup.height)
   }
 
   // A right-click or Control-click gives the status item a menu just before AppKit handles the
@@ -278,7 +278,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   @objc
   private func openPanel() {
-    panel.open(height: AppState.shared.popup.height, at: .statusItem)
+    panel.open(height: AppState.shared.popup.height)
   }
 
   @objc

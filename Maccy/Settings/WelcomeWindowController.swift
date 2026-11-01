@@ -44,7 +44,7 @@ struct WelcomeView: View {
 
   var body: some View {
     VStack(spacing: 18) {
-      Image(nsImage: NSApp.applicationIconImage)
+      Image(nsImage: .clipVeeAppIcon)
         .resizable()
         .frame(width: 72, height: 72)
         .accessibilityHidden(true)

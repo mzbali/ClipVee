@@ -27,7 +27,7 @@ On Windows, <kbd>Win</kbd> + <kbd>V</kbd> opens a small panel of everything you'
 - **Pastes straight in.** Select with <kbd>↑</kbd> <kbd>↓</kbd> and press <kbd>Return</kbd>, or click. <kbd>⌘1</kbd> to <kbd>⌘9</kbd> paste the nine newest items.
 - **Pins.** Keep snippets you reuse at the top. Pins survive **Clear all** and get their own letter shortcut.
 - **Type to search.** The search field appears as soon as you start typing.
-- **Put it where you like.** In the middle of the window, at the pointer, by the menu bar icon, or wherever you last dragged it. Drag the bottom edge to make it taller.
+- **Put it where you like.** In the middle of the window, at the pointer, by the menu bar icon, or wherever you last dragged it. The shortcut and left-click open the panel in your chosen position. Right-click the menu bar icon for options. Drag the bottom edge to make it taller.
 - **Plain text when you need it.** Paste any formatted card without its fonts and colours, or make that the default.
 - **Private.** Passwords copied from password managers are skipped. You can ignore whole apps, pause history, or skip just the next copy. Your history never leaves your Mac: ClipVee only goes online to check GitHub for updates, if you allow it.
 - **Colour swatches** for hex codes such as `#FF8800`.
