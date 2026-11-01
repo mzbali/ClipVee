@@ -105,7 +105,7 @@ struct HistoryItemView: View {
         .accessibilityIdentifier("pin-history-item")
 
         Menu {
-          if hasFormatting {
+          if item.hasFormatting {
             Button("Paste as plain text") {
               appState.history.select(item, flags: HistoryItemAction.pasteWithoutFormatting.modifierFlags)
             }
@@ -181,6 +181,4 @@ struct HistoryItemView: View {
   private func shortcutHint(for name: KeyboardShortcuts.Name) -> String {
     name.shortcut.map { " (\($0))" } ?? ""
   }
-  // Check the stored types; parsing HTML for every card would block the main thread.
-  private var hasFormatting: Bool { item.item.rtfData != nil || item.item.htmlData != nil }
 }

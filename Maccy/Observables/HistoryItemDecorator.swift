@@ -28,7 +28,10 @@ class HistoryItemDecorator: Identifiable, Hashable, HasVisibility {
   }
   var shortcuts: [KeyShortcut] = []
 
-  var application: String? {
+  // Cards keep what they show from the item's contents. SwiftUI can draw a card once more as it's
+  // removed, after the contents are deleted from the store, and reading them then would crash.
+  @ObservationIgnored
+  private(set) lazy var application: String? = {
     if item.universalClipboard {
       return "iCloud"
     }
@@ -40,9 +43,13 @@ class HistoryItemDecorator: Identifiable, Hashable, HasVisibility {
     }
 
     return url.deletingPathExtension().lastPathComponent
-  }
+  }()
 
-  var hasImage: Bool { item.image != nil }
+  @ObservationIgnored
+  private(set) lazy var hasImage = item.imageData != nil
+  // Check the stored types; parsing HTML for every card would block the main thread.
+  @ObservationIgnored
+  private(set) lazy var hasFormatting = item.rtfData != nil || item.htmlData != nil
   var hasFileURLs: Bool { !item.fileURLs.isEmpty }
   var hasPlainText: Bool { item.text != nil }
   var hasRichText: Bool { item.rtf != nil || item.html != nil }
