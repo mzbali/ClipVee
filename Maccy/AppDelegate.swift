@@ -7,13 +7,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   nonisolated static let isTesting = CommandLine.arguments.contains("enable-testing")
   var panel: FloatingPanel<ContentView>!
   private var welcomeWindowController: WelcomeWindowController?
+  private var statusItemMenuMonitor: Any?
 
   @objc
   private lazy var statusItem: NSStatusItem = {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     statusItem.behavior = .removalAllowed
     statusItem.button?.action = #selector(performStatusItemClick)
-    statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseDown])
     statusItem.button?.image = Defaults[.menuIcon].image
     statusItem.button?.imagePosition = .imageLeft
     statusItem.button?.target = self
@@ -122,6 +122,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     ) {
       ContentView()
     }
+    showMenuOnSecondaryClick()
 
     // People updating from a version without this window have already set ClipVee up.
     if !Self.isTesting && !Defaults[.showedWelcome] {
@@ -208,11 +209,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       .union(NSEvent.modifierFlags)
       .intersection(.deviceIndependentFlagsMask)
 
-    if NSApp.currentEvent?.type == .rightMouseDown || modifierFlags.contains(.control) {
-      showStatusItemMenu()
-      return
-    }
-
     if modifierFlags.contains(.option) {
       Defaults[.ignoreEvents].toggle()
 
@@ -226,41 +222,58 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     panel.toggle(height: AppState.shared.popup.height, at: .statusItem)
   }
 
-  private func showStatusItemMenu() {
+  // A right-click or Control-click gives the status item a menu just before AppKit handles the
+  // click, so AppKit shows it like any menu bar menu. Opening it from the click's action would
+  // leave the button waiting for a mouse-up the menu had taken, which stalls the app's timers.
+  private func showMenuOnSecondaryClick() {
+    statusItemMenuMonitor = NSEvent.addLocalMonitorForEvents(matching: [.rightMouseDown, .leftMouseDown]) { [weak self] event in
+      guard let self, event.window != nil, event.window == statusItem.button?.window,
+            event.type == .rightMouseDown || event.modifierFlags.contains(.control) else {
+        return event
+      }
+      statusItem.menu = makeStatusItemMenu()
+      return event
+    }
+  }
+
+  private func makeStatusItemMenu() -> NSMenu {
     let menu = NSMenu()
     if let version = SoftwareUpdater.shared.availableVersion {
-      menu.addItem(withTitle: "Update to ClipVee \(version)…", action: #selector(checkForUpdates), keyEquivalent: "")
+      addItem("Update to ClipVee \(version)…", symbol: "arrow.down.circle", action: #selector(checkForUpdates), to: menu)
       menu.addItem(.separator())
     }
-    let open = menu.addItem(withTitle: "Open Clipboard", action: #selector(openPanel), keyEquivalent: "")
+    let open = addItem("Open Clipboard", symbol: "clipboard", action: #selector(openPanel), to: menu)
     open.setShortcut(KeyboardShortcuts.getShortcut(for: .popup))
-    menu.addItem(
-      withTitle: Defaults[.ignoreEvents] ? "Resume Clipboard History" : "Pause Clipboard History",
-      action: #selector(togglePause),
-      keyEquivalent: ""
-    )
-    let clear = menu.addItem(withTitle: "Clear History…", action: #selector(confirmClearHistory), keyEquivalent: "")
+    if Defaults[.ignoreEvents] {
+      addItem("Resume Clipboard History", symbol: "play.circle", action: #selector(togglePause), to: menu)
+    } else {
+      addItem("Pause Clipboard History", symbol: "pause.circle", action: #selector(togglePause), to: menu)
+    }
+    let clear = addItem("Clear History…", symbol: "trash", action: #selector(confirmClearHistory), to: menu)
     clear.isEnabled = !AppState.shared.history.unpinnedItems.isEmpty
     menu.addItem(.separator())
-    menu.addItem(withTitle: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
+    addItem("Settings…", symbol: "gearshape", action: #selector(openSettings), key: ",", to: menu)
     if SoftwareUpdater.isAvailable {
-      menu.addItem(withTitle: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "")
+      addItem("Check for Updates…", symbol: "arrow.triangle.2.circlepath", action: #selector(checkForUpdates), to: menu)
     }
-    menu.addItem(withTitle: "About ClipVee", action: #selector(openAbout), keyEquivalent: "")
+    addItem("About ClipVee", symbol: "info.circle", action: #selector(openAbout), to: menu)
     menu.addItem(.separator())
-    menu.addItem(withTitle: "Quit ClipVee", action: #selector(NSApplication.terminate), keyEquivalent: "q")
+    addItem("Quit ClipVee", symbol: "xmark.rectangle", action: #selector(NSApplication.terminate), key: "q", to: menu)
     menu.autoenablesItems = false
     for item in menu.items where item.action != #selector(NSApplication.terminate) {
       item.target = self
     }
+    menu.delegate = self
+    return menu
+  }
 
-    // The menu blocks until it closes. Meanwhile the global shortcut would queue up and
-    // open the panel afterwards, so the menu item handles it instead.
-    KeyboardShortcuts.disable(.popup)
-    statusItem.menu = menu
-    statusItem.button?.performClick(nil)
-    statusItem.menu = nil
-    KeyboardShortcuts.enable(.popup)
+  // macOS 26 gives Settings and Quit icons of its own, and items without one would sit at a
+  // different indent, so every item has one.
+  @discardableResult
+  private func addItem(_ title: String, symbol: String, action: Selector, key: String = "", to menu: NSMenu) -> NSMenuItem {
+    let item = menu.addItem(withTitle: title, action: action, keyEquivalent: key)
+    item.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+    return item
   }
 
   @objc
@@ -280,7 +293,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     alert.informativeText = "Pinned items will be kept."
     alert.addButton(withTitle: "Clear").hasDestructiveAction = true
     alert.addButton(withTitle: "Cancel")
-    NSApp.activate()
+    // From the menu bar menu, macOS refuses a plain activate() and the alert would open unfocused.
+    NSApp.activate(ignoringOtherApps: true)
     if alert.runModal() == .alertFirstButtonReturn {
       AppState.shared.history.clear()
     }
@@ -329,5 +343,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         KeyboardShortcuts.disable(name)
       }
     }
+  }
+}
+
+extension AppDelegate: NSMenuDelegate {
+  // The menu blocks until it closes. Meanwhile the global shortcut would queue up and open the
+  // panel afterwards, so the menu item handles it instead.
+  func menuWillOpen(_ menu: NSMenu) {
+    KeyboardShortcuts.disable(.popup)
+  }
+
+  // Without a menu, the next left-click opens the panel again.
+  func menuDidClose(_ menu: NSMenu) {
+    statusItem.menu = nil
+    KeyboardShortcuts.enable(.popup)
   }
 }
