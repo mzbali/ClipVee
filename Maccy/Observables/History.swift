@@ -241,6 +241,8 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
       filteredUnpinnedItems.removeAll()
       sessionLog.removeValues { $0.pin == nil }
 
+      // The deletes below run in the store, so it must know about pins made since the last save.
+      try? Storage.shared.context.save()
       try? Storage.shared.context.transaction {
         try? Storage.shared.context.delete(
           model: HistoryItem.self,

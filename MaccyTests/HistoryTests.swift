@@ -228,6 +228,20 @@ extension SharedStateTests {
       try assertStorageCounts(items: 1, contents: 1)
     }
 
+    @Test("Clearing right after pinning keeps the pinned item")
+    func clearingRightAfterPinning() throws {
+      let pinned = history.add(historyItem("foo"))
+      history.add(historyItem("bar"))
+      try Storage.shared.context.save()
+      history.togglePin(pinned)
+
+      history.clear()
+
+      #expect(history.items.toArray() == [pinned])
+      #expect(pinned.item.text == "foo")
+      try assertStorageCounts(items: 1, contents: 1)
+    }
+
     @Test("Clearing from the open panel selects a remaining item")
     func clearingKeepsValidSelection() {
       let pinned = history.add(historyItem("foo"))
