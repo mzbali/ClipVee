@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/panel.png" width="720" alt="The ClipVee panel open over a document, showing text and image cards">
+  <img src="docs/images/demo.gif" width="900" alt="ClipVee demo: Command Shift V opens the panel beside a document, the Down arrow selects a saved sentence, Return pastes it, and reopening the panel shows that sentence first">
 </p>
 
 ## Why ClipVee

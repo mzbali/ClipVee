@@ -28,7 +28,9 @@ class MaccyUITests: XCTestCase {
     return XCUIApplication()
   }()
   let pasteboard = NSPasteboard.general
-  private lazy var pasteTarget = XCUIApplication(bundleIdentifier: "uk.co.mzbali.MaccyPasteTarget")
+  private lazy var pasteTarget = XCUIApplication(url: URL(fileURLWithPath: #filePath)
+    .deletingLastPathComponent().deletingLastPathComponent()
+    .appendingPathComponent(".build/PasteTarget.app"))
   private var savedClipboard: [NSPasteboardItem] = []
   private var didLaunch = false
   private var popupKeyCode = kVK_ANSI_C
@@ -227,8 +229,11 @@ class MaccyUITests: XCTestCase {
     XCTAssertTrue(field.exists)
     // The field waits for the user, without a caret, until typing starts.
     XCTAssertFalse(field.value(forKey: "hasKeyboardFocus") as? Bool ?? false)
+    postKey(kVK_ANSI_A)
+    postKey(kVK_ANSI_B)
+    assertSearchFieldValue("ab")
     for _ in 0..<5 { postKey(kVK_ANSI_X) }
-    assertSearchFieldValue("xxxxx")
+    assertSearchFieldValue("abxxxxx")
     clearEmptySearch()
     XCTAssertTrue(app.textFields.firstMatch.exists)
     for _ in 0..<3 { postKey(kVK_ANSI_Z) }
@@ -335,11 +340,29 @@ class MaccyUITests: XCTestCase {
   }
 
   func testCopyWithEnter() {
-    popUpWithMouse()
-    scrollIntoViewIfNeeded(items[copy2].firstMatch)
-    hover(items[copy2].firstMatch)
-    app.typeKey(.enter, modifierFlags: [])
+    assertKeyboardPaste(keyCode: kVK_ANSI_KeypadEnter)
+  }
+
+  func testCopyWithReturn() {
+    assertKeyboardPaste(keyCode: kVK_Return)
+  }
+
+  private func assertKeyboardPaste(keyCode: Int) {
+    popUpWithHotkey()
+    postKey(kVK_DownArrow)
+    let selected = NSPredicate { [self] _, _ in items[copy2].isSelected }
+    expectation(for: selected, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    // Send the physical key code to the nonactivating panel instead of asking
+    // XCTest to activate the app and synthesize the text form of Enter.
+    postKey(keyCode)
     assertPasteboardStringEquals(copy2)
+    assertPopupDismissed()
+    let pasted = NSPredicate { [self] _, _ in
+      pasteTarget.textViews["paste-destination"].value as? String == copy2
+    }
+    expectation(for: pasted, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
   }
 
   func testCopyWithCommandShortcut() {
@@ -571,6 +594,76 @@ class MaccyUITests: XCTestCase {
     app.typeKey("v", modifierFlags: [.command])
     assertPasteboardStringEquals(copy2)
     assertPopupDismissed()
+  }
+
+  func testReadmeDemoCapture() async throws {
+    try XCTSkipUnless(ProcessInfo.processInfo.environment["CLIPVEE_CAPTURE_README"] == "1",
+                      "Run explicitly to refresh README media")
+    let output = FileManager.default.temporaryDirectory.appendingPathComponent("ClipVeeReadmeCapture-105")
+    try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+    print("README_CAPTURE_DIR=\(output.path)")
+    pasteTarget.terminate()
+    // Cards name the app a copy came from by its file name, so the demo uses its own "Editor" copy.
+    let editor = XCUIApplication(url: URL(fileURLWithPath: #filePath)
+      .deletingLastPathComponent().deletingLastPathComponent()
+      .appendingPathComponent(".build/Editor.app"))
+    editor.launchArguments = ["--presentation"]
+    editor.launch()
+    defer { editor.terminate() }
+    app.terminate()
+    setKeyboardShortcut("popup", keyCode: kVK_ANSI_V, modifiers: cmdKey | shiftKey)
+    app.launchArguments.append(contentsOf: ["-popupPosition", "cursor"])
+    app.launch()
+    editor.activate()
+    copyToClipboard("#2563EB")
+    copyToClipboard("10:30 by the Ferry Building clock")
+    copyToClipboard("Weekend checklist: ferry tickets, camera, sunglasses.")
+    let window = editor.windows["Weekend plan.txt"]
+    XCTAssertTrue(window.waitForExistence(timeout: 3))
+    let frame = window.frame
+    let pointer = CGPoint(x: frame.minX + 690, y: frame.minY + 100)
+    CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: pointer, mouseButton: .left)?
+      .post(tap: .cghidEventTap)
+    var frames: [(String, TimeInterval)] = []
+    let start = Date.now
+    func record(seconds: TimeInterval) throws {
+      let until = Date.now.addingTimeInterval(seconds)
+      repeat {
+        let name = String(format: "frame-%03d.png", frames.count)
+        let time = Date.now.timeIntervalSince(start)
+        try window.screenshot().pngRepresentation.write(to: output.appendingPathComponent(name))
+        frames.append((name, time))
+        Thread.sleep(forTimeInterval: 0.12)
+      } while Date.now < until
+    }
+    try record(seconds: 0.8)
+    simulatePopupHotkey()
+    try record(seconds: 1.2)
+    postKey(kVK_DownArrow)
+    try record(seconds: 1.2)
+    postKey(kVK_Return)
+    try record(seconds: 1.6)
+    assertPopupDismissed()
+    let pasted = editor.textViews["paste-destination"].value as? String
+    XCTAssertTrue(pasted?.hasSuffix("Meet at: 10:30 by the Ferry Building clock") == true)
+    CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: pointer, mouseButton: .left)?
+      .post(tap: .cghidEventTap)
+    popUpWithHotkey()
+    if !items["10:30 by the Ferry Building clock"].isSelected { postKey(kVK_DownArrow) }
+    XCTAssertTrue(items["10:30 by the Ferry Building clock"].isSelected)
+    try record(seconds: 1.2)
+    try window.screenshot().pngRepresentation.write(to: output.appendingPathComponent("panel.png"))
+    var timeline = "ffconcat version 1.0\n"
+    for index in frames.indices {
+      let duration = index + 1 < frames.count ? frames[index + 1].1 - frames[index].1 : 1.6
+      timeline += "file '\(frames[index].0)'\nduration \(duration)\n"
+    }
+    timeline += "file '\(frames.last!.0)'\n"
+    try timeline.write(to: output.appendingPathComponent("frames.ffconcat"), atomically: true, encoding: .utf8)
+    openSettingsFromHeader()
+    let settings = app.windows["ClipVee Settings"]
+    settings.buttons["Panel"].click()
+    try settings.screenshot().pngRepresentation.write(to: output.appendingPathComponent("settings.png"))
   }
 
   func testDisablesOnOptionClickingMenubarIcon() throws {

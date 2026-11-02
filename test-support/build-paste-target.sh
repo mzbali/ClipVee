@@ -15,3 +15,12 @@ cat > "$task_app/Contents/Info.plist" <<'PLIST'
 PLIST
 swiftc "$task_root/test-support/PasteTarget.swift" -o "$task_app/Contents/MacOS/PasteTarget"
 codesign --force --sign - "$task_app"
+
+# The README demo uses a copy named Editor, since cards show the source app's file name.
+# Its own bundle identifier keeps it apart from the test target in Launch Services.
+demo_app="$task_root/.build/Editor.app"
+rm -rf "$demo_app"
+cp -R "$task_app" "$demo_app"
+plutil -replace CFBundleIdentifier -string uk.co.mzbali.ClipVeeDemoEditor "$demo_app/Contents/Info.plist"
+plutil -replace CFBundleName -string Editor "$demo_app/Contents/Info.plist"
+codesign --force --sign - "$demo_app"

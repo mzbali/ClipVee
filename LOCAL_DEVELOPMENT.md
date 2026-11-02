@@ -39,6 +39,25 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
 
 UI tests (`MaccyUITests`) press real keys and paste into a throwaway editor (`test-support/PasteTarget.swift`), so they take over the keyboard while they run. They save and restore your clipboard. They need Accessibility for **ClipVeeUITests-Runner**. To test the copy in `/Applications` rather than the build output, set `TEST_RUNNER_CLIPVEE_UI_APP_PATH=/Applications/ClipVee.app`.
 
+## Refresh README media
+
+The optional capture test uses an in-memory ClipVee history and a disposable Demo Editor with made-up snippets. It saves and restores the clipboard like the other UI tests. It takes over the keyboard and mouse; quit the everyday ClipVee copy first.
+
+After `CLIPVEE_SIGN_IDENTITY=ClipVee ./scripts/build-local.sh`, run:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
+TEST_RUNNER_CLIPVEE_UI_APP_PATH=/Applications/ClipVee.app \
+TEST_RUNNER_CLIPVEE_CAPTURE_README=1 \
+xcodebuild -project Maccy.xcodeproj -scheme ClipVee -configuration Debug \
+  -derivedDataPath .build/DerivedData -destination 'platform=macOS' \
+  -only-testing:MaccyUITests/MaccyUITests/testReadmeDemoCapture test-without-building \
+  > .build/readme-capture.log 2>&1
+./scripts/build-readme-media.sh
+```
+
+The installed app must match the built version. The runner saves captures in its temporary directory and logs the path; the conversion script reads it from `.build/readme-capture.log` (or accepts a directory argument). The conversion step requires `ffmpeg` and generates a repo-hosted GIF plus panel and Settings PNGs. Inspect the media before publishing it. Restart the everyday app after the capture finishes.
+
 ## Making a release
 
 Releases are signed with a self-signed certificate called **ClipVee**, so macOS keeps ClipVee's Accessibility permission across updates. Create it once with `./scripts/create-signing-identity.sh`, and back it up from Keychain Access (File → Export Items): a new certificate would make every user turn Accessibility on again. It has no Apple Team ID, so the app turns off library validation to load Sparkle.
