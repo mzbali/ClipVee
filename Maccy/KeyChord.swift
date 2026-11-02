@@ -119,7 +119,8 @@ enum KeyChord: CaseIterable {
     case (.comma, [.command]):
       self = .openPreferences
     case (.return, _),
-         (.keypadEnter, _):
+         (.keypadEnter, _),
+         (KeyChord.pasteKey, KeyChord.pasteKeyModifiers):
       self = .selectCurrentItem
     case (.escape, _):
       self = .close

@@ -187,6 +187,40 @@ struct KeyHandlingView<Content: View>: View {
       return true
     }
 
+    // Typing starts a search, so the field doesn't need focus (and a blinking caret) before that.
+    focusSearchField(for: event)
     return false
+  }
+
+  /// Moves focus to the search field when `event` is text, so the key lands in it as usual.
+  private func focusSearchField(for event: NSEvent) {
+    guard Defaults[.showSearch],
+          let panel = appState.appDelegate?.panel,
+          (panel.firstResponder as? NSTextView)?.isFieldEditor != true,
+          event.modifierFlags.isDisjoint(with: [.command, .control]),
+          let characters = event.characters, !characters.isEmpty,
+          characters.unicodeScalars.allSatisfy({ isTextScalar($0) }),
+          let field = searchTextField(in: panel.contentView),
+          panel.makeFirstResponder(field) else { return }
+
+    // Focusing selects the whole text; keep what is typed so far and add to it.
+    if let editor = panel.firstResponder as? NSTextView {
+      editor.setSelectedRange(NSRange(location: editor.string.utf16.count, length: 0))
+    }
+    searchFocused = true
+  }
+
+  private func isTextScalar(_ scalar: Unicode.Scalar) -> Bool {
+    // Arrow, function and other special keys report private-use characters.
+    !CharacterSet.controlCharacters.contains(scalar) && !(0xF700...0xF8FF).contains(scalar.value)
+  }
+
+  private func searchTextField(in view: NSView?) -> NSTextField? {
+    guard let view else { return nil }
+    if let field = view as? NSTextField, field.isEditable, field.isEnabled { return field }
+    for subview in view.subviews {
+      if let field = searchTextField(in: subview) { return field }
+    }
+    return nil
   }
 }

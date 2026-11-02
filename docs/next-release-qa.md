@@ -22,7 +22,7 @@ The 17 selected acceptance cases cover:
 1. Left-click panel, right-click/Control-click options, selected center placement, Open Clipboard from options, and actual card-click paste into the original app.
 2. Pause banner, Resume, stopping capture while paused, and capture resuming afterward.
 3. All capture switches disabled, immediate capture-off guidance, and opening History settings directly.
-4. Search While typing/Always/Never, discovery hint, no-match guidance, Clear search and typing again without manually refocusing.
+4. Search field modes (Always without a caret on open, While typing, Never), no-match guidance, Clear search and typing again without manually refocusing. Command-V pastes the selected card.
 5. Settings reopening on General.
 6. Global shortcut keyboard navigation and text paste without app-targeted AX inspection establishing focus.
 7. Image selection and actual image paste into PasteTarget.

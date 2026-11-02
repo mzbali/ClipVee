@@ -37,6 +37,7 @@ struct SearchFieldView: View {
               .padding(.trailing, 5)
           }
           .buttonStyle(.plain)
+          .pointingHandCursor()
           .opacity(0.9)
           .accessibilityLabel(Text("search_clear_accessibility_label"))
         }

@@ -24,9 +24,9 @@ On Windows, <kbd>Win</kbd> + <kbd>V</kbd> opens a small panel of recent copies. 
 ## Features
 
 - **Your history as cards.** Text, images with thumbnails, and files, newest first. Each card shows where and when it was copied.
-- **Pastes straight in.** Select with <kbd>↑</kbd> <kbd>↓</kbd> and press <kbd>Return</kbd>, or click. <kbd>⌘1</kbd> to <kbd>⌘9</kbd> paste the nine newest items.
+- **Pastes straight in.** Select with <kbd>↑</kbd> <kbd>↓</kbd> and press <kbd>Return</kbd> or <kbd>⌘V</kbd>, or click. <kbd>⌘1</kbd> to <kbd>⌘9</kbd> paste the nine newest items.
 - **Pins.** Keep snippets you reuse at the top. Pins survive clearing history and get their own letter shortcut.
-- **Type to search.** A hint shows you where to start; the search field appears as soon as you type. You can choose to show the field all the time or hide it in Settings → Panel.
+- **Type to search.** Click the search field or just start typing. In Settings → Panel, show the field always, only while you type, or never.
 - **Put it where you like.** In the middle of the window, at the pointer, by the menu bar icon, or wherever you last dragged it. The shortcut and left-click open the panel in your chosen position. Right-click the menu bar icon for options. Drag the bottom edge to make it taller.
 - **Plain text when you need it.** Paste any formatted card without its fonts and colours, or make that the default.
 - **Local history.** ClipVee skips clipboard content marked sensitive or temporary by supported apps, including password managers that provide those markers. It cannot recognise every password or secret copied as ordinary text. You can ignore whole apps, pause history, or skip just the next copy. Your history stays on this Mac; the optional updater contacts GitHub for update information.
@@ -65,7 +65,7 @@ If choosing a card only copies it, check **Paste automatically** and **Accessibi
 - Left-click the menu bar icon or use your shortcut to open the panel at your chosen position. Right-click or Control-click the icon for options.
 - Pause history from the panel's **More actions** menu or Settings → Privacy. Option-click the menu bar icon to toggle pause; Option-Shift-click skips only the next copy. Pausing stops new capture and keeps existing history.
 - ClipVee keeps **200 unpinned items by default**. Change the limit in Settings → History. Older unpinned items are removed as the limit is reached; pinned items don't count toward it.
-- History is saved on disk and survives quitting by default. **Clear history…** removes unpinned history and keeps pins. It only clears what Command-V would paste if **Clear the system clipboard too** is enabled in Settings → History.
+- History is saved on disk and survives quitting by default. **Clear History…** (in the panel's “…” menu) removes unpinned history and keeps pins. It only clears what Command-V would paste if **Clear the system clipboard too** is enabled in Settings → History.
 - Settings → Privacy lets you ignore source apps. Sensitive-content markers depend on the app you copy from; ordinary-text secrets can still be saved. History stays on this Mac, with no built-in sync.
 
 ### Troubleshooting and feedback

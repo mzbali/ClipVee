@@ -31,36 +31,43 @@ struct HeaderView: View {
             Image(systemName: "arrow.down.circle.fill")
           }
           .foregroundStyle(Color.accentColor)
+          .pointingHandCursor()
           .help("ClipVee \(version) is available")
           .accessibilityLabel("Update to ClipVee \(version)")
         }
-        Button("Clear history…") { confirmClear = true }
-          .font(.system(size: 11))
-          .buttonStyle(.borderless)
-          .disabled(appState.history.unpinnedItems.isEmpty)
         Button { appState.openPreferences() } label: {
           Image(systemName: "gearshape")
         }
+        .pointingHandCursor()
         .help("Settings")
         .accessibilityLabel("Clipboard settings")
+        .accessibilityIdentifier("clipboard-settings")
         Menu {
-          Button(ignoreEvents ? "Resume Clipboard History" : "Pause Clipboard History") {
+          Button {
             Clipboard.shared.setHistoryPaused(!ignoreEvents)
+          } label: {
+            Label(ignoreEvents ? "Resume Clipboard History" : "Pause Clipboard History",
+                  systemImage: ignoreEvents ? "play.circle" : "pause.circle")
           }
-          Button("About ClipVee") { appState.openAbout() }
+          Button { confirmClear = true } label: { Label("Clear History…", systemImage: "trash") }
+            .disabled(appState.history.unpinnedItems.isEmpty)
           Divider()
-          Button("Quit ClipVee") { appState.quit() }
+          Button { appState.openAbout() } label: { Label("About ClipVee", systemImage: "info.circle") }
+          Divider()
+          Button { appState.quit() } label: { Label("Quit ClipVee", systemImage: "power") }
         } label: {
           Image(systemName: "ellipsis")
         }
         .menuIndicator(.hidden)
         .fixedSize()
+        .pointingHandCursor()
         .help("More actions")
         .accessibilityLabel("More clipboard actions")
         .accessibilityIdentifier("clipboard-actions")
         Button { appState.popup.close() } label: {
           Image(systemName: "xmark")
         }
+        .pointingHandCursor()
         .help("Close")
         .accessibilityLabel("Close clipboard")
         .accessibilityIdentifier("close-clipboard")
@@ -71,15 +78,6 @@ struct HeaderView: View {
 
       if ignoreEvents || enabledPasteboardTypes.isEmpty {
         captureStatus
-      }
-
-      if showSearch && !searchVisible {
-        Label("Type to search", systemImage: "magnifyingglass")
-          .font(.system(size: 11))
-          .foregroundStyle(.secondary)
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .padding(.horizontal, 6)
-          .accessibilityIdentifier("search-discovery-hint")
       }
 
       ListHeaderView(searchFocused: $searchFocused, searchQuery: $appState.history.searchQuery,
@@ -120,6 +118,7 @@ struct HeaderView: View {
         }
       }
       .buttonStyle(.borderless)
+      .pointingHandCursor()
       .font(.system(size: 11, weight: .semibold))
       .fixedSize()
       .accessibilityIdentifier(ignoreEvents ? "resume-clipboard-history" : "configure-clipboard-history")

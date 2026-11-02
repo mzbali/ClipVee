@@ -60,8 +60,8 @@ struct PanelSettingsPane: View {
       }
       SettingsCard(icon: "magnifyingglass", title: "Search field") {
         Picker("Search field", selection: searchField) {
-          Text("While typing").tag(SearchVisibility?.some(.duringSearch))
           Text("Always").tag(SearchVisibility?.some(.always))
+          Text("While typing").tag(SearchVisibility?.some(.duringSearch))
           Text("Never").tag(SearchVisibility?.none)
         }
         .fixedSize()

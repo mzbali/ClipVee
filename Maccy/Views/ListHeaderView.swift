@@ -11,6 +11,7 @@ struct ListHeaderView: View {
   @Environment(\.scenePhase) private var scenePhase
 
   @Default(.showTitle) private var showTitle
+  @Default(.showSearch) private var showSearch
 
   var body: some View {
     HStack {
@@ -21,7 +22,11 @@ struct ListHeaderView: View {
       }
 
       SearchFieldView(placeholder: "search_placeholder", query: $searchQuery)
+        // A disabled field can't take focus, so typing does nothing while search is off.
+        .disabled(!showSearch)
         .focused($searchFocused)
+        .contentShape(Rectangle())
+        .onTapGesture { searchFocused = true }
         .frame(maxWidth: .infinity)
         .onChange(of: scenePhase) {
           if scenePhase == .background && !searchQuery.isEmpty {

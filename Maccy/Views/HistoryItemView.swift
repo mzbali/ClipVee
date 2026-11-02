@@ -99,6 +99,7 @@ struct HistoryItemView: View {
           Image(systemName: item.isPinned ? "pin.fill" : "pin")
         }
         .buttonStyle(.borderless)
+        .pointingHandCursor()
         .foregroundStyle(item.isPinned ? Color.accentColor : .secondary)
         .help("\(item.isPinned ? "Unpin" : "Pin")\(shortcutHint(for: .pin))")
         .accessibilityLabel(item.isPinned ? "Unpin item" : "Pin item")
@@ -120,6 +121,7 @@ struct HistoryItemView: View {
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
         .fixedSize()
+        .pointingHandCursor()
         .accessibilityLabel("Item actions")
       }
       .font(.system(size: 12))

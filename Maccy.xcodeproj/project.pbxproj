@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5E0A1C0D2DC0FFEE00A11002 /* SearchVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0A1C0D2DC0FFEE00A11001 /* SearchVisibility.swift */; };
 		0ABDD5122BB47F1E0054963B /* NSWorkspace+ApplicationName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABDD5112BB47F1E0054963B /* NSWorkspace+ApplicationName.swift */; };
 		21FFF308D9217B43FD4C393F /* VoiceOver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21DCA6C3D17E48D33D6E608 /* VoiceOver.swift */; };
 		2F0E055F2FFD2EB300CCD1DE /* ReorderableContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0E055E2FFD2EAF00CCD1DE /* ReorderableContainer.swift */; };
@@ -21,7 +22,7 @@
 		2F1091D72F2B6E8400F5C454 /* AsyncView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1091D62F2B6E8100F5C454 /* AsyncView.swift */; };
 		2F12271E2E5C932200A1592A /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 2F12271D2E5C932200A1592A /* Logging */; };
 		2F162E802F1E7B30001FBAFF /* PasteStackPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F162E7F2F1E7B28001FBAFF /* PasteStackPreviewView.swift */; };
-		2F1A79C02C6DFB7800C98EBD /* SearchVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A79BF2C6DFB7800C98EBD /* SearchVisibility.swift */; };
+		2F1A79C02C6DFB7800C98EBD /* PointingHandCursorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A79BF2C6DFB7800C98EBD /* PointingHandCursorModifier.swift */; };
 		2F1B61CD301BCFF2000905F9 /* ModifierFlags+Current.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1B61CC301BCFD2000905F9 /* ModifierFlags+Current.swift */; };
 		2F1B61CF301BE55F000905F9 /* EnumeratedForEach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1B61CE301BE559000905F9 /* EnumeratedForEach.swift */; };
 		2F39CB042AD9A93C00B749FD /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 2F39CB032AD9A93C00B749FD /* Sparkle */; };
@@ -199,6 +200,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5E0A1C0D2DC0FFEE00A11001 /* SearchVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchVisibility.swift; sourceTree = "<group>"; };
 		088F4DA628BECBC40003AD19 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		0ABDD5112BB47F1E0054963B /* NSWorkspace+ApplicationName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSWorkspace+ApplicationName.swift"; sourceTree = "<group>"; };
 		11680E44DAF848ADB8BA358E /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/PinsSettings.strings; sourceTree = "<group>"; };
@@ -217,7 +219,7 @@
 		2F0EC7882E7743D9003E2EA9 /* HoverSelectionModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverSelectionModifier.swift; sourceTree = "<group>"; };
 		2F1091D62F2B6E8100F5C454 /* AsyncView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncView.swift; sourceTree = "<group>"; };
 		2F162E7F2F1E7B28001FBAFF /* PasteStackPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteStackPreviewView.swift; sourceTree = "<group>"; };
-		2F1A79BF2C6DFB7800C98EBD /* SearchVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchVisibility.swift; sourceTree = "<group>"; };
+		2F1A79BF2C6DFB7800C98EBD /* PointingHandCursorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointingHandCursorModifier.swift; sourceTree = "<group>"; };
 		2F1B61CC301BCFD2000905F9 /* ModifierFlags+Current.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModifierFlags+Current.swift"; sourceTree = "<group>"; };
 		2F1B61CE301BE559000905F9 /* EnumeratedForEach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnumeratedForEach.swift; sourceTree = "<group>"; };
 		2F578C3C2EFFE8400088B759 /* ItemsProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsProtocol.swift; sourceTree = "<group>"; };
@@ -766,6 +768,7 @@
 				DA1969132C3F11D600258481 /* PreviewItemView.swift */,
 				BBCCA6C3F9374C9C91414E3A /* LargeTextView.swift */,
 				DA1969172C3F327500258481 /* SearchFieldView.swift */,
+				2F1A79BF2C6DFB7800C98EBD /* PointingHandCursorModifier.swift */,
 				2F578C402EFFE8920088B759 /* SlideoutContentView.swift */,
 				2F578C412EFFE8920088B759 /* SlideoutView.swift */,
 				2F9B42F02F1A4999006548E5 /* ToolbarView.swift */,
@@ -906,6 +909,7 @@
 				2F578C3C2EFFE8400088B759 /* ItemsProtocol.swift */,
 				DABDE97E2974706C005B32E9 /* KeyboardLayout.swift */,
 				DAD665652898A1C000975096 /* KeyChord.swift */,
+				5E0A1C0D2DC0FFEE00A11001 /* SearchVisibility.swift */,
 				DA19690F2C3F0AAC00258481 /* KeyShortcut.swift */,
 				DA05B5102C234CB1006980FE /* MaccyApp.swift */,
 				DA689FCB2C1D1D510009B887 /* MenuIcon.swift */,
@@ -914,7 +918,6 @@
 				DA689FC72C1D15140009B887 /* PinsPosition.swift */,
 				DA689FC52C1D14F10009B887 /* PopupPosition.swift */,
 				DAC14123232367B200FCFA30 /* Search.swift */,
-				2F1A79BF2C6DFB7800C98EBD /* SearchVisibility.swift */,
 				2F0EC77C2E773314003E2EA9 /* Selection.swift */,
 				DAA5ACC92C1BEE8A00B58513 /* SoftwareUpdater.swift */,
 				DA696BCD240177E800DE80CF /* Sorter.swift */,
@@ -1259,7 +1262,8 @@
 				DA083A6E2C42E8E8004259A0 /* NSImage+Resized.swift in Sources */,
 				2F162E802F1E7B30001FBAFF /* PasteStackPreviewView.swift in Sources */,
 				DAA072E12C41C6E8006DDFD2 /* FooterView.swift in Sources */,
-				2F1A79C02C6DFB7800C98EBD /* SearchVisibility.swift in Sources */,
+				2F1A79C02C6DFB7800C98EBD /* PointingHandCursorModifier.swift in Sources */,
+				5E0A1C0D2DC0FFEE00A11002 /* SearchVisibility.swift in Sources */,
 				DAA072DD2C41C61F006DDFD2 /* FooterItemView.swift in Sources */,
 				DA3EAE0C2AE30F7500F39108 /* NSApplication+Windows.swift in Sources */,
 				DAFE2DDA268A521B00990986 /* String+Shortened.swift in Sources */,
@@ -1865,7 +1869,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = MN3X4648SC;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1880,7 +1884,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.5;
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.mzbali.ClipVee;
 				PRODUCT_MODULE_NAME = Maccy;
 				PRODUCT_NAME = ClipVee;
@@ -1901,7 +1905,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = MN3X4648SC;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1916,7 +1920,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.5;
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.mzbali.ClipVee;
 				PRODUCT_MODULE_NAME = Maccy;
 				PRODUCT_NAME = ClipVee;

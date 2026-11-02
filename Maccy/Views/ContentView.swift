@@ -38,9 +38,6 @@ struct ContentView: View {
               value: appState.history.pasteStack?.id
             )
             .padding(.horizontal, Popup.horizontalPadding)
-            .onAppear {
-              searchFocused = true
-            }
             .onMouseMove {
               appState.navigator.isKeyboardNavigating = false
             }
@@ -63,7 +60,7 @@ struct ContentView: View {
     .onChange(of: appState.isEditingItem) { _, isEditingItem in
       // A sheet's text controls otherwise remain the logical focus target after
       // dismissal, preventing the popup's key handler from receiving shortcuts.
-      searchFocused = !isEditingItem
+      searchFocused = false
     }
     // FloatingPanel is not a scene, so let's implement custom scenePhase..
     .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) {

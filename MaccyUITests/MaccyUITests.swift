@@ -165,7 +165,7 @@ class MaccyUITests: XCTestCase {
       let frame = app.dialogs.firstMatch.frame
       XCTAssertEqual(frame.minX, shortcutFrame.minX, accuracy: 2)
       XCTAssertEqual(frame.minY, shortcutFrame.minY, accuracy: 2)
-      XCTAssertTrue(app.buttons["Clipboard settings"].exists)
+      XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "clipboard-actions").firstMatch.exists)
       let card = items[copy1].frame
       postMouseClick(at: CGPoint(x: card.midX, y: card.midY))
       assertPopupDismissed()
@@ -173,6 +173,10 @@ class MaccyUITests: XCTestCase {
       expectation(for: pasted, evaluatedWith: nil)
       waitForExpectations(timeout: 3)
     }
+  }
+
+  private func openSettingsFromHeader() {
+    app.descendants(matching: .any).matching(identifier: "clipboard-settings").firstMatch.click()
   }
 
   func testPauseBannerResumesCapturing() {
@@ -190,7 +194,7 @@ class MaccyUITests: XCTestCase {
 
   func testCaptureSettingsUpdatePanelGuidance() {
     popUpWithHotkey()
-    app.buttons["Clipboard settings"].click()
+    openSettingsFromHeader()
     let settings = app.windows["ClipVee Settings"]
     settings.buttons["History"].click()
     for identifier in ["capture-text", "capture-images", "capture-files"] {
@@ -219,13 +223,34 @@ class MaccyUITests: XCTestCase {
   func testSearchModesAndEmptyRecovery() {
     popUpWithHotkey()
     chooseSearchVisibility("Always")
-    XCTAssertTrue(app.textFields.firstMatch.exists)
-    XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "search-discovery-hint").firstMatch.exists)
-
-    chooseSearchVisibility("While typing")
-    XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "search-discovery-hint").firstMatch.exists)
+    let field = app.textFields.firstMatch
+    XCTAssertTrue(field.exists)
+    // The field waits for the user, without a caret, until typing starts.
+    XCTAssertFalse(field.value(forKey: "hasKeyboardFocus") as? Bool ?? false)
     for _ in 0..<5 { postKey(kVK_ANSI_X) }
     assertSearchFieldValue("xxxxx")
+    clearEmptySearch()
+    XCTAssertTrue(app.textFields.firstMatch.exists)
+    for _ in 0..<3 { postKey(kVK_ANSI_Z) }
+    assertSearchFieldValue("zzz")
+
+    chooseSearchVisibility("While typing")
+    XCTAssertFalse(app.textFields.firstMatch.exists)
+    for _ in 0..<2 { postKey(kVK_ANSI_Q) }
+    assertSearchFieldValue("qq")
+    clearEmptySearch()
+    XCTAssertFalse(app.textFields.firstMatch.exists)
+
+    chooseSearchVisibility("Never")
+    XCTAssertFalse(app.textFields.firstMatch.exists)
+    postKey(kVK_ANSI_Q)
+    Thread.sleep(forTimeInterval: 0.3)
+    XCTAssertFalse(app.textFields.firstMatch.exists)
+    XCTAssertFalse(app.buttons["clear-empty-search"].exists)
+    assertExists(items[copy1])
+  }
+
+  private func clearEmptySearch() {
     XCTAssertTrue(app.buttons["clear-empty-search"].waitForExistence(timeout: 3))
     // Filtering animates the panel height; click after the control has settled.
     Thread.sleep(forTimeInterval: 0.3)
@@ -234,20 +259,14 @@ class MaccyUITests: XCTestCase {
     let cleared = NSPredicate { [self] _, _ in !app.buttons["clear-empty-search"].exists }
     expectation(for: cleared, evaluatedWith: nil)
     waitForExpectations(timeout: 3)
-    for _ in 0..<3 { postKey(kVK_ANSI_Z) }
-    assertSearchFieldValue("zzz")
-
-    chooseSearchVisibility("Never")
-    XCTAssertFalse(app.textFields.firstMatch.exists)
-    XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "search-discovery-hint").firstMatch.exists)
   }
 
   private func chooseSearchVisibility(_ title: String) {
-    app.buttons["Clipboard settings"].click()
+    openSettingsFromHeader()
     let settings = app.windows["ClipVee Settings"]
     settings.buttons["Panel"].click()
     let picker = app.descendants(matching: .any).matching(identifier: "search-visibility").firstMatch
-    let options = ["While typing", "Always", "Never"]
+    let options = ["Always", "While typing", "Never"]
     guard let current = picker.value as? String, let currentIndex = options.firstIndex(of: current),
           let targetIndex = options.firstIndex(of: title) else {
       XCTFail("Search visibility picker has an unexpected value")
@@ -269,14 +288,14 @@ class MaccyUITests: XCTestCase {
 
   func testSettingsReopensOnGeneral() {
     popUpWithHotkey()
-    app.buttons["Clipboard settings"].click()
+    openSettingsFromHeader()
     let settings = app.windows["ClipVee Settings"]
     XCTAssertTrue(settings.waitForExistence(timeout: 3))
     settings.buttons["Panel"].click()
     settings.buttons[XCUIIdentifierCloseWindow].click()
     pasteTarget.activate()
     popUpWithHotkey()
-    app.buttons["Clipboard settings"].click()
+    openSettingsFromHeader()
     XCTAssertTrue(settings.buttons["General"].isSelected)
     XCTAssertFalse(settings.buttons["Panel"].isSelected)
   }
@@ -545,13 +564,13 @@ class MaccyUITests: XCTestCase {
     assertSearchFieldValue("foo ")
   }
 
-  func testPasteToSearch() {
+  func testCommandVPastesSelectedItem() {
     popUpWithMouse()
+    scrollIntoViewIfNeeded(items[copy2].firstMatch)
+    hover(items[copy2].firstMatch)
     app.typeKey("v", modifierFlags: [.command])
-    waitForSearch()
-    assertSearchFieldValue(copy1)
-    assertExists(items[copy1])
-    assertNotExists(items[copy2])
+    assertPasteboardStringEquals(copy2)
+    assertPopupDismissed()
   }
 
   func testDisablesOnOptionClickingMenubarIcon() throws {
@@ -796,7 +815,8 @@ class MaccyUITests: XCTestCase {
     XCTAssertTrue(app.dialogs.firstMatch.exists, "Pinning must keep the panel open")
     XCTAssertEqual(pasteTarget.textViews["paste-destination"].value as? String, "")
     assertExists(items[copy1].buttons["Unpin item"])
-    app.buttons["Clear history…"].click()
+    app.descendants(matching: .any).matching(identifier: "clipboard-actions").firstMatch.click()
+    app.menuItems["Clear History…"].click()
     XCTAssertTrue(app.dialogs.firstMatch.sheets.staticTexts["Pinned items will be kept."].exists)
     app.dialogs.firstMatch.sheets.buttons["Clear"].click()
     assertExists(items[copy1])
@@ -830,7 +850,6 @@ class MaccyUITests: XCTestCase {
     relaunchWithMinimalCenteredPopup()
     popUpWithHotkey()
     XCTAssertFalse(app.textFields.firstMatch.exists)
-    XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "search-discovery-hint").firstMatch.exists)
     closePopupByClickingOutside()
     assertPopupDismissed()
     popUpWithHotkey()

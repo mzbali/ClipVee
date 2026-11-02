@@ -42,6 +42,7 @@ struct ToolbarButton<Label: View>: View {
       label()
     }
     .buttonStyle(.plain)
+    .pointingHandCursor()
     .frame(height: 23)
     .excludeFromWindowMovableByBackground()
   }

@@ -49,6 +49,7 @@ struct HistoryListView: View {
                   searchFocused = true
                 }
                 .buttonStyle(.borderless)
+                .pointingHandCursor()
                 .accessibilityIdentifier("clear-empty-search")
               }
             }
@@ -85,7 +86,9 @@ struct HistoryListView: View {
       }
       .onChange(of: scenePhase) {
         if scenePhase == .active {
-          searchFocused = true
+          // No caret until the user clicks the field or starts typing.
+          searchFocused = false
+          appState.appDelegate?.panel?.makeFirstResponder(nil)
           appState.navigator.isKeyboardNavigating = true
           appState.navigator.select(item: appState.history.firstUnpinnedItem ?? appState.history.firstPinnedItem)
           appState.preview.enableAutoOpen()
