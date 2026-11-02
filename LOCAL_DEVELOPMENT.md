@@ -28,7 +28,7 @@ To bring over history and settings from Maccy, quit both apps and run `scripts/m
 
 ## Tests
 
-Unit tests use their own pasteboard and don't touch your clipboard:
+Build first with `./scripts/build-local.sh`, which also builds the tests. Unit tests use their own pasteboard and don't touch your clipboard:
 
 ```sh
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
@@ -37,13 +37,11 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
   -only-testing:MaccyTests test-without-building
 ```
 
-UI tests (`MaccyUITests`) press real keys and paste into a throwaway editor (`test-support/PasteTarget.swift`), so they take over the keyboard while they run. They save and restore your clipboard. They need Accessibility for **ClipVeeUITests-Runner**. To test the copy in `/Applications` rather than the build output, set `TEST_RUNNER_CLIPVEE_UI_APP_PATH=/Applications/ClipVee.app`.
+UI tests (`MaccyUITests`) press real keys and paste into a throwaway editor (`test-support/PasteTarget.swift`), so they take over the keyboard and mouse while they run. Quit the everyday ClipVee first; the tests save and restore your clipboard. They need Accessibility for **ClipVeeUITests-Runner**. To test the copy in `/Applications` rather than the build output, set `TEST_RUNNER_CLIPVEE_UI_APP_PATH=/Applications/ClipVee.app`.
 
 ## Refresh README media
 
-The optional capture test uses an in-memory ClipVee history and a disposable Demo Editor with made-up snippets. It saves and restores the clipboard like the other UI tests. It takes over the keyboard and mouse; quit the everyday ClipVee copy first.
-
-After `CLIPVEE_SIGN_IDENTITY=ClipVee ./scripts/build-local.sh`, run:
+The README GIF and the screenshots are recorded from the real app by `testReadmeDemoCapture`, which only runs when asked. It uses made-up snippets in a separate `Editor.app` and takes over the keyboard and mouse, so quit the everyday ClipVee first. Install the build you want to show in `/Applications`, then run:
 
 ```sh
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
@@ -56,7 +54,7 @@ xcodebuild -project Maccy.xcodeproj -scheme ClipVee -configuration Debug \
 ./scripts/build-readme-media.sh
 ```
 
-The installed app must match the built version. The runner saves captures in its temporary directory and logs the path; the conversion script reads it from `.build/readme-capture.log` (or accepts a directory argument). The conversion step requires `ffmpeg` and generates a repo-hosted GIF plus panel and Settings PNGs. Inspect the media before publishing it. Restart the everyday app after the capture finishes.
+The script needs `ffmpeg`. It writes `docs/images/demo.gif` and the two images in `docs/screenshots/`. The website uses WebP copies of those screenshots: `cwebp -q 88 -resize 1440 0 docs/screenshots/panel.png -o .build/gh-pages/images/panel.webp`, and the same for `settings`. Check the media before publishing.
 
 ## Making a release
 
@@ -71,10 +69,14 @@ Updates are delivered by [Sparkle](https://sparkle-project.org). The app reads `
 Store the file in your password manager and delete it. On a new Mac, import it with `generate_keys -f clipvee-update-key`.
 
 1. Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`.
-2. Write the release notes as a short Markdown list. The app shows them when it offers the update.
+2. Write the release notes as a short Markdown list in `docs/releases/<version>.md`. The app shows them when it offers the update.
 3. Run `./scripts/build-release.sh <notes.md>`. It builds a universal Release copy, signed with the ClipVee certificate, and writes `.build/release/ClipVee-<version>.dmg`, `.zip` and a signed `appcast.xml`. The first run installs [dmgbuild](https://github.com/dmgbuild/dmgbuild) into `.build/dmg-venv`, and macOS asks once whether `generate_appcast` may use the update key. The disk image's background is `Design/dmg-background.png`, rendered from `Design/dmg-background.html`.
 4. Attach all three files to a GitHub release tagged `v<version>`, and mark it as the latest release. Copies already installed find the update within a day.
-5. Update the version and `sha256` in [mzbali/homebrew-tap](https://github.com/mzbali/homebrew-tap).
+5. Update the version and `sha256` in `Casks/clipvee.rb` in [mzbali/homebrew-tap](https://github.com/mzbali/homebrew-tap). Take the hash from the disk image downloaded back from the release, not the local copy.
+6. Update the website for anything user-facing. It lives on the `gh-pages` branch; check it out with `git worktree add .build/gh-pages gh-pages`, then commit and push there.
+7. Check what users get: `https://github.com/mzbali/ClipVee/releases/latest/download/appcast.xml` should list the new version, with a `length` that matches the zip, and the live site should show your changes.
+
+Before step 3, run the unit tests and the UI tests that cover what changed.
 
 The app isn't notarised, so the README explains Gatekeeper's **Open Anyway** step.
 

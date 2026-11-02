@@ -1,57 +1,58 @@
 ---
-name: 🐛 Bug Report
-description: Submit a Bug Report
+name: 🐛 Bug report
+description: Something in ClipVee isn't working
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for taking the time to complete this bug report!
-        This will help to find the cause of the issue faster and requires fewer follow-ups.
+        Thanks for reporting this. Please use made-up examples and leave real clipboard contents out of text and screenshots.
   - type: checkboxes
     attributes:
-      label: Before Submitting Your Bug Report
+      label: Before you submit
       options:
-        - label: I have verified that there isn't already an issue reporting the same bug to prevent duplication.
+        - label: I searched the existing issues for this problem.
           required: false
-        - label: I have seen the [FAQ](https://github.com/p0deje/Maccy?tab=readme-ov-file#faq).
+        - label: I read the [troubleshooting answers](https://github.com/mzbali/ClipVee#troubleshooting).
           required: false
   - type: input
     attributes:
-      label: Maccy Version (see 'About' window)
-      placeholder: e.g. 0.29.0
+      label: ClipVee version
+      description: Shown in Settings → About.
+      placeholder: e.g. 1.0.5
     validations:
-      required: false
+      required: true
   - type: input
     attributes:
-      label: macOS Version
-      placeholder: e.g. 13.5.2
+      label: macOS version
+      placeholder: e.g. 26.1
     validations:
-      required: false
+      required: true
+  - type: dropdown
+    attributes:
+      label: How did you install it?
+      options:
+        - Disk image from GitHub
+        - Homebrew
+        - Built from source
   - type: textarea
     attributes:
-      label: Maccy Settings
-      description: Provide the output from running 'defaults read org.p0deje.Maccy' in Terminal.app.
-      render: Shell
+      label: What happened?
+      description: What you expected, and what happened instead.
     validations:
-      required: false
+      required: true
   - type: textarea
     attributes:
-      label: Description
-      description: Please provide a clear and concise description of the bug.
-      placeholder: Short description
-    validations:
-      required: false
-  - type: textarea
-    attributes:
-      label: Steps to Reproduce
-      description: |
-        Provide the steps to consistently reproduce the issue. If possible, record a screen video
-        demonstrating the problem using QuickTime.app.
+      label: Steps to reproduce
+      description: If you can, attach a short screen recording (⌘⇧5).
       placeholder: |
-        1. Navigate to …
-        2. Click on …
-        3. Scroll down to …
-        4. Observe …
+        1. Open the panel with ⌘⇧V
+        2. …
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Relevant settings
+      description: For example the panel position, Paste automatically, or ignored apps, if they might matter.
     validations:
       required: false

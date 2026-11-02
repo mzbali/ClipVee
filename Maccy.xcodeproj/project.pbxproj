@@ -51,7 +51,6 @@
 		C0FFEE000000000000000003 /* ShortenedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000004 /* ShortenedTests.swift */; };
 		C5B760C9035C4B3594C47811 /* SizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC13FFCB59043F2883A4437 /* SizedString.swift */; };
 		CA110ED10000000000000001 /* CollectionSurroundingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA110ED10000000000000002 /* CollectionSurroundingTests.swift */; };
-		DA009931256411F90030E697 /* appcast.xml in Resources */ = {isa = PBXBuildFile; fileRef = DA00992C256411F90030E697 /* appcast.xml */; };
 		DA009932256411F90030E697 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DA00992D256411F90030E697 /* README.md */; };
 		DA009934256411F90030E697 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = DA00992F256411F90030E697 /* LICENSE */; };
 		DA009947256414800030E697 /* SwiftHEXColors in Frameworks */ = {isa = PBXBuildFile; productRef = DA009946256414800030E697 /* SwiftHEXColors */; };
@@ -151,7 +150,6 @@
 		DAA5ACB22C1B3F8800B58513 /* GeneralSettingsPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5ACB12C1B3F8800B58513 /* GeneralSettingsPane.swift */; };
 		DAA5ACB52C1B803000B58513 /* GeneralSettings.strings in Resources */ = {isa = PBXBuildFile; fileRef = DAA5ACB32C1B803000B58513 /* GeneralSettings.strings */; };
 		DAA5ACCA2C1BEE8A00B58513 /* SoftwareUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5ACC92C1BEE8A00B58513 /* SoftwareUpdater.swift */; };
-		DAB082962A2B7B850053E463 /* AppStoreReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB082952A2B7B850053E463 /* AppStoreReview.swift */; };
 		DABDE97F2974706C005B32E9 /* KeyboardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABDE97E2974706C005B32E9 /* KeyboardLayout.swift */; };
 		DAC0CA3E2C88E7A4003BF498 /* Fuse in Frameworks */ = {isa = PBXBuildFile; productRef = DAC0CA3D2C88E7A4003BF498 /* Fuse */; };
 		DAC14124232367B200FCFA30 /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC14123232367B200FCFA30 /* Search.swift */; };
@@ -271,7 +269,6 @@
 		C2BC0DBD627544668E9BE9C1 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/StorageSettings.strings; sourceTree = "<group>"; };
 		CA110ED10000000000000002 /* CollectionSurroundingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionSurroundingTests.swift; sourceTree = "<group>"; };
 		CF8FD822BE40469D80B10A06 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/AdvancedSettings.strings; sourceTree = "<group>"; };
-		DA00992C256411F90030E697 /* appcast.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = appcast.xml; sourceTree = "<group>"; };
 		DA00992D256411F90030E697 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		DA00992F256411F90030E697 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		DA05B5102C234CB1006980FE /* MaccyApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MaccyApp.swift; sourceTree = "<group>"; };
@@ -565,7 +562,6 @@
 		DAA5ACC72C1BA35D00B58513 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/GeneralSettings.strings; sourceTree = "<group>"; };
 		DAA5ACC82C1BA35E00B58513 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/GeneralSettings.strings; sourceTree = "<group>"; };
 		DAA5ACC92C1BEE8A00B58513 /* SoftwareUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareUpdater.swift; sourceTree = "<group>"; };
-		DAB082952A2B7B850053E463 /* AppStoreReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreReview.swift; sourceTree = "<group>"; };
 		DAB6265F2CAD7E4F001B720E /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/PinsSettings.strings; sourceTree = "<group>"; };
 		DAB626602CAD7E59001B720E /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/AdvancedSettings.strings; sourceTree = "<group>"; };
 		DAB626612CAD7E6B001B720E /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/AppearanceSettings.strings; sourceTree = "<group>"; };
@@ -862,7 +858,6 @@
 				DA360DB11E3DF137005C6F6B /* MaccyTests */,
 				DA0EE7B7204657830025FC60 /* MaccyUITests */,
 				DACCD5822C93605C00BAD74C /* Maccy.xctestplan */,
-				DA00992C256411F90030E697 /* appcast.xml */,
 				DA00992F256411F90030E697 /* LICENSE */,
 				DA00992D256411F90030E697 /* README.md */,
 				DAEE38441E3DBEB100DD2966 /* Products */,
@@ -899,7 +894,6 @@
 				DAEE38461E3DBEB100DD2966 /* AppDelegate.swift */,
 				2FB5BC9F2CD8F73C008B33F4 /* ApplicationImage.swift */,
 				DA555F072CF0F98F009608BD /* ApplicationImageCache.swift */,
-				DAB082952A2B7B850053E463 /* AppStoreReview.swift */,
 				DA0EF1871E444B2A00E58577 /* Clipboard.swift */,
 				DAE284FF232257D20080E394 /* ColorImage.swift */,
 				2F8A0DBD303A1F9D004BA51F /* ConcatenatedCollection.swift */,
@@ -1114,7 +1108,6 @@
 				4762D6972467226100B3A2BA /* Localizable.strings in Resources */,
 				DA009934256411F90030E697 /* LICENSE in Resources */,
 				DA20FA742B082E0100056DD5 /* Knock.caf in Resources */,
-				DA009931256411F90030E697 /* appcast.xml in Resources */,
 				DAA5ACB52C1B803000B58513 /* GeneralSettings.strings in Resources */,
 				DA740D7A2C21E6B0007B1A36 /* AdvancedSettings.strings in Resources */,
 				DA689FB02C1CD3B00009B887 /* StorageSettings.strings in Resources */,
@@ -1165,7 +1158,6 @@
 				DAA072D52C40AC52006DDFD2 /* HistoryListView.swift in Sources */,
 				2F578C422EFFE8920088B759 /* SlideoutContentView.swift in Sources */,
 				2F578C432EFFE8920088B759 /* SlideoutView.swift in Sources */,
-				DAB082962A2B7B850053E463 /* AppStoreReview.swift in Sources */,
 				2FB5BCA02CD8F73F008B33F4 /* ApplicationImage.swift in Sources */,
 				DA13D7D22C19F91B00FA9E23 /* Defaults.Keys+Names.swift in Sources */,
 				2F0EC77D2E773314003E2EA9 /* Selection.swift in Sources */,

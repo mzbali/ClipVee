@@ -1,29 +1,27 @@
 ---
-name: 💪 Feature request
-description: Suggest an idea for this project
+name: 💡 Feature request
+description: Suggest an improvement to ClipVee
 labels: [enhancement]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ClipVee is clipboard history only, in the spirit of Windows' Win+V, so it won't add emoji, GIF or AI tabs.
   - type: checkboxes
     attributes:
-      label: Before Submitting Your Feature Request
+      label: Before you submit
       options:
-        - label: Check that there isn't already a similar feature request to avoid creating a duplicate.
-          required: false
-        - label: I have seen the [FAQ](https://github.com/p0deje/Maccy?tab=readme-ov-file#faq).
+        - label: I searched the existing issues for a similar request.
           required: false
   - type: textarea
     attributes:
       label: Problem
-      description:
-        Please add a clear and concise description of the problem you are
-        seeking to solve with this feature request.
-      placeholder: |
-        Description
+      description: What are you trying to do, and what gets in the way?
+    validations:
+      required: true
   - type: textarea
     attributes:
-      label: Solution
-      description: Please describe what you might want to happen to address this issue. If applicable, add a screenshot, gif, or video to better convey your idea.
-      placeholder: |
-        Short description
+      label: Idea
+      description: What you'd like ClipVee to do. A sketch or screenshot helps.
     validations:
       required: false

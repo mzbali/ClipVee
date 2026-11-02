@@ -599,7 +599,7 @@ class MaccyUITests: XCTestCase {
   func testReadmeDemoCapture() async throws {
     try XCTSkipUnless(ProcessInfo.processInfo.environment["CLIPVEE_CAPTURE_README"] == "1",
                       "Run explicitly to refresh README media")
-    let output = FileManager.default.temporaryDirectory.appendingPathComponent("ClipVeeReadmeCapture-105")
+    let output = FileManager.default.temporaryDirectory.appendingPathComponent("ClipVeeReadmeCapture")
     try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
     print("README_CAPTURE_DIR=\(output.path)")
     pasteTarget.terminate()

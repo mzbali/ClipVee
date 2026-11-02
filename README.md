@@ -76,7 +76,7 @@ Change the panel, pin and delete shortcuts in Settings → Shortcuts.
 | A card copies but doesn't paste | Turn on **Paste automatically** and **Accessibility permission** in Settings → General. |
 | Accessibility is on but pasting fails after an update | Remove ClipVee from the Accessibility list with the minus button, add it again, and reopen it. |
 | New copies don't appear | Resume history if paused, and check Settings → History and Settings → Privacy. |
-| The shortcut does nothing | Check Settings → Shortcuts for a clash with another app, or click the menu bar icon. |
+| The shortcut does nothing | Check Settings → Shortcuts for a clash with another app, or click the menu bar icon. In password fields, shortcuts that type a character, such as Option-C, are blocked by macOS; use one like ⌘⇧V. |
 
 Still stuck? [Open an issue](https://github.com/mzbali/ClipVee/issues) with your macOS and ClipVee versions and the steps to reproduce. Leave real clipboard contents out of screenshots.
 
