@@ -10,10 +10,8 @@ struct PrivacySettingsPane: View {
     var id: Self { self }
   }
 
+  @Default(.ignoreEvents) private var ignoreEvents
   @State private var ignoreList: IgnoreList = .apps
-  @State private var showsScript = false
-
-  private var bundleIdentifier: String { Bundle.main.bundleIdentifier ?? "" }
 
   var body: some View {
     SettingsPageView(title: "Privacy") {
@@ -22,8 +20,18 @@ struct PrivacySettingsPane: View {
         title: "Pause clipboard history",
         description: "New copies aren't saved while paused. Option-click the menu bar icon to pause, or Option-Shift-click to skip only the next copy."
       ) {
-        Defaults.Toggle("Pause clipboard history", key: .ignoreEvents)
+        Toggle("Pause clipboard history", isOn: Binding(
+          get: { ignoreEvents },
+          set: { Clipboard.shared.setHistoryPaused($0) }
+        ))
       }
+
+      Text("ClipVee skips content marked sensitive or temporary by supported apps. Passwords and secrets copied as ordinary text can still be saved. Pause history or ignore the source app when needed.")
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(.horizontal, 4)
+        .padding(.top, 6)
 
       SettingsSectionHeader("Ignore copies from")
       VStack(spacing: 0) {
@@ -46,23 +54,6 @@ struct PrivacySettingsPane: View {
         .frame(height: 280)
       }
       .settingsCardBackground()
-
-      DisclosureGroup("Pause from a script", isExpanded: $showsScript) {
-        Text(verbatim: """
-          defaults write \(bundleIdentifier) ignoreEvents true
-          # copy sensitive data
-          defaults write \(bundleIdentifier) ignoreEvents false
-
-          # or skip only the next copy
-          defaults write \(bundleIdentifier) ignoreOnlyNextEvent true
-          """)
-        .font(.system(size: 11, design: .monospaced))
-        .foregroundStyle(.secondary)
-        .textSelection(.enabled)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, 6)
-      }
-      .padding(.top, 12)
     }
   }
 }

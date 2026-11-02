@@ -5,6 +5,7 @@ import SwiftUI
 struct ListHeaderView: View {
   @FocusState.Binding var searchFocused: Bool
   @Binding var searchQuery: String
+  let isVisible: Bool
 
   @Environment(AppState.self) private var appState
   @Environment(\.scenePhase) private var scenePhase
@@ -14,7 +15,7 @@ struct ListHeaderView: View {
   var body: some View {
     HStack {
       if showTitle {
-        Text("Maccy")
+        Text(verbatim: "ClipVee")
           .foregroundStyle(.secondary)
           .padding(.leading, 5)
       }
@@ -30,7 +31,7 @@ struct ListHeaderView: View {
         // Only reliable way to disable the cursor. allowsHitTesting() does not work.
         // Move it above the panel: anywhere inside, the invisible field would take
         // clicks and stop the header from dragging the panel.
-        .offset(y: appState.searchVisible ? 0 : -(appState.popup.headerHeight + Popup.itemHeight))
+        .offset(y: isVisible ? 0 : -(appState.popup.headerHeight + Popup.itemHeight))
     }
   }
 }

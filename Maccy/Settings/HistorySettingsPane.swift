@@ -2,63 +2,10 @@ import SwiftUI
 import Defaults
 
 struct HistorySettingsPane: View {
-  @Observable
-  class ViewModel {
-    var saveFiles = false {
-      didSet {
-        Defaults.withoutPropagation {
-          if saveFiles {
-            Defaults[.enabledPasteboardTypes].formUnion(StorageType.files.types)
-          } else {
-            Defaults[.enabledPasteboardTypes].subtract(StorageType.files.types)
-          }
-        }
-      }
-    }
-
-    var saveImages = false {
-      didSet {
-        Defaults.withoutPropagation {
-          if saveImages {
-            Defaults[.enabledPasteboardTypes].formUnion(StorageType.images.types)
-          } else {
-            Defaults[.enabledPasteboardTypes].subtract(StorageType.images.types)
-          }
-        }
-      }
-    }
-
-    var saveText = false {
-      didSet {
-        Defaults.withoutPropagation {
-          if saveText {
-            Defaults[.enabledPasteboardTypes].formUnion(StorageType.text.types)
-          } else {
-            Defaults[.enabledPasteboardTypes].subtract(StorageType.text.types)
-          }
-        }
-      }
-    }
-
-    private var observer: Defaults.Observation?
-
-    init() {
-      observer = Defaults.observe(.enabledPasteboardTypes) { change in
-        self.saveFiles = change.newValue.isSuperset(of: StorageType.files.types)
-        self.saveImages = change.newValue.isSuperset(of: StorageType.images.types)
-        self.saveText = change.newValue.isSuperset(of: StorageType.text.types)
-      }
-    }
-
-    isolated deinit {
-      observer?.invalidate()
-    }
-  }
-
+  @Default(.enabledPasteboardTypes) private var enabledPasteboardTypes
   @Default(.size) private var size
   @Default(.sortBy) private var sortBy
 
-  @State private var viewModel = ViewModel()
   @State private var storageSize = Storage.shared.size
 
   private let sizeFormatter: NumberFormatter = {
@@ -72,13 +19,16 @@ struct HistorySettingsPane: View {
     SettingsPageView(title: "History") {
       SettingsSectionHeader("Keep")
       SettingsCard(icon: "doc.plaintext", title: "Text") {
-        Toggle("Text", isOn: $viewModel.saveText)
+        Toggle("Text", isOn: captureBinding(for: .text))
+          .accessibilityIdentifier("capture-text")
       }
       SettingsCard(icon: "photo", title: "Images", description: "Including screenshots copied to the clipboard.") {
-        Toggle("Images", isOn: $viewModel.saveImages)
+        Toggle("Images", isOn: captureBinding(for: .images))
+          .accessibilityIdentifier("capture-images")
       }
       SettingsCard(icon: "folder", title: "Files", description: "Files copied in Finder.") {
-        Toggle("Files", isOn: $viewModel.saveFiles)
+        Toggle("Files", isOn: captureBinding(for: .files))
+          .accessibilityIdentifier("capture-files")
       }
 
       SettingsSectionHeader("Size")
@@ -114,13 +64,29 @@ struct HistorySettingsPane: View {
       SettingsCard(
         icon: "clipboard",
         title: "Clear the system clipboard too",
-        description: "Clear all also empties what Command-V would paste."
+        description: "Clearing history also empties what Command-V would paste."
       ) {
         Defaults.Toggle("Clear the system clipboard too", key: .clearSystemClipboard)
       }
     }
     .onAppear { storageSize = Storage.shared.size }
   }
+
+  private func captureBinding(for type: StorageType) -> Binding<Bool> {
+    Binding(
+      get: { enabledPasteboardTypes.isSuperset(of: type.types) },
+      set: { enabled in
+        var types = enabledPasteboardTypes
+        if enabled {
+          types.formUnion(type.types)
+        } else {
+          types.subtract(type.types)
+        }
+        enabledPasteboardTypes = types
+      }
+    )
+  }
+
 }
 
 #Preview {

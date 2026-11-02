@@ -9,6 +9,8 @@ struct HistoryListView: View {
   @Environment(ModifierFlags.self) private var modifierFlags
   @Environment(\.scenePhase) private var scenePhase
   @Default(.pinTo) private var pinTo
+  @Default(.ignoreEvents) private var ignoreEvents
+  @Default(.enabledPasteboardTypes) private var enabledPasteboardTypes
 
   private var pinnedItems: [HistoryItemDecorator] { appState.history.pinnedItems }
   private var unpinnedItems: [HistoryItemDecorator] { appState.history.unpinnedItems }
@@ -36,10 +38,22 @@ struct HistoryListView: View {
           }
 
           if pinnedItems.isEmpty && unpinnedItems.isEmpty {
-            Text(searchQuery.isEmpty ? "Copy text or an image to get started." : "No matching items")
-              .font(.system(size: 13))
-              .foregroundStyle(.secondary)
-              .frame(maxWidth: .infinity, minHeight: 140)
+            VStack(spacing: 10) {
+              Text(emptyMessage)
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+              if !searchQuery.isEmpty {
+                Button("Clear search") {
+                  searchQuery = ""
+                  searchFocused = true
+                }
+                .buttonStyle(.borderless)
+                .accessibilityIdentifier("clear-empty-search")
+              }
+            }
+            .padding(.horizontal, 12)
+            .frame(maxWidth: .infinity, minHeight: 140)
           }
         }
         .padding(.vertical, 6)
@@ -85,5 +99,12 @@ struct HistoryListView: View {
       }
     }
     .accessibilityIdentifier("history-scroll-view")
+  }
+
+  private var emptyMessage: LocalizedStringKey {
+    if !searchQuery.isEmpty { return "No matching items" }
+    if ignoreEvents { return "New copies will appear here once history resumes." }
+    if enabledPasteboardTypes.isEmpty { return "Enable text, images or files in Settings → History to get started." }
+    return "Copy text, an image or a file to get started."
   }
 }

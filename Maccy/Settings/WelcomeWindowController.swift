@@ -1,4 +1,5 @@
 import ApplicationServices
+import Combine
 import KeyboardShortcuts
 import LaunchAtLogin
 import SwiftUI

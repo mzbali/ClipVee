@@ -1,3 +1,5 @@
+import ApplicationServices
+import Combine
 import SwiftUI
 import Defaults
 import LaunchAtLogin
@@ -10,6 +12,8 @@ struct GeneralSettingsPane: View {
   @Default(.searchMode) private var searchMode
 
   @State private var updater = SoftwareUpdater.shared
+  @State private var isTrusted = AXIsProcessTrusted()
+  private let trustTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
   var body: some View {
     SettingsPageView(title: "General") {
@@ -26,6 +30,20 @@ struct GeneralSettingsPane: View {
       }
 
       SettingsSectionHeader("Pasting")
+      SettingsCard(
+        icon: "hand.raised",
+        title: "Accessibility permission",
+        description: isTrusted
+          ? "ClipVee can paste into the app you're using."
+          : "Allow Accessibility to paste automatically. Without it, choosing a card only copies it."
+      ) {
+        if isTrusted {
+          Label("Allowed", systemImage: "checkmark.circle.fill")
+            .foregroundStyle(.green)
+        } else {
+          Button("Allow…") { isTrusted = Accessibility.check() }
+        }
+      }
       SettingsCard(
         icon: "doc.on.clipboard",
         title: "Paste automatically",
@@ -66,6 +84,7 @@ struct GeneralSettingsPane: View {
         }
       }
     }
+    .onReceive(trustTimer) { _ in isTrusted = AXIsProcessTrusted() }
   }
 }
 

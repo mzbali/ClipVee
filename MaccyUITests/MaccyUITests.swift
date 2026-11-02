@@ -102,6 +102,12 @@ class MaccyUITests: XCTestCase {
   }
 
   override func tearDown() async throws {
+    if let testRun, testRun.failureCount > 0 {
+      let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+      screenshot.name = "Native failure screen"
+      screenshot.lifetime = .keepAlways
+      add(screenshot)
+    }
     try await super.tearDown()
 
     if didLaunch { app.terminate() }
@@ -135,38 +141,130 @@ class MaccyUITests: XCTestCase {
     relaunchWithMinimalCenteredPopup(position: "center")
     popUpWithHotkey()
     let shortcutFrame = app.dialogs.firstMatch.frame
-    postKey(kVK_Escape)
+    app.typeKey(.escape, modifierFlags: [])
     assertPopupDismissed()
 
-    let statusItem = app.statusItems.firstMatch
-    try XCTSkipUnless(statusItem.waitForExistence(timeout: 3) && statusItem.isHittable,
-                      "A visible status item is required for physical mouse clicks")
-    for rightClick in [false, true] {
+    let clicks: [(CGMouseButton, CGEventFlags, Bool)] = [
+      (.left, [], false), (.right, [], true), (.left, .maskControl, true)
+    ]
+    for (button, modifiers, showsOptions) in clicks {
       pasteTarget.activate()
       let destination = pasteTarget.textViews["paste-destination"]
       destination.click()
       pasteTarget.typeKey("a", modifierFlags: .command)
       pasteTarget.typeKey(.delete, modifierFlags: [])
-      if rightClick {
-        statusItem.rightClick()
+      try clickStatusItemWithMouse(button: button, modifiers: modifiers)
+      if showsOptions {
         XCTAssertTrue(app.menuItems["Settings…"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.menuItems["Quit ClipVee"].exists)
         XCTAssertFalse(app.dialogs.firstMatch.exists)
-        app.menuItems["Open Clipboard"].click()
-      } else {
-        statusItem.click()
+        postKey(kVK_ANSI_O)
+        postKey(kVK_Return)
       }
       waitUntilPoppedUp()
       let frame = app.dialogs.firstMatch.frame
       XCTAssertEqual(frame.minX, shortcutFrame.minX, accuracy: 2)
       XCTAssertEqual(frame.minY, shortcutFrame.minY, accuracy: 2)
       XCTAssertTrue(app.buttons["Clipboard settings"].exists)
-      items[copy1].click()
+      let card = items[copy1].frame
+      postMouseClick(at: CGPoint(x: card.midX, y: card.midY))
       assertPopupDismissed()
       let pasted = NSPredicate { [self] _, _ in destination.value as? String == copy1 }
       expectation(for: pasted, evaluatedWith: nil)
       waitForExpectations(timeout: 3)
     }
+  }
+
+  func testPauseBannerResumesCapturing() {
+    popUpWithHotkey()
+    app.descendants(matching: .any).matching(identifier: "clipboard-actions").firstMatch.click()
+    app.menuItems["Pause Clipboard History"].click()
+    XCTAssertTrue(app.staticTexts["Clipboard history paused"].waitForExistence(timeout: 3))
+    copyToClipboard(copy3)
+    assertNotExists(items[copy3])
+    app.buttons["resume-clipboard-history"].click()
+    XCTAssertFalse(app.staticTexts["Clipboard history paused"].exists)
+    copyToClipboard(copy3)
+    assertExists(items[copy3])
+  }
+
+  func testCaptureSettingsUpdatePanelGuidance() {
+    popUpWithHotkey()
+    app.buttons["Clipboard settings"].click()
+    let settings = app.windows["ClipVee Settings"]
+    settings.buttons["History"].click()
+    for identifier in ["capture-text", "capture-images", "capture-files"] {
+      let control = app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+      control.coordinate(withNormalizedOffset: .zero)
+        .withOffset(CGVector(dx: control.frame.width - 18, dy: control.frame.height / 2)).click()
+      XCTAssertTrue((control.value as? String) == "0" || (control.value as? NSNumber)?.boolValue == false,
+                    "Capture switch did not turn off: \(identifier)")
+    }
+    settings.buttons[XCUIIdentifierCloseWindow].click()
+    pasteTarget.activate()
+    popUpWithHotkey()
+    let configure = app.buttons["configure-clipboard-history"]
+    XCTAssertTrue(configure.waitForExistence(timeout: 3))
+    configure.click()
+    XCTAssertTrue(settings.buttons["History"].isSelected)
+    let textControl = app.descendants(matching: .any).matching(identifier: "capture-text").firstMatch
+    textControl.coordinate(withNormalizedOffset: .zero)
+      .withOffset(CGVector(dx: textControl.frame.width - 18, dy: textControl.frame.height / 2)).click()
+    settings.buttons[XCUIIdentifierCloseWindow].click()
+    pasteTarget.activate()
+    popUpWithHotkey()
+    XCTAssertFalse(configure.exists)
+  }
+
+  func testSearchModesAndEmptyRecovery() {
+    popUpWithHotkey()
+    chooseSearchVisibility("Always")
+    XCTAssertTrue(app.textFields.firstMatch.exists)
+    XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "search-discovery-hint").firstMatch.exists)
+
+    chooseSearchVisibility("While typing")
+    XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "search-discovery-hint").firstMatch.exists)
+    for _ in 0..<5 { postKey(kVK_ANSI_X) }
+    assertSearchFieldValue("xxxxx")
+    XCTAssertTrue(app.buttons["clear-empty-search"].waitForExistence(timeout: 3))
+    // Filtering animates the panel height; click after the control has settled.
+    Thread.sleep(forTimeInterval: 0.3)
+    let clear = app.buttons["clear-empty-search"].frame
+    postMouseClick(at: CGPoint(x: clear.midX, y: clear.midY))
+    let cleared = NSPredicate { [self] _, _ in !app.buttons["clear-empty-search"].exists }
+    expectation(for: cleared, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    for _ in 0..<3 { postKey(kVK_ANSI_Z) }
+    assertSearchFieldValue("zzz")
+
+    chooseSearchVisibility("Never")
+    XCTAssertFalse(app.textFields.firstMatch.exists)
+    XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "search-discovery-hint").firstMatch.exists)
+  }
+
+  private func chooseSearchVisibility(_ title: String) {
+    app.buttons["Clipboard settings"].click()
+    let settings = app.windows["ClipVee Settings"]
+    settings.buttons["Panel"].click()
+    let picker = app.descendants(matching: .any).matching(identifier: "search-visibility").firstMatch
+    let options = ["While typing", "Always", "Never"]
+    guard let current = picker.value as? String, let currentIndex = options.firstIndex(of: current),
+          let targetIndex = options.firstIndex(of: title) else {
+      XCTFail("Search visibility picker has an unexpected value")
+      return
+    }
+    picker.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).click()
+    Thread.sleep(forTimeInterval: 0.3)
+    // The native picker menu is outside the app's normal accessibility subtree.
+    let distance = targetIndex - currentIndex
+    for _ in 0..<abs(distance) { postKey(distance > 0 ? kVK_DownArrow : kVK_UpArrow) }
+    postKey(kVK_Return)
+    let selected = NSPredicate { _, _ in picker.value as? String == title }
+    expectation(for: selected, evaluatedWith: nil)
+    waitForExpectations(timeout: 3)
+    settings.buttons[XCUIIdentifierCloseWindow].click()
+    pasteTarget.activate()
+    popUpWithHotkey()
   }
 
   func testSettingsReopensOnGeneral() {
@@ -456,39 +554,36 @@ class MaccyUITests: XCTestCase {
     assertNotExists(items[copy2])
   }
 
-  func testDisablesOnOptionClickingMenubarIcon() {
-    XCUIElement.perform(withKeyModifiers: .option) {
-      clickStatusItem()
-    }
+  func testDisablesOnOptionClickingMenubarIcon() throws {
+    try clickStatusItemWithMouse(button: .left, modifiers: .maskAlternate)
+    popUpWithHotkey()
+    XCTAssertTrue(app.staticTexts["Clipboard history paused"].waitForExistence(timeout: 3))
 
     let copy3 = UUID().uuidString
     let copy4 = UUID().uuidString
     copyToClipboard(copy3)
     copyToClipboard(copy4)
 
-    popUpWithMouse()
     assertNotExists(items[copy3])
     assertNotExists(items[copy4])
-
-    app.typeKey(.escape, modifierFlags: [])
-    XCUIElement.perform(withKeyModifiers: .option) {
-      clickStatusItem()
-    }
+    app.buttons["resume-clipboard-history"].click()
+    copyToClipboard(copy3)
+    assertExists(items[copy3])
   }
 
-  func testDisablesOnlyForNextCopyOnOptionShiftClickingMenubarIcon() {
-    XCUIElement.perform(withKeyModifiers: [.option, .shift]) {
-      clickStatusItem()
-    }
+  func testDisablesOnlyForNextCopyOnOptionShiftClickingMenubarIcon() throws {
+    try clickStatusItemWithMouse(button: .left, modifiers: [.maskAlternate, .maskShift])
+    popUpWithHotkey()
+    XCTAssertTrue(app.staticTexts["Next copy will be skipped"].waitForExistence(timeout: 3))
 
     let copy3 = UUID().uuidString
     let copy4 = UUID().uuidString
     copyToClipboard(copy3)
     copyToClipboard(copy4)
 
-    popUpWithMouse()
     assertNotExists(items[copy3])
     assertExists(items[copy4])
+    XCTAssertFalse(app.staticTexts["Next copy will be skipped"].exists)
   }
 
   func testCreatesNewCopyOnEnterWhenSearchResultsAreEmpty() {
@@ -701,7 +796,8 @@ class MaccyUITests: XCTestCase {
     XCTAssertTrue(app.dialogs.firstMatch.exists, "Pinning must keep the panel open")
     XCTAssertEqual(pasteTarget.textViews["paste-destination"].value as? String, "")
     assertExists(items[copy1].buttons["Unpin item"])
-    app.buttons["Clear all"].click()
+    app.buttons["Clear history…"].click()
+    XCTAssertTrue(app.dialogs.firstMatch.sheets.staticTexts["Pinned items will be kept."].exists)
     app.dialogs.firstMatch.sheets.buttons["Clear"].click()
     assertExists(items[copy1])
     assertNotExists(items[copy2])
@@ -712,18 +808,29 @@ class MaccyUITests: XCTestCase {
   func testCardMenuDeletesWithoutPasting() {
     relaunchWithMinimalCenteredPopup()
     popUpWithHotkey()
-    items[copy1].menuButtons["Item actions"].click()
-    app.dialogs.firstMatch.menuItems["Delete"].click()
+    let menuButton = items[copy1].menuButtons["Item actions"]
+    XCTAssertTrue(menuButton.waitForExistence(timeout: 3))
+    let frame = menuButton.frame
+    postMouseClick(at: CGPoint(x: frame.midX, y: frame.midY))
+    // Native MenuButton.click() loses its parent query while the menu tracks.
+    postKey(kVK_ANSI_D)
+    Thread.sleep(forTimeInterval: 0.1)
+    postKey(kVK_Return)
     assertNotExists(items[copy1])
     assertExists(items[copy2])
     XCTAssertEqual(pasteTarget.textViews["paste-destination"].value as? String, "")
     postKey(kVK_Escape)
     assertPopupDismissed()
+    popUpWithHotkey()
+    assertNotExists(items[copy1])
+    assertExists(items[copy2])
   }
 
   func testHiddenHeaderOutsideClickDismissesAndCanReopen() {
     relaunchWithMinimalCenteredPopup()
     popUpWithHotkey()
+    XCTAssertFalse(app.textFields.firstMatch.exists)
+    XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "search-discovery-hint").firstMatch.exists)
     closePopupByClickingOutside()
     assertPopupDismissed()
     popUpWithHotkey()
@@ -740,6 +847,10 @@ class MaccyUITests: XCTestCase {
     relaunchWithMinimalCenteredPopup(position: "bottomRight")
     for index in 0..<14 { copyToClipboard("Scroll fixture \(index)") }
     popUpWithHotkey()
+    let panel = app.dialogs.firstMatch.frame
+    let screen = NSScreen.main!
+    XCTAssertEqual(panel.maxX, screen.visibleFrame.maxX - 20, accuracy: 3)
+    XCTAssertEqual(panel.maxY, screen.frame.maxY - screen.visibleFrame.minY - 20, accuracy: 3)
     let oldestVisible = NSPredicate { [self] _, _ in
       items[copy2].exists && items[copy2].isSelected && items[copy2].isHittable
     }
@@ -781,8 +892,7 @@ class MaccyUITests: XCTestCase {
     app.terminate()
     setKeyboardShortcut("popup", keyCode: kVK_ANSI_V, modifiers: cmdKey | shiftKey)
     app.launchArguments.append(contentsOf: [
-      "-showSearch", "NO", "-showFooter", "NO", "-popupPosition", position,
-      "-openPreviewAutomatically", "NO"
+      "hide-search-for-testing", "-popupPosition", position
     ])
     app.launch()
     copyToClipboard(copy2)
@@ -797,6 +907,7 @@ class MaccyUITests: XCTestCase {
       event?.flags = []
       event?.post(tap: .cghidEventTap)
     }
+    Thread.sleep(forTimeInterval: 0.1)
   }
 
   private func popUpWithHotkey() {
@@ -855,6 +966,66 @@ class MaccyUITests: XCTestCase {
       statusItem.click()
     } else {
       pressStatusItemViaAccessibility()
+    }
+  }
+
+  private func clickStatusItemWithMouse(button: CGMouseButton, modifiers: CGEventFlags = []) throws {
+    let running = try XCTUnwrap(
+      NSRunningApplication.runningApplications(withBundleIdentifier: "uk.co.mzbali.ClipVee")
+        .max { ($0.launchDate ?? .distantPast) < ($1.launchDate ?? .distantPast) }
+    )
+    let statusItem = try XCTUnwrap(axStatusItem(of: AXUIElementCreateApplication(running.processIdentifier)))
+    var rawPosition: CFTypeRef?
+    var rawSize: CFTypeRef?
+    XCTAssertEqual(AXUIElementCopyAttributeValue(statusItem, kAXPositionAttribute as CFString, &rawPosition), .success)
+    XCTAssertEqual(AXUIElementCopyAttributeValue(statusItem, kAXSizeAttribute as CFString, &rawSize), .success)
+    let positionValue = try XCTUnwrap(rawPosition)
+    let sizeValue = try XCTUnwrap(rawSize)
+    guard CFGetTypeID(positionValue) == AXValueGetTypeID(), CFGetTypeID(sizeValue) == AXValueGetTypeID() else {
+      XCTFail("Status item has no accessible screen bounds")
+      return
+    }
+    var position = CGPoint.zero
+    var size = CGSize.zero
+    // AX screen bounds and Quartz mouse events both use top-left screen coordinates.
+    let axPosition = positionValue as! AXValue // swiftlint:disable:this force_cast
+    let axSize = sizeValue as! AXValue // swiftlint:disable:this force_cast
+    XCTAssertTrue(AXValueGetValue(axPosition, .cgPoint, &position))
+    XCTAssertTrue(AXValueGetValue(axSize, .cgSize, &size))
+    guard size.width > 0, size.height > 0 else {
+      XCTFail("Status item has empty screen bounds")
+      return
+    }
+    if position.y < 0 {
+      // With an auto-hidden menu bar, AX reports the item above the screen.
+      let reveal = CGPoint(x: position.x + size.width / 2, y: 1)
+      CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: reveal, mouseButton: .left)?
+        .post(tap: .cghidEventTap)
+      let deadline = Date.now.addingTimeInterval(3)
+      while position.y < 0 && Date.now < deadline {
+        Thread.sleep(forTimeInterval: 0.1)
+        var updated: CFTypeRef?
+        if AXUIElementCopyAttributeValue(statusItem, kAXPositionAttribute as CFString, &updated) == .success,
+           let updated, CFGetTypeID(updated) == AXValueGetTypeID() {
+          let value = updated as! AXValue // swiftlint:disable:this force_cast
+          _ = AXValueGetValue(value, .cgPoint, &position)
+        }
+      }
+    }
+    XCTAssertGreaterThanOrEqual(position.y, 0, "Menu bar did not reveal for a physical click")
+    postMouseClick(at: CGPoint(x: position.x + size.width / 2, y: position.y + size.height / 2),
+                   button: button, modifiers: modifiers)
+  }
+
+  private func postMouseClick(at point: CGPoint, button: CGMouseButton = .left, modifiers: CGEventFlags = []) {
+    CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: point, mouseButton: button)?
+      .post(tap: .cghidEventTap)
+    Thread.sleep(forTimeInterval: 0.2)
+    let types: [CGEventType] = button == .right ? [.rightMouseDown, .rightMouseUp] : [.leftMouseDown, .leftMouseUp]
+    for type in types {
+      let event = CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: point, mouseButton: button)
+      event?.flags = modifiers
+      event?.post(tap: .cghidEventTap)
     }
   }
 

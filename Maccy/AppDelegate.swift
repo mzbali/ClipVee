@@ -47,6 +47,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       .automaticallyChecksForUpdates = false
       // Start from a clean slate for the isolated testing preferences.
       UserDefaults.standard.removePersistentDomain(forName: Defaults.Keys.testingSuiteName)
+      // Foundation stores -key NO launch arguments as strings, which Defaults
+      // deliberately does not coerce to Bool. Use an explicit isolated QA flag.
+      if CommandLine.arguments.contains("hide-search-for-testing") {
+        Defaults[.showSearch] = false
+      }
     }
     #endif
 
@@ -123,6 +128,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       ContentView()
     }
     showMenuOnSecondaryClick()
+
+    #if DEBUG
+    // Preview onboarding in isolated QA runs without resetting real setup or permissions.
+    if Self.isTesting && CommandLine.arguments.contains("show-welcome") {
+      welcomeWindowController = WelcomeWindowController()
+      welcomeWindowController?.show()
+    }
+    #endif
 
     // People updating from a version without this window have already set ClipVee up.
     if !Self.isTesting && !Defaults[.showedWelcome] {
@@ -210,11 +223,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       .intersection(.deviceIndependentFlagsMask)
 
     if modifierFlags.contains(.option) {
-      Defaults[.ignoreEvents].toggle()
-
-      if modifierFlags.contains(.shift) {
-        Defaults[.ignoreOnlyNextEvent] = Defaults[.ignoreEvents]
-      }
+      Clipboard.shared.setHistoryPaused(
+        !Defaults[.ignoreEvents], onlyNextCopy: modifierFlags.contains(.shift)
+      )
 
       return
     }
@@ -283,7 +294,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   @objc
   private func togglePause() {
-    Defaults[.ignoreEvents].toggle()
+    Clipboard.shared.setHistoryPaused(!Defaults[.ignoreEvents])
   }
 
   @objc

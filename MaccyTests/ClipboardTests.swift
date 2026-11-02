@@ -123,6 +123,108 @@ extension SharedStateTests {
       #expect(!Defaults[.ignoreOnlyNextEvent])
     }
 
+    @Test("Manual resume cancels a pending one-copy pause")
+    func resumeCancelsOneCopyPause() {
+      defer { pasteboard.releaseGlobally() }
+      Defaults[.enabledPasteboardTypes] = Set(StorageType.text.types)
+      var copies: [HistoryItem] = []
+      clipboard.onNewCopy { copies.append($0) }
+      clipboard.setHistoryPaused(true, onlyNextCopy: true)
+      clipboard.setHistoryPaused(false)
+      pasteboard.declareTypes([.string], owner: nil)
+      #expect(pasteboard.setString("Saved after cancellation", forType: .string))
+      #expect(pasteboard.changeCount != clipboard.changeCount)
+      clipboard.checkForChangesInPasteboard()
+      #expect(copies.count == 1)
+      #expect(!Defaults[.ignoreOnlyNextEvent])
+    }
+
+    @Test("A full pause after a cancelled one-copy pause stays paused")
+    func fullPauseDoesNotInheritOneCopyLimit() {
+      defer { pasteboard.releaseGlobally() }
+      var copies: [HistoryItem] = []
+      clipboard.onNewCopy { copies.append($0) }
+      clipboard.setHistoryPaused(true, onlyNextCopy: true)
+      clipboard.setHistoryPaused(false)
+      clipboard.setHistoryPaused(true)
+      pasteboard.declareTypes([.string], owner: nil)
+      #expect(pasteboard.setString("Ignored while fully paused", forType: .string))
+      #expect(pasteboard.changeCount != clipboard.changeCount)
+      clipboard.checkForChangesInPasteboard()
+      #expect(copies.isEmpty)
+      #expect(Defaults[.ignoreEvents])
+      #expect(!Defaults[.ignoreOnlyNextEvent])
+    }
+
+    @Test("Resuming before the next poll discards copies made while paused", arguments: [false, true])
+    func resumeDiscardsUnpolledPausedCopy(onlyNextCopy: Bool) {
+      defer { pasteboard.releaseGlobally() }
+      Defaults[.enabledPasteboardTypes] = Set(StorageType.text.types)
+      var copies: [HistoryItem] = []
+      clipboard.onNewCopy { copies.append($0) }
+      clipboard.setHistoryPaused(true, onlyNextCopy: onlyNextCopy)
+      pasteboard.declareTypes([.string], owner: nil)
+      #expect(pasteboard.setString("Do not save this paused copy", forType: .string))
+      // Deliberately resume before the timer has observed the clipboard change.
+      clipboard.setHistoryPaused(false)
+      clipboard.checkForChangesInPasteboard()
+      #expect(copies.isEmpty)
+      #expect(!Defaults[.ignoreEvents])
+      #expect(!Defaults[.ignoreOnlyNextEvent])
+
+      pasteboard.declareTypes([.string], owner: nil)
+      #expect(pasteboard.setString("Save this new copy after resuming", forType: .string))
+      clipboard.checkForChangesInPasteboard()
+      #expect(copies.count == 1)
+      #expect(copies.first?.contents.first?.value == Data("Save this new copy after resuming".utf8))
+    }
+
+    @Test("A copy pending before a one-copy pause does not consume the next-copy skip")
+    func oneCopyPauseStartsAtCurrentClipboard() {
+      defer { pasteboard.releaseGlobally() }
+      Defaults[.enabledPasteboardTypes] = Set(StorageType.text.types)
+      var copies: [HistoryItem] = []
+      clipboard.onNewCopy { copies.append($0) }
+      pasteboard.declareTypes([.string], owner: nil)
+      #expect(pasteboard.setString("Already on the clipboard before pausing", forType: .string))
+      clipboard.setHistoryPaused(true, onlyNextCopy: true)
+      clipboard.checkForChangesInPasteboard()
+      #expect(Defaults[.ignoreEvents])
+
+      pasteboard.declareTypes([.string], owner: nil)
+      #expect(pasteboard.setString("The next copy must be skipped", forType: .string))
+      clipboard.checkForChangesInPasteboard()
+      #expect(copies.isEmpty)
+      #expect(!Defaults[.ignoreEvents])
+
+      pasteboard.declareTypes([.string], owner: nil)
+      #expect(pasteboard.setString("Capture resumes after that skip", forType: .string))
+      clipboard.checkForChangesInPasteboard()
+      #expect(copies.count == 1)
+      #expect(copies.first?.contents.first?.value == Data("Capture resumes after that skip".utf8))
+    }
+
+    @Test("A one-copy pause skips exactly one copy and then captures again")
+    func oneCopyPauseResumesCapture() {
+      defer { pasteboard.releaseGlobally() }
+      Defaults[.enabledPasteboardTypes] = Set(StorageType.text.types)
+      var copies: [HistoryItem] = []
+      clipboard.onNewCopy { copies.append($0) }
+      clipboard.setHistoryPaused(true, onlyNextCopy: true)
+      pasteboard.declareTypes([.string], owner: nil)
+      #expect(pasteboard.setString("Skip this copy", forType: .string))
+      #expect(pasteboard.changeCount != clipboard.changeCount)
+      clipboard.checkForChangesInPasteboard()
+      #expect(copies.isEmpty)
+      pasteboard.declareTypes([.string], owner: nil)
+      #expect(pasteboard.setString("Keep this copy", forType: .string))
+      #expect(pasteboard.changeCount != clipboard.changeCount)
+      clipboard.checkForChangesInPasteboard()
+      #expect(copies.count == 1)
+      #expect(!Defaults[.ignoreEvents])
+      #expect(!Defaults[.ignoreOnlyNextEvent])
+    }
+
     @Test("Ignore application")
     func ignoreApplication() async throws {
       Defaults[.ignoredApps] = [try frontmostAppBundleIdentifier()]

@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://mzbali.github.io/ClipVee/">Website</a> · <a href="https://github.com/mzbali/ClipVee/releases/latest">Download</a>
+  <a href="https://mzbali.github.io/ClipVee/">Website</a> · <a href="https://github.com/mzbali/ClipVee/releases/latest">Download</a> · <a href="https://github.com/mzbali/ClipVee/releases">Release notes</a> · <a href="https://github.com/mzbali/ClipVee/issues">Report a problem</a>
 </p>
 
 <p align="center">
@@ -19,17 +19,17 @@
 
 ## Why ClipVee
 
-On Windows, <kbd>Win</kbd> + <kbd>V</kbd> opens a small panel of everything you've copied. macOS has nothing like it built in. ClipVee brings that panel to the Mac: it opens next to your work, you choose a card with the keyboard or mouse, and it's pasted into the app you were using.
+On Windows, <kbd>Win</kbd> + <kbd>V</kbd> opens a small panel of recent copies. Modern macOS also has [clipboard history in Spotlight](https://support.apple.com/guide/mac-help/mchl40d5b86b/mac). ClipVee offers a dedicated Windows-style panel: one global shortcut opens it next to your work, you choose a card with the keyboard or mouse, and it's pasted into the app you were using. You can pin reusable items and choose where the panel opens. ClipVee supports macOS 14 Sonoma and later.
 
 ## Features
 
 - **Your history as cards.** Text, images with thumbnails, and files, newest first. Each card shows where and when it was copied.
 - **Pastes straight in.** Select with <kbd>↑</kbd> <kbd>↓</kbd> and press <kbd>Return</kbd>, or click. <kbd>⌘1</kbd> to <kbd>⌘9</kbd> paste the nine newest items.
-- **Pins.** Keep snippets you reuse at the top. Pins survive **Clear all** and get their own letter shortcut.
-- **Type to search.** The search field appears as soon as you start typing.
+- **Pins.** Keep snippets you reuse at the top. Pins survive clearing history and get their own letter shortcut.
+- **Type to search.** A hint shows you where to start; the search field appears as soon as you type. You can choose to show the field all the time or hide it in Settings → Panel.
 - **Put it where you like.** In the middle of the window, at the pointer, by the menu bar icon, or wherever you last dragged it. The shortcut and left-click open the panel in your chosen position. Right-click the menu bar icon for options. Drag the bottom edge to make it taller.
 - **Plain text when you need it.** Paste any formatted card without its fonts and colours, or make that the default.
-- **Private.** Passwords copied from password managers are skipped. You can ignore whole apps, pause history, or skip just the next copy. Your history never leaves your Mac: ClipVee only goes online to check GitHub for updates, if you allow it.
+- **Local history.** ClipVee skips clipboard content marked sensitive or temporary by supported apps, including password managers that provide those markers. It cannot recognise every password or secret copied as ordinary text. You can ignore whole apps, pause history, or skip just the next copy. Your history stays on this Mac; the optional updater contacts GitHub for update information.
 - **Colour swatches** for hex codes such as `#FF8800`.
 
 <p align="center">
@@ -47,10 +47,37 @@ ClipVee needs macOS 14 Sonoma or later, on an Apple silicon or Intel Mac.
    ```
 
 2. Open ClipVee. The first time, macOS says it can't check the app, because ClipVee isn't notarised by Apple. Click **Done**, then open System Settings → Privacy & Security, scroll down, and click **Open Anyway** next to ClipVee. You only need to do this once.
-3. ClipVee opens a welcome window. Click **Allow…**, then turn on **ClipVee** in System Settings → Privacy & Security → Accessibility. It needs this to paste for you. Updates keep this setting. If you're updating from 1.0.0, remove ClipVee from the list with the minus button once, then turn the new copy on.
+3. ClipVee opens a welcome window. Click **Allow…**, then turn on **ClipVee** in System Settings → Privacy & Security → Accessibility. It needs this to paste for you. You can also find **Accessibility permission** in Settings → General. If you're updating from 1.0.0, remove ClipVee from the list with the minus button once, then turn the new copy on.
 4. Press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>.
 
 ClipVee asks whether to check for updates automatically, and installs new versions when you click **Install**. You can also click **Check now** in Settings → General. Your history and settings carry over. Version 1.0.1 and earlier can't check for updates, so replace it with the new version once.
+
+### Try your first paste
+
+1. Copy a short sentence in TextEdit or another text editor.
+2. Leave the cursor where you want to insert it, press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>, then click the matching card or press <kbd>Return</kbd>.
+3. The sentence should appear at the cursor. To find an older copy, open the panel and start typing.
+
+If choosing a card only copies it, check **Paste automatically** and **Accessibility permission** in Settings → General. If new copies don't appear, check the panel's paused/capture-off message and Settings → History.
+
+### Everyday controls and privacy
+
+- Left-click the menu bar icon or use your shortcut to open the panel at your chosen position. Right-click or Control-click the icon for options.
+- Pause history from the panel's **More actions** menu or Settings → Privacy. Option-click the menu bar icon to toggle pause; Option-Shift-click skips only the next copy. Pausing stops new capture and keeps existing history.
+- ClipVee keeps **200 unpinned items by default**. Change the limit in Settings → History. Older unpinned items are removed as the limit is reached; pinned items don't count toward it.
+- History is saved on disk and survives quitting by default. **Clear history…** removes unpinned history and keeps pins. It only clears what Command-V would paste if **Clear the system clipboard too** is enabled in Settings → History.
+- Settings → Privacy lets you ignore source apps. Sensitive-content markers depend on the app you copy from; ordinary-text secrets can still be saved. History stays on this Mac, with no built-in sync.
+
+### Troubleshooting and feedback
+
+| Symptom | What to check |
+| --- | --- |
+| A card copies but doesn't paste | Leave a text cursor in the destination app. In Settings → General, check **Paste automatically** and **Accessibility permission**. |
+| Accessibility is enabled but paste still fails after replacing the app | Quit ClipVee, remove its old Accessibility entry, add the current `/Applications/ClipVee.app`, then reopen it. |
+| New copies don't appear | Resume history if paused; enable the relevant text, image or file capture in Settings → History. Check ignored apps, clipboard types and patterns in Settings → Privacy. Skipped copies aren't recovered later. |
+| The shortcut doesn't open the panel | Confirm or record it in Settings → Shortcuts and check whether another app uses the same shortcut. You can also left-click the menu bar icon. |
+
+Still stuck? [Report a ClipVee problem](https://github.com/mzbali/ClipVee/issues) with your macOS version, ClipVee version from Settings → About, steps to reproduce, and what you expected to happen. Use a made-up example and redact clipboard contents from screenshots.
 
 ### Build it yourself
 
@@ -70,16 +97,6 @@ Builds without a signing identity are signed ad hoc, and macOS asks for Accessib
 CLIPVEE_SIGN_IDENTITY='Apple Development: you@example.com (TEAMID)' ./scripts/build-local.sh
 ```
 
-### Coming from Maccy
-
-ClipVee can bring over your Maccy history, pins and settings. Open ClipVee once and quit it, quit Maccy, then run:
-
-```sh
-./scripts/migrate-history.sh
-```
-
-Maccy's own data isn't changed. Only run one of the two with <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd> at a time.
-
 ## Keyboard
 
 | Keys | What it does |
@@ -95,18 +112,7 @@ Maccy's own data isn't changed. Only run one of the two with <kbd>⌘</kbd> <kbd
 | <kbd>Esc</kbd> | Close |
 | <kbd>⌘</kbd> <kbd>,</kbd> | Settings |
 
-All of these can be changed in Settings → Shortcuts, and Settings → General decides whether choosing a card pastes or only copies.
-
-## How it differs from Maccy
-
-ClipVee is a fork of [Maccy](https://github.com/p0deje/Maccy) 2.8.0. It keeps Maccy's clipboard capture, storage and privacy features, and changes how you see and use your history.
-
-| | Maccy | ClipVee |
-| --- | --- | --- |
-| Look | A menu-style list | A panel of cards, like Windows 11 |
-| Shortcut | <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>C</kbd> | <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd> |
-| Choosing an item | Copies it | Pastes it into the app you were using |
-| Settings | Tabs | A sidebar, with a picture of the screen for placing the panel |
+These are the defaults with automatic paste enabled. Settings → Shortcuts lets you change the panel, pin, delete and details shortcuts, and shows the current copy/paste modifier keys. Settings → General decides whether choosing a card pastes, pastes as plain text or only copies.
 
 ## Contributing
 
@@ -116,4 +122,4 @@ Issues and pull requests are welcome. ClipVee is about clipboard history only, s
 
 ## Credits and licence
 
-ClipVee is built on [Maccy](https://maccy.app) by Alex Rodionov and contributors, released under the [MIT License](LICENSE). ClipVee is maintained separately, so please report ClipVee problems here rather than to Maccy.
+ClipVee is a fork of [Maccy](https://maccy.app) 2.8.0 by Alex Rodionov and contributors, released under the [MIT License](LICENSE). Its clipboard capture, storage and privacy features provide the foundation for ClipVee's panel. ClipVee is maintained separately, so please report ClipVee problems here rather than to Maccy.

@@ -52,6 +52,16 @@ class Clipboard {
     onNewCopyHooks = []
   }
 
+  func setHistoryPaused(_ paused: Bool, onlyNextCopy: Bool = false) {
+    if paused || Defaults[.ignoreEvents] {
+      // A pause starts with the next copy. On resume, discard any change made
+      // while paused even if the polling timer hasn't observed it yet.
+      changeCount = pasteboard.changeCount
+    }
+    Defaults[.ignoreOnlyNextEvent] = paused && onlyNextCopy
+    Defaults[.ignoreEvents] = paused
+  }
+
   func start() {
     stop()
     timer = Timer.scheduledTimer(

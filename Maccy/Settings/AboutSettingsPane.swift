@@ -24,6 +24,11 @@ struct AboutSettingsPane: View {
             .font(.system(size: 20, weight: .semibold))
           Text("Windows-style clipboard history for the Mac.")
             .foregroundStyle(.secondary)
+          #if DEBUG
+          Text("Development build")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(Color.accentColor)
+          #endif
           Text("Version \(version)")
             .font(.caption)
             .foregroundStyle(.secondary)

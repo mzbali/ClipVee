@@ -65,6 +65,7 @@ struct PanelSettingsPane: View {
           Text("Never").tag(SearchVisibility?.none)
         }
         .fixedSize()
+        .accessibilityIdentifier("search-visibility")
       }
       SettingsCard(icon: "paintpalette", title: "Colour swatches", description: "For hex codes such as #FF8800.") {
         Defaults.Toggle("Colour swatches", key: .showHexColorSwatch)
