@@ -104,6 +104,11 @@
   .card .src svg { width: 12px; height: 12px; color: #9a9da5; }
   .card.s1 { animation: sel1 9s infinite; }
   .card.s2 { animation: sel2 9s infinite; }
+  /* The one-play demo ends with both the result and the chosen clipboard card visible. */
+  .stage[data-state="ended"] .panel { animation: none; opacity: 1; transform: none; }
+  .stage[data-state="ended"] .card.s2 {
+    animation: none; border-color: #3B82F6; background: rgba(37,99,235,.16); box-shadow: 0 0 0 1px #3B82F6;
+  }
   /* Like the app, a landscape photo fills the card's width. */
   .thumb { aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden; }
   .thumb svg { display: block; width: 100%; height: 100%; }
@@ -168,10 +173,13 @@
   .step::before { counter-increment: s; content: counter(s); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; font-size: 14px; margin-bottom: 14px; }
   .step b { color: var(--ink); }
   .brew { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin-top: 18px; color: var(--sub); font-size: 15px; }
-  .brew code { display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(0,0,0,.3); padding: 9px 9px 9px 16px; font: 14px ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink); }
-  .brew button { font: 600 13px -apple-system, BlinkMacSystemFont, sans-serif; color: var(--ink); background: rgba(255,255,255,.08); border: 1px solid var(--line); border-radius: 7px; padding: 5px 10px; cursor: pointer; }
+  .brew code { max-width: 100%; min-width: 0; display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(0,0,0,.3); padding: 9px 9px 9px 16px; font: 14px ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink); }
+  .brew button { flex-shrink: 0; font: 600 13px -apple-system, BlinkMacSystemFont, sans-serif; color: var(--ink); background: rgba(255,255,255,.08); border: 1px solid var(--line); border-radius: 7px; padding: 5px 10px; cursor: pointer; }
   .brew button:hover { background: rgba(255,255,255,.14); }
-  .brew code span { white-space: nowrap; }
+  .brew code span { min-width: 0; overflow-x: auto; white-space: nowrap; }
+  .copy-status { color: var(--sub); font-size: 13px; margin-top: 8px; }
+  .copy-status:empty { display: none; }
+  .brew button:disabled { cursor: wait; opacity: .7; }
   .aside { margin-top: 26px; text-align: center; color: var(--dim); font-size: 15px; }
   .aside a, .step a { color: var(--sky); }
 
@@ -207,10 +215,12 @@
     .doc { max-width: none; font-size: 13.5px; }
     .doc .rest { display: none; }
     .panel { right: 12px; left: 12px; width: auto; top: 130px; }
+    .stage[data-state="ended"] .panel { top: 160px; }
     .switch { flex-direction: column; align-items: center; gap: 14px; }
     .switch .arrow { transform: rotate(90deg); }
     .term pre { font-size: 11.5px; padding: 16px; }
     .brew code { font-size: 11.5px; gap: 10px; padding-left: 12px; }
+    .brew code span { overflow: visible; white-space: normal; overflow-wrap: anywhere; text-align: left; }
     .keys { display: none; }
     footer nav { margin-left: 0; }
   }
@@ -234,7 +244,7 @@
     <header class="hero">
       <span class="eyebrow">Free and open source · macOS 14 or later</span>
       <h1>Win+V, <em>now on your Mac.</em></h1>
-      <p class="lede">Everything you copy, one shortcut away. Press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>, pick a card, and it's pasted into the app you're using.</p>
+      <p class="lede">Your recent copies, one shortcut away. Press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>, pick a card, and it's pasted into the app you're using.</p>
       <div class="ctas">
         <a class="btn primary" data-download href="https://github.com/mzbali/ClipVee/releases/latest">
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v10m0 0l-4-4m4 4l4-4M4 16h12"/></svg>
@@ -243,9 +253,10 @@
         <a class="btn ghost" href="https://github.com/mzbali/ClipVee">View on GitHub</a>
       </div>
       <p class="meta"><span data-release>Latest release</span> · Apple silicon and Intel</p>
-      <p class="brew">Or with Homebrew: <code><span>brew install --cask mzbali/tap/clipvee</span><button type="button" data-copy>Copy</button></code></p>
+      <p class="brew">Or with Homebrew: <code><span>brew install --cask mzbali/tap/clipvee</span><button type="button" data-copy aria-describedby="copy-status">Copy</button></code></p>
+      <p id="copy-status" class="copy-status" role="status" aria-live="polite"></p>
 
-      <p class="sr-only">Animation: in a text editor, pressing Command Shift V opens the ClipVee panel of recent copies. The Down arrow selects a copied message, and Return pastes it into the document.</p>
+      <p class="sr-only">Animation: in a text editor, pressing Command Shift V opens the ClipVee panel of recent copies. The Down arrow selects a copied message, and Return pastes it into the document. With reduced motion, it finishes with the pasted message visible and the clipboard reopened with that same card selected.</p>
       <div class="stage">
         <div class="bar"><i></i><i></i><i></i><span aria-hidden="true">Weekend plan.txt</span><button type="button" class="demo-toggle" data-demo-toggle data-state="playing" aria-label="Pause the animation"><svg data-icon="pause" viewBox="0 0 10 10" fill="currentColor"><rect x="1" y="0" width="3" height="10" rx="1"/><rect x="6" y="0" width="3" height="10" rx="1"/></svg><svg data-icon="play" viewBox="0 0 10 10" fill="currentColor"><path d="M1.5 0.5v9l8-4.5z"/></svg><span>Pause</span></button></div>
         <div class="doc" aria-hidden="true">
@@ -256,7 +267,7 @@
         <div class="panel" aria-hidden="true">
           <header>
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="2.5" width="10" height="12" rx="2"/><rect x="5.5" y="1" width="5" height="3" rx="1"/></svg>
-            Clipboard <small>Clear all</small><i><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><circle cx="8" cy="8" r="5.6" stroke-width="2.2" stroke-dasharray="2.2 2.2"/><circle cx="8" cy="8" r="4.3" stroke-width="1.4"/><circle cx="8" cy="8" r="1.7" stroke-width="1.3"/></svg></i><i><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></i>
+            Clipboard <small>Clear history…</small><i><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><circle cx="8" cy="8" r="5.6" stroke-width="2.2" stroke-dasharray="2.2 2.2"/><circle cx="8" cy="8" r="4.3" stroke-width="1.4"/><circle cx="8" cy="8" r="1.7" stroke-width="1.3"/></svg></i><i><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></i>
           </header>
           <div class="card s1"><div class="thumb"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fa6cf"/><stop offset=".35" stop-color="#3f6f9f"/><stop offset="1" stop-color="#244f7c"/></linearGradient><linearGradient id="hill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d0643b"/><stop offset="1" stop-color="#7a2b1c"/></linearGradient></defs><rect width="160" height="100" fill="url(#sea)"/><path d="M14 40c6-4 14-5 22-3l4 4H10z" fill="#5c5f63"/><path d="M58 44c3-9 11-10 16-4l2 6H56z" fill="#6c6f72"/><path d="M70 100c6-22 26-30 44-44 14-11 30-20 46-24v68z" fill="url(#hill)"/><path d="M70 100c10-14 24-20 38-26 10-4 16-10 22-16l4 10c-14 10-30 18-42 32z" fill="#c9b8a6" opacity=".55"/></svg></div><div class="src">Finder · 2 min ago<span>⌘1</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h4M7 2v4L4.5 9h7L9 6V2M8 9v5"/></svg><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="13" cy="8" r="1.3"/></svg></div></div>
           <div class="card s2">10:30 by the Ferry Building clock<div class="src">Messages · 1 min ago<span>⌘2</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h4M7 2v4L4.5 9h7L9 6V2M8 9v5"/></svg><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="13" cy="8" r="1.3"/></svg></div></div>
@@ -288,12 +299,12 @@
   <section id="features">
     <div class="wrap">
       <h2 class="center">Small, fast, and out of your way</h2>
-      <p class="sub center">It lives in the menu bar and shows up only when you ask for it. Right-click its icon to pause or clear your history.</p>
+      <p class="sub center">Left-click the menu bar icon or use your shortcut to open the panel at your chosen position. Right-click or Control-click for options.</p>
       <div class="grid">
         <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="5" rx="1.5"/><rect x="3" y="11" width="14" height="6" rx="1.5"/></svg></div><h3>Text, images and files</h3><p>Newest first, with thumbnails, and where and when you copied each one.</p></div>
         <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4v6a3 3 0 01-3 3H4m0 0l4-4m-4 4l4 4"/></svg></div><h3>Pastes for you</h3><p>Arrow keys and Return, or a click. <kbd>⌘1</kbd> to <kbd>⌘9</kbd> paste the nine newest.</p></div>
-        <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h6M8 3v5l-3 3h10l-3-3V3M10 11v6"/></svg></div><h3>Pins</h3><p>Keep the snippets you reuse at the top. Pins survive Clear all.</p></div>
-        <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg></div><h3>Type to search</h3><p>Just start typing. The search field appears as soon as you do.</p></div>
+        <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h6M8 3v5l-3 3h10l-3-3V3M10 11v6"/></svg></div><h3>Pins</h3><p>Keep the snippets you reuse at the top. Pins survive clearing history.</p></div>
+        <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg></div><h3>Type to search</h3><p>Follow the Type to search hint. The search field appears as soon as you type.</p></div>
         <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h12M4 10h8M4 15h5"/><path d="M14 13l3 3m0-3l-3 3"/></svg></div><h3>Plain text on demand</h3><p>Paste without the fonts and colours, once or always.</p></div>
         <div class="feat"><div class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14" rx="3"/><rect x="6.5" y="6.5" width="7" height="7" rx="1.5" fill="currentColor" stroke="none" opacity=".5"/></svg></div><h3>Colour swatches</h3><p>Copy a hex code like #FF8800 and see the colour on its card.</p></div>
       </div>
@@ -322,8 +333,8 @@
         <h2>Your clipboard stays on your Mac.</h2>
         <p class="sub">ClipVee runs in Apple's app sandbox without network access, so the app itself can't reach the internet. No account, no analytics, no cloud.</p>
         <ul class="ticks">
-          <li>Passwords copied from password managers are skipped</li>
-          <li>Ignore whole apps, pause history, or skip just the next copy</li>
+          <li>Content marked sensitive or temporary by supported apps is skipped</li>
+          <li>Passwords copied as ordinary text can still be saved. Ignore the source app, pause history, or skip the next copy when needed</li>
           <li>The only thing that goes online is a separate updater, which asks GitHub for the latest version once a day, if you allow it</li>
           <li>Everything is open source, so anyone can check</li>
         </ul>
@@ -341,14 +352,15 @@
 
   <section id="install">
     <div class="wrap">
-      <h2 class="center">Install in a minute</h2>
-      <p class="sub center">ClipVee is free, so it isn't notarised by Apple. macOS asks you to confirm it once.</p>
+      <h2 class="center">Get started</h2>
+      <p class="sub center">This release isn't notarised by Apple yet. macOS may ask you to approve it before the first launch.</p>
       <div class="steps">
         <div class="step"><b>Download</b> ClipVee, open the disk image, and drag <b>ClipVee</b> to Applications. Or install it with the <a href="#top">Homebrew command</a> at the top.</div>
         <div class="step"><b>Open ClipVee.</b> If macOS says it can't check it, click Done, then go to System Settings → Privacy &amp; Security and click <b>Open Anyway</b>.</div>
         <div class="step"><b>Allow Accessibility.</b> In the welcome window, click Allow… and turn ClipVee on in Privacy &amp; Security so it can paste for you. Then press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>.</div>
       </div>
-      <p class="aside">Using Maccy? ClipVee can <a href="https://github.com/mzbali/ClipVee#coming-from-maccy">bring over your history and pins</a>. Prefer to build it yourself? <a href="https://github.com/mzbali/ClipVee#build-it-yourself">It takes one command</a>.</p>
+      <p class="aside">Try your first paste: copy a short sentence, leave the cursor in a text editor, then press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd> and choose its card. Need help? <a href="#faq">See the troubleshooting answers below</a>.</p>
+      <p class="aside">Prefer to build it yourself? <a href="https://github.com/mzbali/ClipVee#build-it-yourself">Build ClipVee from source</a>.</p>
     </div>
   </section>
 
@@ -358,11 +370,27 @@
       <div class="faq">
         <details>
           <summary>Why does macOS warn me when I first open it?</summary>
-          <p>Apple charges developers a yearly fee to notarise apps. ClipVee is a free project and isn't notarised yet, so macOS asks you to confirm it once with Open Anyway. The full source is on GitHub if you'd like to check it or build it yourself.</p>
+          <p>This release has not been notarised by Apple. macOS may therefore ask you to approve it with Open Anyway before the first launch. The full source is on GitHub if you'd like to inspect it or build it yourself.</p>
         </details>
         <details>
           <summary>Why does it need Accessibility access?</summary>
           <p>To paste for you, ClipVee presses <kbd>⌘</kbd> <kbd>V</kbd> in the app you were using, and macOS only allows that with Accessibility turned on. Without it, ClipVee still copies the card you choose, and you paste it yourself.</p>
+        </details>
+        <details>
+          <summary>Why does choosing a card copy it without pasting?</summary>
+          <p>Leave a text cursor in the app you want to paste into. In Settings → General, turn on Paste automatically and check Accessibility permission. If macOS shows permission as enabled but pasting stopped after replacing the app, quit ClipVee, remove its old Accessibility entry, add the current copy from Applications, and reopen it.</p>
+        </details>
+        <details>
+          <summary>Why aren't new copies appearing?</summary>
+          <p>Check whether history is paused, then check text, image and file capture in Settings → History. Settings → Privacy may also exclude the source app, clipboard type or a matching pattern. Content marked sensitive or temporary is skipped. Copies made while capture is off aren't recovered when you resume.</p>
+        </details>
+        <details>
+          <summary>How long does ClipVee keep my copies?</summary>
+          <p>History is saved on disk and survives quitting by default. ClipVee keeps 200 unpinned items by default; change the limit in Settings → History. Older unpinned items are removed as the limit is reached. Pins don't count toward the limit and are kept when you clear history. Clearing history only empties the system clipboard too if you enable that option in History settings.</p>
+        </details>
+        <details>
+          <summary>Can I pause history without losing my saved copies?</summary>
+          <p>Yes. Pause from the panel's More actions menu or Settings → Privacy. Option-click the menu bar icon to toggle pause, or Option-Shift-click to skip just the next copy. Pausing keeps existing history and stops new capture until you resume.</p>
         </details>
         <details>
           <summary>Is it really free?</summary>
@@ -374,11 +402,19 @@
         </details>
         <details>
           <summary>How do I update it?</summary>
-          <p>ClipVee asks whether to check for updates automatically. If you say yes, it looks once a day. When a new version is ready, an update button appears in the panel and in the menu bar icon's menu, and it installs when you click it. You can also click Check now in Settings → General. Your history, pins, settings and Accessibility permission carry over. Version 1.0.1 and earlier can't check, so download the new version once and drag it to Applications.</p>
+          <p>ClipVee asks whether to check for updates automatically. If you say yes, it looks once a day. When a new version is ready, an update button appears in the panel and in the menu bar icon's menu; you can review it before choosing Install. You can also click Check now in Settings → General. Your history, pins and settings carry over. Version 1.0.1 and earlier can't check, so download the new version once and drag it to Applications. Read what's changed in the <a href="https://github.com/mzbali/ClipVee/releases">release notes</a>.</p>
         </details>
         <details>
           <summary>Can I change the shortcut?</summary>
           <p>Yes, in Settings → Shortcuts. You can also choose whether picking a card pastes it or only copies it.</p>
+        </details>
+        <details>
+          <summary>Doesn't macOS already have clipboard history?</summary>
+          <p>Yes. Modern macOS includes <a href="https://support.apple.com/guide/mac-help/mchl40d5b86b/mac">clipboard history in Spotlight</a>. ClipVee offers a dedicated Windows-style panel, a global shortcut, pins and your choice of panel position. It works on macOS 14 Sonoma and later.</p>
+        </details>
+        <details>
+          <summary>How do I report a problem?</summary>
+          <p><a href="https://github.com/mzbali/ClipVee/issues">Open a ClipVee issue</a> with your macOS version, ClipVee version from Settings → About, steps to reproduce, and what you expected. Use a made-up example and redact clipboard contents from screenshots.</p>
         </details>
         <details>
           <summary>How is it related to Maccy?</summary>
@@ -427,7 +463,7 @@
     .catch(() => {});
 
   // The demo loops, with a button to pause it. With Reduce Motion it plays once and stops with the
-  // pasted text visible, and the button replays the complete sequence.
+  // pasted text visible and the clipboard reopened on the selected card. Replay starts the complete sequence again.
   const stage = document.querySelector(".stage");
   const toggle = document.querySelector("[data-demo-toggle]");
   const loop = 9000;
@@ -441,6 +477,7 @@
   let stopTimer;
 
   function show(state) {
+    stage.dataset.state = state;
     toggle.dataset.state = state;
     toggle.querySelector("span").textContent = labels[state][0];
     toggle.setAttribute("aria-label", labels[state][1]);
@@ -451,10 +488,11 @@
   }
 
   function playDemo() {
-    const animations = stage.getAnimations({ subtree: true });
-    if (toggle.dataset.state === "ended") seek(0);
-    animations.forEach((animation) => animation.play());
+    const replay = toggle.dataset.state === "ended";
     show("playing");
+    if (replay) seek(0);
+    const animations = stage.getAnimations({ subtree: true });
+    animations.forEach((animation) => animation.play());
     clearTimeout(stopTimer);
     if (reducedMotion.matches && animations.length) {
       const time = animations[0].currentTime % loop;
@@ -473,16 +511,34 @@
     stage.getAnimations({ subtree: true }).forEach((animation) => animation.pause());
     show("paused");
   });
+  reducedMotion.addEventListener("change", () => {
+    if (toggle.dataset.state === "playing") playDemo();
+  });
   playDemo();
 
-  document.querySelectorAll("[data-copy]").forEach((button) =>
-    button.addEventListener("click", () => {
-      navigator.clipboard.writeText(button.previousElementSibling.textContent).then(() => {
+  const copyStatus = document.querySelector("#copy-status");
+  document.querySelectorAll("[data-copy]").forEach((button) => {
+    let resetTimer;
+    button.addEventListener("click", async () => {
+      clearTimeout(resetTimer);
+      button.disabled = true;
+      copyStatus.textContent = "";
+      try {
+        await navigator.clipboard.writeText(button.previousElementSibling.textContent);
         button.textContent = "Copied";
-        setTimeout(() => (button.textContent = "Copy"), 1500);
-      });
-    }),
-  );
+        copyStatus.textContent = "Command copied.";
+        resetTimer = setTimeout(() => {
+          button.textContent = "Copy";
+          copyStatus.textContent = "";
+        }, 2000);
+      } catch {
+        button.textContent = "Try again";
+        copyStatus.textContent = "Could not copy. Select the command above and copy it manually.";
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
 </script>
 </body>
 </html>
