@@ -68,15 +68,12 @@ Updates are delivered by [Sparkle](https://sparkle-project.org). The app reads `
 
 Store the file in your password manager and delete it. On a new Mac, import it with `generate_keys -f clipvee-update-key`.
 
-1. Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`.
-2. Write the release notes as a short Markdown list in `docs/releases/<version>.md`. The app shows them when it offers the update.
-3. Run `./scripts/build-release.sh <notes.md>`. It builds a universal Release copy, signed with the ClipVee certificate, and writes `.build/release/ClipVee-<version>.dmg`, `.zip` and a signed `appcast.xml`. The first run installs [dmgbuild](https://github.com/dmgbuild/dmgbuild) into `.build/dmg-venv`, and macOS asks once whether `generate_appcast` may use the update key. The disk image's background is `Design/dmg-background.png`, rendered from `Design/dmg-background.html`.
-4. Attach all three files to a GitHub release tagged `v<version>`, and mark it as the latest release. Copies already installed find the update within a day.
-5. Update the version and `sha256` in `Casks/clipvee.rb` in [mzbali/homebrew-tap](https://github.com/mzbali/homebrew-tap). Take the hash from the disk image downloaded back from the release, not the local copy.
-6. Update the website for anything user-facing. It lives on the `gh-pages` branch; check it out with `git worktree add .build/gh-pages gh-pages`, then commit and push there.
-7. Check what users get: `https://github.com/mzbali/ClipVee/releases/latest/download/appcast.xml` should list the new version, with a `length` that matches the zip, and the live site should show your changes.
+1. In a pull request, bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` and write the release notes as a short Markdown list in `docs/releases/<version>.md`. The app shows them when it offers the update. Merge it.
+2. With `main` checked out at `origin/main`, run `./scripts/build-release.sh docs/releases/<version>.md`. It builds a universal Release copy, signed with the ClipVee certificate, and writes `.build/release/ClipVee-<version>.dmg`, `.zip` and a signed `appcast.xml`. The first run installs [dmgbuild](https://github.com/dmgbuild/dmgbuild) into `.build/dmg-venv`, and macOS asks once whether `generate_appcast` may use the update key. The disk image's background is `Design/dmg-background.png`, rendered from `Design/dmg-background.html`.
+3. Run `./scripts/publish-release.sh`. It creates the GitHub release `v<version>` marked as latest, checks that the live `appcast.xml` lists the version with the zip's `length`, and opens a pull request in [mzbali/homebrew-tap](https://github.com/mzbali/homebrew-tap) that bumps the cask with the hash of the downloaded disk image. The tap's CI downloads it again; merge the PR once it passes. Copies already installed find the update within a day.
+4. Update the website for anything user-facing. It lives on the `gh-pages` branch; check it out with `git worktree add .build/gh-pages gh-pages`, then commit and push there, and check the live site.
 
-Before step 3, run the unit tests and the UI tests that cover what changed.
+Before step 2, run the unit tests and the UI tests that cover what changed.
 
 The app isn't notarised, so the README explains Gatekeeper's **Open Anyway** step.
 
