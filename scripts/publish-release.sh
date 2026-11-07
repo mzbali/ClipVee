@@ -43,13 +43,18 @@ if grep -q "^  version \"$version\"" Casks/clipvee.rb; then
   echo "The cask is already at $version."
   exit 0
 fi
-if git ls-remote --exit-code -q origin "clipvee-$version" >/dev/null; then
-  gh pr view "clipvee-$version" --json url --jq '"The cask bump is already open: \(.url)"'
+branch="clipvee-$version"
+# Each step is skipped when an earlier run already did it.
+if ! git ls-remote --exit-code -q origin "$branch" >/dev/null; then
+  git switch -q -c "$branch"
+  sed -i '' -E "s/^  version \".*\"/  version \"$version\"/; s/^  sha256 \".*\"/  sha256 \"$sha\"/" Casks/clipvee.rb
+  git commit -qam "Update ClipVee to $version"
+  git push -q -u origin "$branch"
+fi
+open_pr=$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')
+if [ -n "$open_pr" ]; then
+  echo "The cask bump is already open: $open_pr"
   exit 0
 fi
-git switch -q -c "clipvee-$version"
-sed -i '' -E "s/^  version \".*\"/  version \"$version\"/; s/^  sha256 \".*\"/  sha256 \"$sha\"/" Casks/clipvee.rb
-git commit -qam "Update ClipVee to $version"
-git push -q -u origin "clipvee-$version"
-gh pr create --title "Update ClipVee to $version" \
+gh pr create --head "$branch" --title "Update ClipVee to $version" \
   --body "Bumps the cask to the [v$version release](https://github.com/mzbali/ClipVee/releases/tag/v$version). The sha256 is from the disk image downloaded back from the release. CI's online audit downloads it again and checks the hash."
