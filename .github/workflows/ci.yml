@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [clipboard-panel]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: build and unit tests
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/cache@v4
+        with:
+          path: .build/SourcePackages
+          key: spm-${{ hashFiles('Maccy.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+      - run: xcodebuild -version
+      - run: ./scripts/build-local.sh
+      - name: Unit tests
+        run: |
+          xcodebuild -project Maccy.xcodeproj -scheme ClipVee -configuration Debug \
+            -derivedDataPath .build/DerivedData -destination 'platform=macOS' \
+            -only-testing:MaccyTests test-without-building
