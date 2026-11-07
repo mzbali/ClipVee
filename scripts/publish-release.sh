@@ -16,6 +16,11 @@ done
 # Rerunning after a failure later on resumes from the existing release.
 if gh release view "v$version" >/dev/null 2>&1; then
   echo "v$version is already released; finishing the remaining steps."
+  # gh creates a draft, uploads, then publishes, so an interrupted run can leave a draft.
+  if [ "$(gh release view "v$version" --json isDraft --jq .isDraft)" = true ]; then
+    gh release upload "v$version" "${files[@]}" --clobber
+    gh release edit "v$version" --draft=false --latest
+  fi
 else
   git fetch -q origin main
   if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
