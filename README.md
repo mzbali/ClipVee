@@ -40,7 +40,7 @@ Needs macOS 14 Sonoma or later, on Apple silicon or Intel.
    brew install --cask mzbali/tap/clipvee
    ```
 
-2. Open ClipVee. It isn't notarised by Apple yet, so the first time macOS blocks it: click **Done**, then **Open Anyway** in System Settings → Privacy & Security.
+2. Open ClipVee. It isn't notarised by Apple yet, so the first time macOS blocks it. Close the warning without deleting ClipVee, then open System Settings → Privacy & Security, scroll to the bottom and click **Open Anyway**. Enter your password and confirm.
 3. In the welcome window, click **Allow…** and turn on ClipVee under Accessibility. This lets it paste for you.
 
 Then press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd>. Updates install from inside the app, and your history and settings carry over.

@@ -64,7 +64,7 @@ struct WelcomeView: View {
           title: "Let ClipVee paste for you",
           description: isTrusted
             ? "Pick a card and ClipVee pastes it into the app you're using."
-            : "Turn on ClipVee in System Settings → Privacy & Security → Accessibility. If it's on already, remove it with the minus button and add it again."
+            : "Click Allow…, then turn on ClipVee in System Settings → Privacy & Security → Accessibility."
         ) {
           if isTrusted {
             Label("On", systemImage: "checkmark.circle.fill")
