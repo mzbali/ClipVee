@@ -19,4 +19,4 @@ show_pathbar = False
 show_sidebar = False
 icon_size = 128
 text_size = 13
-icon_locations = {app_name: (160, 192), "Applications": (480, 192)}
+icon_locations = {app_name: (160, 180), "Applications": (480, 180)}
