@@ -195,6 +195,58 @@ extension SharedStateTests {
       #expect(Set(history.items[0].item.contents) == Set(firstContents))
     }
 
+    @Test("Copying an existing item from ClipVee keeps its place", arguments: Sorter.By.allCases)
+    func copyingExistingItemKeepsPlace(sortBy: Sorter.By) {
+      Defaults[.sortBy] = sortBy
+      let first = history.add(historyItem("foo", copiedSecondsAgo: 30, copies: 3))
+      let second = history.add(historyItem("bar", copiedSecondsAgo: 20, copies: 2))
+      let third = history.add(historyItem("baz", copiedSecondsAgo: 10, copies: 1))
+      let before = history.items.toArray().map(\.text)
+      let copiedAt = first.item.lastCopiedAt
+
+      let pasted = historyItem("foo")
+      pasted.contents.append(HistoryItemContent(
+        type: NSPasteboard.PasteboardType.fromMaccy.rawValue,
+        value: "".data(using: .utf8)
+      ))
+      let merged = history.add(pasted)
+
+      #expect(history.items.toArray().map(\.text) == before)
+      #expect(history.items.toArray().count == 3)
+      #expect(merged.item.lastCopiedAt == copiedAt)
+      #expect(merged.item.numberOfCopies == 3)
+      #expect([second, third].allSatisfy { history.items.toArray().contains($0) })
+    }
+
+    @Test("Pasting an existing item keeps its place after the clipboard monitor sees it")
+    func pastingExistingItemKeepsPlaceThroughClipboard() {
+      Defaults[.sortBy] = .lastCopiedAt
+      let clipboard = Clipboard(pasteboard: NSPasteboard.withUniqueName())
+      clipboard.onNewCopy { self.history.add($0) }
+      let first = history.add(historyItem("foo", copiedSecondsAgo: 30))
+      history.add(historyItem("bar", copiedSecondsAgo: 20))
+      history.add(historyItem("baz", copiedSecondsAgo: 10))
+
+      clipboard.copy(first.item)
+      clipboard.checkForChangesInPasteboard()
+
+      #expect(history.items.toArray().map(\.text) == ["baz", "bar", "foo"])
+      try? assertStorageCounts(items: 3, contents: 3)
+    }
+
+    @Test("Copying an existing item elsewhere still moves it to the top")
+    func copyingExistingItemExternallyMovesToTop() {
+      Defaults[.sortBy] = .lastCopiedAt
+      history.add(historyItem("foo", copiedSecondsAgo: 30))
+      history.add(historyItem("bar", copiedSecondsAgo: 20))
+      history.add(historyItem("baz", copiedSecondsAgo: 10))
+
+      let merged = history.add(historyItem("foo"))
+
+      #expect(history.items.toArray().map(\.text) == ["foo", "baz", "bar"])
+      #expect(merged.item.numberOfCopies == 2)
+    }
+
     @Test("Modified after copying")
     func modifiedAfterCopying() {
       history.add(historyItem("foo"))
@@ -507,7 +559,12 @@ extension SharedStateTests {
       )
     }
 
-    private func historyItem(_ value: String, persisted: Bool = true) -> HistoryItem {
+    private func historyItem(
+      _ value: String,
+      persisted: Bool = true,
+      copiedSecondsAgo: TimeInterval? = nil,
+      copies: Int = 1
+    ) -> HistoryItem {
       let contents = [
         HistoryItemContent(
           type: NSPasteboard.PasteboardType.string.rawValue,
@@ -519,7 +576,11 @@ extension SharedStateTests {
         Storage.shared.context.insert(item)
       }
       item.contents = contents
-      item.numberOfCopies = 1
+      item.numberOfCopies = copies
+      if let copiedSecondsAgo {
+        item.firstCopiedAt = Date(timeIntervalSinceNow: -copiedSecondsAgo)
+        item.lastCopiedAt = item.firstCopiedAt
+      }
       item.title = item.generateTitle()
 
       return item

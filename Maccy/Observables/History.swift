@@ -167,11 +167,18 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
 
     var replacedPinnedItem: HistoryItemDecorator?
     if let existingHistoryItem = findSimilarItem(item) {
+      // Selecting or pasting from the list is not a new copy, so the item keeps its place.
+      let copiedFromHistory = item.fromMaccy
       if isModified(item) == nil {
         transferContents(from: existingHistoryItem, to: item)
       }
       item.firstCopiedAt = existingHistoryItem.firstCopiedAt
-      item.numberOfCopies += existingHistoryItem.numberOfCopies
+      if copiedFromHistory {
+        item.lastCopiedAt = existingHistoryItem.lastCopiedAt
+        item.numberOfCopies = existingHistoryItem.numberOfCopies
+      } else {
+        item.numberOfCopies += existingHistoryItem.numberOfCopies
+      }
       item.pin = existingHistoryItem.pin
       item.title = existingHistoryItem.title
       if !item.fromMaccy {
