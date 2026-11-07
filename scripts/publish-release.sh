@@ -13,18 +13,18 @@ files=("$release/ClipVee-$version.dmg" "$release/ClipVee-$version.zip" "$release
 for f in "$notes" "${files[@]}"; do
   [ -f "$f" ] || { echo "Missing $f. Write the notes and run scripts/build-release.sh first." >&2; exit 1; }
 done
+# Rerunning after a failure later on resumes from the existing release.
 if gh release view "v$version" >/dev/null 2>&1; then
-  echo "v$version is already released. Bump MARKETING_VERSION first." >&2
-  exit 1
+  echo "v$version is already released; finishing the remaining steps."
+else
+  git fetch -q origin main
+  if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+    echo "Release from merged code: check out main at origin/main, rebuild, then run this again." >&2
+    exit 1
+  fi
+  gh release create "v$version" "${files[@]}" --target "$(git rev-parse HEAD)" \
+    --title "ClipVee $version" --notes-file "$notes" --latest
 fi
-git fetch -q origin main
-if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
-  echo "Release from merged code: check out main at origin/main, rebuild, then run this again." >&2
-  exit 1
-fi
-
-gh release create "v$version" "${files[@]}" --target "$(git rev-parse HEAD)" \
-  --title "ClipVee $version" --notes-file "$notes" --latest
 
 # Hash the disk image users download, not the local copy.
 tmp=$(mktemp -d)
@@ -39,6 +39,14 @@ grep -q "length=\"$zip_size\"" <<<"$feed" || { echo "appcast.xml length does not
 
 gh repo clone mzbali/homebrew-tap "$tmp/tap" -- -q
 cd "$tmp/tap"
+if grep -q "^  version \"$version\"" Casks/clipvee.rb; then
+  echo "The cask is already at $version."
+  exit 0
+fi
+if git ls-remote --exit-code -q origin "clipvee-$version" >/dev/null; then
+  gh pr view "clipvee-$version" --json url --jq '"The cask bump is already open: \(.url)"'
+  exit 0
+fi
 git switch -q -c "clipvee-$version"
 sed -i '' -E "s/^  version \".*\"/  version \"$version\"/; s/^  sha256 \".*\"/  sha256 \"$sha\"/" Casks/clipvee.rb
 git commit -qam "Update ClipVee to $version"
