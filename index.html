@@ -65,6 +65,9 @@
   .btn.ghost { border: 1px solid var(--line); background: rgba(255,255,255,.04); }
   .btn.ghost:hover { background: rgba(255,255,255,.08); }
   .meta { font-size: 13px; color: var(--dim); }
+  .first-launch { max-width: 560px; margin: 10px auto 0; font-size: 14px; color: var(--sub); }
+  .first-launch b { color: var(--ink); font-weight: 600; white-space: nowrap; }
+  .first-launch a { color: var(--sky); }
 
   /* Animated demo */
   .stage {
@@ -259,6 +262,8 @@
         <a class="btn ghost" href="https://github.com/mzbali/ClipVee">View on GitHub</a>
       </div>
       <p class="meta"><span data-release>Latest release</span> · Apple silicon and Intel</p>
+      <!-- Remove once ClipVee is notarised. -->
+      <p class="first-launch"><b>First launch:</b> macOS blocks it once. Click <b>Done</b>, then go to <b>System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b>. <a href="#why-warning" data-open-faq>Why?</a></p>
       <p class="brew">Or with Homebrew: <code><span>brew install --cask mzbali/tap/clipvee</span><button type="button" data-copy aria-label="Copy command" title="Copy"><svg data-icon="copy" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5v-2a1 1 0 00-1-1h-6a1 1 0 00-1 1v6a1 1 0 001 1h2"/></svg><svg data-icon="done" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg><svg data-icon="failed" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></code></p>
       <p id="copy-status" class="sr-only" role="status" aria-live="polite"></p>
 
@@ -372,7 +377,7 @@
     <div class="wrap">
       <h2 class="center">Questions</h2>
       <div class="faq">
-        <details>
+        <details id="why-warning">
           <summary>Why does macOS warn me when I first open it?</summary>
           <p>ClipVee isn't notarised by Apple yet, so macOS asks you to approve it once with Open Anyway. The source is on GitHub if you'd like to check it first.</p>
         </details>
@@ -440,6 +445,9 @@
 </footer>
 
 <script>
+  // "Why?" by the download button opens its FAQ answer as well as scrolling to it.
+  document.querySelector("[data-open-faq]").addEventListener("click", () => (document.querySelector("#why-warning").open = true));
+
   // Point the download buttons straight at the newest disk image, so the page never needs editing for a release.
   fetch("https://api.github.com/repos/mzbali/ClipVee/releases/latest")
     .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
