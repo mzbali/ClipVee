@@ -218,6 +218,25 @@ extension SharedStateTests {
       #expect([second, third].allSatisfy { history.items.toArray().contains($0) })
     }
 
+    @Test("Copying items with equal sort keys from ClipVee keeps the whole order", arguments: Sorter.By.allCases)
+    func copyingEqualItemsKeepsWholeOrder(sortBy: Sorter.By) {
+      Defaults[.sortBy] = sortBy
+      for value in ["foo", "bar", "baz"] {
+        history.add(historyItem(value, copiedSecondsAgo: 10, copies: 2))
+      }
+      let before = history.items.toArray().map(\.text)
+
+      for value in before + before.reversed() {
+        let pasted = historyItem(value)
+        pasted.contents.append(HistoryItemContent(
+          type: NSPasteboard.PasteboardType.fromMaccy.rawValue,
+          value: "".data(using: .utf8)
+        ))
+        history.add(pasted)
+        #expect(history.items.toArray().map(\.text) == before, "after copying \(value)")
+      }
+    }
+
     @Test("Pasting an existing item keeps its place after the clipboard monitor sees it")
     func pastingExistingItemKeepsPlaceThroughClipboard() {
       Defaults[.sortBy] = .lastCopiedAt
