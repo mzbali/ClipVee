@@ -28,12 +28,13 @@ To bring over history and settings from Maccy, quit both apps and run `scripts/m
 
 ## Tests
 
-Build first with `./scripts/build-local.sh`, which also builds the tests. Unit tests use their own pasteboard and don't touch your clipboard:
+Build first with `./scripts/build-local.sh`, which also builds the tests. Pass the same package flags as the build so the tests reuse its packages instead of downloading them again. Unit tests use their own pasteboard and don't touch your clipboard:
 
 ```sh
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
   -project Maccy.xcodeproj -scheme ClipVee -configuration Debug \
   -derivedDataPath .build/DerivedData -destination 'platform=macOS' \
+  -clonedSourcePackagesDirPath .build/SourcePackages -skipPackageUpdates \
   -only-testing:MaccyTests test-without-building
 ```
 
