@@ -166,6 +166,7 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
     }
 
     var replacedPinnedItem: HistoryItemDecorator?
+    var keptUnpinnedIndex: Int?
     if let existingHistoryItem = findSimilarItem(item) {
       // Selecting or pasting from the list is not a new copy, so the item keeps its place.
       let copiedFromHistory = item.fromMaccy
@@ -187,6 +188,10 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
       logger.info("Removing duplicate item '\(item.title)'")
       if let existingDecorator = firstStoredItem(where: { $0.item == existingHistoryItem }) {
         cleanup(existingDecorator)
+        if copiedFromHistory {
+          // Sorting would put the item after others with the same sort key.
+          keptUnpinnedIndex = allUnpinnedItems.firstIndex(of: existingDecorator)
+        }
         allUnpinnedItems.removeAll { $0 == existingDecorator }
         if existingDecorator.isPinned {
           replacedPinnedItem = existingDecorator
@@ -215,7 +220,11 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
       }
     } else {
       itemDecorator = HistoryItemDecorator(item)
-      insertUnpinned(itemDecorator)
+      if let keptUnpinnedIndex, keptUnpinnedIndex <= allUnpinnedItems.count {
+        allUnpinnedItems.insert(itemDecorator, at: keptUnpinnedIndex)
+      } else {
+        insertUnpinned(itemDecorator)
+      }
     }
 
     if searchQuery.isEmpty {
