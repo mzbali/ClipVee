@@ -26,4 +26,5 @@ jobs:
         run: |
           xcodebuild -project Maccy.xcodeproj -scheme ClipVee -configuration Debug \
             -derivedDataPath .build/DerivedData -destination 'platform=macOS' \
+            -clonedSourcePackagesDirPath .build/SourcePackages -skipPackageUpdates \
             -only-testing:MaccyTests test-without-building
