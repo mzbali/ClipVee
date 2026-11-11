@@ -165,6 +165,9 @@
 		F18F166970893C503065D056 /* View+ButtonAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2945CD7912BE7C7D330C27 /* View+ButtonAction.swift */; };
 		FFFC00000000000000000001 /* String+UnsafeForTitleLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFC00000000000000000002 /* String+UnsafeForTitleLayout.swift */; };
 		FFFC00000000000000000003 /* UnsafeForTitleLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFC00000000000000000004 /* UnsafeForTitleLayoutTests.swift */; };
+		B12700000000000000000000 /* SetupSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12710000000000000000000 /* SetupSummary.swift */; };
+		B12700000000000000000001 /* SetupSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12710000000000000000001 /* SetupSummaryView.swift */; };
+		B12700000000000000000002 /* CardTextSizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12710000000000000000002 /* CardTextSizeTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -611,6 +614,9 @@
 		F2E5FA9061DA4866BCFAFE90 /* km */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = km; path = km.lproj/AppearanceSettings.strings; sourceTree = "<group>"; };
 		FFFC00000000000000000002 /* String+UnsafeForTitleLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+UnsafeForTitleLayout.swift"; sourceTree = "<group>"; };
 		FFFC00000000000000000004 /* UnsafeForTitleLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsafeForTitleLayoutTests.swift; sourceTree = "<group>"; };
+		B12710000000000000000000 /* SetupSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupSummary.swift; sourceTree = "<group>"; };
+		B12710000000000000000001 /* SetupSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupSummaryView.swift; sourceTree = "<group>"; };
+		B12710000000000000000002 /* CardTextSizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardTextSizeTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -712,6 +718,8 @@
 				DA9C3C642C211B5F0056795D /* ShortcutsSettingsPane.swift */,
 				DA740D782C21E6B0007B1A36 /* AdvancedSettings.strings */,
 				DA689FC32C1CF0F00009B887 /* PanelSettingsPane.swift */,
+				B12710000000000000000001 /* SetupSummaryView.swift */,
+				B12710000000000000000000 /* SetupSummary.swift */,
 				DA689FCD2C1DEE570009B887 /* AppearanceSettings.strings */,
 				77DAA42E417FBAC5D4615B6F /* AboutSettingsPane.swift */,
 				588132629E209F1294B6A873 /* PopupPositionPicker.swift */,
@@ -790,6 +798,7 @@
 				DA3CE7FF1E44A62500B3AA98 /* ClipboardTests.swift */,
 				CA110ED10000000000000002 /* CollectionSurroundingTests.swift */,
 				C0FFEE000000000000000004 /* ShortenedTests.swift */,
+				B12710000000000000000002 /* CardTextSizeTests.swift */,
 				FFFC00000000000000000004 /* UnsafeForTitleLayoutTests.swift */,
 				DAE2850123225BD90080E394 /* ColorImageTests.swift */,
 				DA360DB21E3DF137005C6F6B /* HistoryTests.swift */,
@@ -1142,6 +1151,7 @@
 				DA696BD22401EEE900DE80CF /* SorterTests.swift in Sources */,
 				CA110ED10000000000000001 /* CollectionSurroundingTests.swift in Sources */,
 				C0FFEE000000000000000003 /* ShortenedTests.swift in Sources */,
+				B12700000000000000000002 /* CardTextSizeTests.swift in Sources */,
 				FFFC00000000000000000003 /* UnsafeForTitleLayoutTests.swift in Sources */,
 				DA360DB31E3DF137005C6F6B /* HistoryTests.swift in Sources */,
 			);
@@ -1171,6 +1181,8 @@
 				DA243D122C2F64830012A27F /* ContentView.swift in Sources */,
 				DAD665662898A1C000975096 /* KeyChord.swift in Sources */,
 				DA689FC42C1CF0F00009B887 /* PanelSettingsPane.swift in Sources */,
+				B12700000000000000000001 /* SetupSummaryView.swift in Sources */,
+				B12700000000000000000000 /* SetupSummary.swift in Sources */,
 				2F1091D72F2B6E8400F5C454 /* AsyncView.swift in Sources */,
 				DAA072E72C423617006DDFD2 /* NSSize+DefaultsSerializable.swift in Sources */,
 				DA9C3C452C207AF80056795D /* PrivacySettingsPane.swift in Sources */,

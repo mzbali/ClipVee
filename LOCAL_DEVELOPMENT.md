@@ -38,6 +38,8 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
   -only-testing:MaccyTests test-without-building
 ```
 
+For a noninteractive check of the setup summary and supported card text sizes, run `bash test-support/check-setup-summary.sh`. It compiles only the value model and a command-line harness, without launching ClipVee, accessing the clipboard/history or reading app preferences. The normal unit test command above launches the app host; use the value-only check when app interaction is out of scope. Card size persistence is also covered by `CardTextSizeTests` in CI using a temporary preferences suite.
+
 UI tests (`MaccyUITests`) press real keys and paste into a throwaway editor (`test-support/PasteTarget.swift`), so they take over the keyboard and mouse while they run. Quit the everyday ClipVee first; the tests save and restore your clipboard. They need Accessibility for **ClipVeeUITests-Runner**. To test the copy in `/Applications` rather than the build output, set `TEST_RUNNER_CLIPVEE_UI_APP_PATH=/Applications/ClipVee.app`.
 
 ## Refresh README media
