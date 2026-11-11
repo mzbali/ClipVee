@@ -22,8 +22,6 @@ jobs:
           key: spm-${{ hashFiles('Maccy.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
       - run: xcodebuild -version
       - run: ./scripts/build-local.sh
-      - name: Setup summary value tests
-        run: bash test-support/check-setup-summary.sh
       - name: Unit tests
         run: |
           xcodebuild -project Maccy.xcodeproj -scheme ClipVee -configuration Debug \

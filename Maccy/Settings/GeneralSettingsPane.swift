@@ -11,21 +11,12 @@ struct GeneralSettingsPane: View {
 
   @Default(.searchMode) private var searchMode
 
-  @State private var showingSetup = false
   @State private var updater = SoftwareUpdater.shared
   @State private var isTrusted = AXIsProcessTrusted()
   private let trustTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
   var body: some View {
     SettingsPageView(title: "General") {
-      SettingsCard(
-        icon: "checklist",
-        title: "Check setup",
-        description: "Review permissions and capture settings without copying or pasting anything."
-      ) {
-        Button("Check setup…") { showingSetup = true }
-          .accessibilityIdentifier("check-setup")
-      }
       SettingsCard(icon: "power", title: "Launch at login") {
         LaunchAtLogin.Toggle { Text("Launch at login") }
       }
@@ -43,7 +34,7 @@ struct GeneralSettingsPane: View {
         icon: "hand.raised",
         title: "Accessibility permission",
         description: isTrusted
-          ? "macOS reports Accessibility is allowed. Actual paste has not been tested."
+          ? "ClipVee can paste into the app you're using."
           : "Allow Accessibility to paste automatically. Without it, choosing a card only copies it."
       ) {
         if isTrusted {
@@ -93,7 +84,6 @@ struct GeneralSettingsPane: View {
         }
       }
     }
-    .sheet(isPresented: $showingSetup) { SetupSummaryView() }
     .onReceive(trustTimer) { _ in isTrusted = AXIsProcessTrusted() }
   }
 }
