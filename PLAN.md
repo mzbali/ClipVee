@@ -16,7 +16,11 @@ Owner approved one PR with 13/15/17 pt card body text and a read-only Check setu
 - Independent Sol review: fixed modifier-key wording and added harness to CI. No findings rejected.
 - Preference serialization regression test compiles and uses a unique temporary suite; execution belongs to CI because the normal local runner launches the app host.
 
+## CI follow-up
+
+CI's Xcode 26.6 rejected the card size key because its separate Defaults conformance inherited MainActor isolation. Marked that conformance explicitly nonisolated, matching the value enum and the other cross-actor Defaults extensions. Local Xcode 27 had accepted the implicit conformance; final CI must verify the older compiler too.
+
 ## Open
 
-- Open PR and finish current-head CI and connector review.
+- PR #10 is open. Finish replacement-head CI and connector review after the compiler isolation fix.
 - Real layout, interaction, screenshots and end-to-end paste remain unverified under the owner's no-UI boundary. No installed-app, clipboard/history, settings/input, permission, merge/release/install interaction performed.

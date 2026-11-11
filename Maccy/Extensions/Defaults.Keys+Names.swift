@@ -1,7 +1,7 @@
 import AppKit
 import Defaults
 
-extension CardTextSize: Defaults.Serializable {}
+nonisolated extension CardTextSize: Defaults.Serializable {}
 
 nonisolated struct StorageType: Sendable {
   static let files = StorageType(types: [.fileURL])
