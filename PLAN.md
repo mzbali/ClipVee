@@ -1,26 +1,22 @@
-# Preview readability and setup summary
-
-Owner approved one PR with 13/15/17 pt card body text and a read-only Check setup panel. Keep 13 pt default. Format diagnostics are deferred. No merge, release, install, app launch, input, live clipboard/history, or user settings/permission changes are authorised.
+# Preview readability and setup summary — PR #10
 
 ## Scope
 
-- Panel preference affects card body text only; preserve four-line previews.
-- General → Check setup summarizes the observed Accessibility permission and configured auto-paste, pause, skip-next-copy, capture categories and app version.
-- Explicitly distinguish settings/permission from actual paste, which is untested. No clipboard/history reads, export or permission prompt in the check.
+- 13/15/17 pt card body text, default 13 pt; four-line previews retained.
+- General → Check setup summarizes observed permission and configured paste/capture state, categories and version. Actual paste is explicitly untested.
+- Owner requested green text and success indicators for healthy observed/configured statuses. Version and actual-paste status stay neutral. Existing text and accessibility remain available.
+- Format diagnostics are deferred. No merge or release authorised.
 
-## Verified locally
+## Evidence
 
-- App and test bundles compile with Xcode `build-for-testing`; no app/test host launched.
-- Value-only command-line harness passes every permission/auto-paste/pause combination, capture category coverage, supported font sizes and unsupported-size rejection.
-- `git diff --check` and shell syntax check pass.
-- Independent Sol review: fixed modifier-key wording and added harness to CI. No findings rejected.
-- Preference serialization regression test compiles and uses a unique temporary suite; execution belongs to CI because the normal local runner launches the app host.
-
-## CI follow-up
-
-CI's Xcode 26.6 rejected the card size key because its separate Defaults conformance inherited MainActor isolation. Marked that conformance explicitly nonisolated, matching the value enum and the other cross-actor Defaults extensions. Local Xcode 27 had accepted the implicit conformance; final CI must verify the older compiler too.
+- Head 0ef2ea7 passed CI: build, value-only setup checks and 111 tests in 13 suites. Codex exact-head review completed with no findings.
+- Owner subsequently authorised signed local installation of that head. Installed bundle matched the build, signed with ClipVee, and launched from /Applications/ClipVee.app. History/settings were left in place; existing backups retained; additional app backup waived.
+- Owner manual feedback: preview text sizing works. Newest copy first observed. This does not prove the older-item select/paste sequence.
+- Owner reported Check setup values visible but white. Healthy states now gain green text and a checkmark. Disabled/partial states stay neutral; configuration still does not imply paste success.
+- Automated UI tests were not run: documented runner uses the system clipboard and real input, which conflict with the owner's isolation boundary.
 
 ## Open
 
-- PR #10 is open. Finish replacement-head CI and connector review after the compiler isolation fix.
-- Real layout, interaction, screenshots and end-to-end paste remain unverified under the owner's no-UI boundary. No installed-app, clipboard/history, settings/input, permission, merge/release/install interaction performed.
+- Local polish build-for-testing, value-only harness and diff check passed without launching apps.
+- Push polish to PR #10 and finish current-head CI and Codex review.
+- This polish is not reinstalled or visually tested. No reinstall, clipboard/input automation, merge or release is authorised by the feedback.

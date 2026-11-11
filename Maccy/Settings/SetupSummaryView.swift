@@ -28,13 +28,13 @@ struct SetupSummaryView: View {
           .fixedSize(horizontal: false, vertical: true)
           .padding(.bottom, 8)
 
-        row("Accessibility", value: summary.permissionStatus)
-        row("Paste automatically", value: summary.autoPasteStatus)
-        row("Capture", value: summary.captureStatus)
-        row("Skip next copy", value: skipNextCopy ? "On" : "Off")
-        row("Text", value: captureTypes(.text))
-        row("Images", value: captureTypes(.images))
-        row("Files", value: captureTypes(.files))
+        row("Accessibility", value: summary.permissionStatus, isHealthy: accessibilityAllowed)
+        row("Paste automatically", value: summary.autoPasteStatus, isHealthy: autoPaste)
+        row("Capture", value: summary.captureStatus, isHealthy: !capturePaused)
+        row("Skip next copy", value: skipNextCopy ? "On" : "Off", isHealthy: !skipNextCopy)
+        captureRow("Text", category: .text)
+        captureRow("Images", category: .images)
+        captureRow("Files", category: .files)
         row("Version", value: version)
 
         SettingsSectionHeader("Actual paste — not tested")
@@ -57,24 +57,31 @@ struct SetupSummaryView: View {
     .onReceive(trustTimer) { _ in accessibilityAllowed = AXIsProcessTrusted() }
   }
 
-  private func row(_ title: LocalizedStringKey, value: String) -> some View {
+  private func row(_ title: LocalizedStringKey, value: String, isHealthy: Bool = false) -> some View {
     HStack(alignment: .firstTextBaseline, spacing: 16) {
       Text(title)
       Spacer(minLength: 8)
-      Text(verbatim: value)
-        .foregroundStyle(.secondary)
-        .multilineTextAlignment(.trailing)
+      HStack(alignment: .firstTextBaseline, spacing: 6) {
+        if isHealthy {
+          Image(systemName: "checkmark.circle.fill")
+            .accessibilityHidden(true)
+        }
+        Text(verbatim: value)
+          .multilineTextAlignment(.trailing)
+      }
+      .foregroundStyle(isHealthy ? Color.green : Color.secondary)
     }
     .padding(10)
     .settingsCardBackground()
     .accessibilityElement(children: .combine)
   }
 
-  private func captureTypes(_ category: StorageType) -> String {
-    SetupSummary.CaptureTypes(
+  private func captureRow(_ title: LocalizedStringKey, category: StorageType) -> some View {
+    let status = SetupSummary.CaptureTypes(
       enabled: Set(enabledTypes.map(\.rawValue)),
       supported: Set(category.types.map(\.rawValue))
-    ).rawValue
+    )
+    return row(title, value: status.rawValue, isHealthy: status == .all)
   }
 
   private var version: String {
