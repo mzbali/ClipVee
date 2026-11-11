@@ -168,6 +168,7 @@
 		B12700000000000000000000 /* SetupSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12710000000000000000000 /* SetupSummary.swift */; };
 		B12700000000000000000001 /* SetupSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12710000000000000000001 /* SetupSummaryView.swift */; };
 		B12700000000000000000002 /* CardTextSizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12710000000000000000002 /* CardTextSizeTests.swift */; };
+		B12700000000000000000003 /* SetupSummaryContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12710000000000000000003 /* SetupSummaryContent.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -617,6 +618,7 @@
 		B12710000000000000000000 /* SetupSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupSummary.swift; sourceTree = "<group>"; };
 		B12710000000000000000001 /* SetupSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupSummaryView.swift; sourceTree = "<group>"; };
 		B12710000000000000000002 /* CardTextSizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardTextSizeTests.swift; sourceTree = "<group>"; };
+		B12710000000000000000003 /* SetupSummaryContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupSummaryContent.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -719,6 +721,7 @@
 				DA740D782C21E6B0007B1A36 /* AdvancedSettings.strings */,
 				DA689FC32C1CF0F00009B887 /* PanelSettingsPane.swift */,
 				B12710000000000000000001 /* SetupSummaryView.swift */,
+				B12710000000000000000003 /* SetupSummaryContent.swift */,
 				B12710000000000000000000 /* SetupSummary.swift */,
 				DA689FCD2C1DEE570009B887 /* AppearanceSettings.strings */,
 				77DAA42E417FBAC5D4615B6F /* AboutSettingsPane.swift */,
@@ -1182,6 +1185,7 @@
 				DAD665662898A1C000975096 /* KeyChord.swift in Sources */,
 				DA689FC42C1CF0F00009B887 /* PanelSettingsPane.swift in Sources */,
 				B12700000000000000000001 /* SetupSummaryView.swift in Sources */,
+				B12700000000000000000003 /* SetupSummaryContent.swift in Sources */,
 				B12700000000000000000000 /* SetupSummary.swift in Sources */,
 				2F1091D72F2B6E8400F5C454 /* AsyncView.swift in Sources */,
 				DAA072E72C423617006DDFD2 /* NSSize+DefaultsSerializable.swift in Sources */,

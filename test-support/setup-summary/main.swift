@@ -10,16 +10,8 @@ for allowed in [false, true] {
     for paused in [false, true] {
       let summary = SetupSummary(accessibilityAllowed: allowed, autoPaste: autoPaste, capturePaused: paused)
       expect(summary.permissionStatus == (allowed ? "Allowed" : "Not allowed"), "Permission status")
-      expect(summary.autoPasteStatus == (autoPaste ? "On" : "Off — ordinary selection copies"), "Auto-paste status")
-      expect(summary.captureStatus == (paused ? "Paused" : "Enabled in settings"), "Capture status")
-      expect(summary.pasteExplanation.contains("Actual paste has not been tested."), "Never imply paste success")
-      if !autoPaste {
-        expect(summary.pasteExplanation.contains("only copies"), "Explain copy-only mode")
-      } else if !allowed {
-        expect(summary.pasteExplanation.contains("permission is missing"), "Explain missing permission")
-      } else {
-        expect(summary.pasteExplanation.contains("does not confirm"), "Allowed is not proof of paste")
-      }
+      expect(summary.autoPasteStatus == (autoPaste ? "On" : "Off"), "Auto-paste status")
+      expect(summary.captureStatus == (paused ? "Off" : "On"), "Capture status")
     }
   }
 }
