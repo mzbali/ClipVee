@@ -4,7 +4,7 @@
 
 - 13/15/17 pt card body text, default 13 pt; four-line previews retained.
 - General → Check setup summarizes observed permission and configured paste/capture state, categories and version. Actual paste is explicitly untested.
-- Owner rejected broad green success styling. Current revision uses Permission/Settings groups with separators, one small green dot for Accessibility Allowed, neutral On/Off preferences (Partly on for partial capture categories), a short untested-paste footer and subdued version. No individual outlined cards or setting checkmarks.
+- Current design: compact 360pt inspector layout, 17pt title, aligned status/setting values, prominent Paste test → Not tested, one divider, neutral preferences, indented capture types and subdued version/Done footer. Only Accessibility Allowed gets a small green dot. No cards or per-row separators.
 - Format diagnostics are deferred. No merge or release authorised.
 
 ## Evidence
@@ -15,8 +15,13 @@
 - Previous green-status head f477055 passed CI and exact-head Codex review, then was installed on explicit owner instruction. Owner rejected its visual design; this revision supersedes it.
 - Automated UI tests were not run: documented runner uses the system clipboard and real input, which conflict with the owner's isolation boundary.
 
+## Current presentation revision
+
+- T3 Sol design critique identified equal visual weighting, excess width and distant values. Main model applied a compact inspector layout and inspected actual native offscreen renders.
+- Signed build-for-testing, existing value-only checks and diff check pass. Light/dark renders with allowed/missing permission and partial categories fit 360 x 350 points without clipping. Data is synthetic; renderer windows never shown. Evidence: .build/setup-compact-preview/.
+- Security investigation remains separate. No flagged app was reopened, protection bypassed or installed bundle changed for this revision.
+
 ## Open
 
-- Current native-summary build-for-testing, value-only harness and diff check passed. Actual SwiftUI content was rendered offscreen using synthetic values only in light/dark and allowed/missing-permission states, fitting 480 x 437 points without clipping. No owner app, preferences, clipboard or input used; renderer windows were never shown.
-- Push polish to PR #10 and finish current-head CI and Codex review.
-- This polish is not reinstalled or visually tested. No reinstall, clipboard/input automation, merge or release is authorised by the feedback.
+- Push this visual revision to PR #10 and finish current-head CI and Codex review.
+- No interactive owner-app checks, installation, merge or release authorised for this revision.

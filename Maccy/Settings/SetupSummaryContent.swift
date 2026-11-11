@@ -11,82 +11,87 @@ struct SetupSummaryContent: View {
   var done: () -> Void
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 20) {
+    VStack(alignment: .leading, spacing: 0) {
       Text("Check setup")
-        .font(.title2.weight(.semibold))
+        .font(.system(size: 17, weight: .semibold))
         .accessibilityAddTraits(.isHeader)
+        .padding(.bottom, 18)
 
-      group("Permission") {
-        row("Accessibility") {
-          HStack(spacing: 6) {
+      Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
+        GridRow {
+          label("Accessibility")
+            .foregroundStyle(.secondary)
+          HStack(spacing: 5) {
             if summary.accessibilityAllowed {
               Circle()
                 .fill(.green)
-                .frame(width: 6, height: 6)
+                .frame(width: 5, height: 5)
                 .accessibilityHidden(true)
             }
             Text(verbatim: summary.permissionStatus)
+              .fontWeight(.medium)
           }
         }
-      }
-
-      group("Settings") {
-        row("Paste automatically", value: summary.autoPasteStatus)
-        Divider()
-        row("Capture", value: summary.captureStatus)
-        Divider()
-        row("Skip next copy", value: skipNextCopy ? "On" : "Off")
-        Divider()
-        row("Text", value: text.rawValue)
-        Divider()
-        row("Images", value: images.rawValue)
-        Divider()
-        row("Files", value: files.rawValue)
-      }
-
-      HStack(alignment: .bottom) {
-        VStack(alignment: .leading, spacing: 4) {
-          Text("Paste hasn’t been tested.")
-          Text("Version \(version)")
-            .font(.caption)
+        .accessibilityElement(children: .combine)
+        GridRow {
+          label("Paste test")
+            .foregroundStyle(.secondary)
+          Text("Not tested")
+            .fontWeight(.medium)
         }
+        .accessibilityElement(children: .combine)
+      }
+
+      Divider()
+        .padding(.vertical, 14)
+
+      Text("Settings")
+        .font(.system(size: 11, weight: .semibold))
         .foregroundStyle(.secondary)
+        .accessibilityAddTraits(.isHeader)
+        .padding(.bottom, 10)
+
+      Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
+        setting("Paste automatically", value: summary.autoPasteStatus)
+        setting("Skip next copy", value: skipNextCopy ? "On" : "Off")
+        setting("Capture", value: summary.captureStatus)
+        setting("Text", value: text.rawValue, subordinate: true)
+        setting("Images", value: images.rawValue, subordinate: true)
+        setting("Files", value: files.rawValue, subordinate: true)
+      }
+
+      HStack(alignment: .firstTextBaseline) {
+        Text("Version \(version)")
+          .font(.system(size: 11))
+          .foregroundStyle(.secondary)
         Spacer()
         Button("Done", action: done)
           .keyboardShortcut(.defaultAction)
       }
+      .padding(.top, 20)
     }
+    .font(.system(size: 13))
     .padding(20)
-    .frame(width: 480)
+    .frame(width: 360)
     .fixedSize(horizontal: false, vertical: true)
     .background(Color(nsColor: .windowBackgroundColor))
   }
 
-  private func group<Content: View>(
-    _ title: LocalizedStringKey, @ViewBuilder content: () -> Content
-  ) -> some View {
-    VStack(alignment: .leading, spacing: 6) {
-      Text(title)
-        .font(.subheadline)
-        .foregroundStyle(.secondary)
-        .accessibilityAddTraits(.isHeader)
-      VStack(spacing: 0, content: content)
-        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
-    }
+  private func label(_ title: LocalizedStringKey, indent: CGFloat = 0) -> some View {
+    Text(title)
+      .padding(.leading, indent)
+      .frame(width: 146, alignment: .leading)
+      .fixedSize(horizontal: false, vertical: true)
   }
 
-  private func row(_ title: LocalizedStringKey, value: String) -> some View {
-    row(title) { Text(verbatim: value) }
-  }
-
-  private func row<Value: View>(_ title: LocalizedStringKey, @ViewBuilder value: () -> Value) -> some View {
-    HStack {
-      Text(title)
-      Spacer(minLength: 16)
-      value().foregroundStyle(.secondary)
+  private func setting(_ title: LocalizedStringKey, value: String, subordinate: Bool = false) -> some View {
+    GridRow {
+      label(title, indent: subordinate ? 12 : 0)
+      Text(verbatim: value)
+        .fixedSize(horizontal: false, vertical: true)
     }
-    .padding(.horizontal, 12)
-    .padding(.vertical, 9)
+    .font(.system(size: subordinate ? 12 : 13))
+    .foregroundStyle(subordinate ? Color.secondary : Color.primary)
     .accessibilityElement(children: .combine)
   }
 }
