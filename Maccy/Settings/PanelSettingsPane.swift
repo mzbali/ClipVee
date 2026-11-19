@@ -3,6 +3,7 @@ import SwiftUI
 import Defaults
 
 struct PanelSettingsPane: View {
+  @Default(.cardTextSize) private var cardTextSize
   @Default(.popupPosition) private var popupPosition
   @Default(.popupScreen) private var popupScreen
   @Default(.pinTo) private var pinTo
@@ -50,6 +51,19 @@ struct PanelSettingsPane: View {
       }
 
       SettingsSectionHeader("Cards")
+      SettingsCard(
+        icon: "textformat.size",
+        title: "Preview text size",
+        description: "Only changes the text inside cards. Larger text shows less of each item."
+      ) {
+        Picker("Preview text size", selection: $cardTextSize) {
+          ForEach(CardTextSize.allCases, id: \.self) { size in
+            Text("\(size.rawValue) pt").tag(size)
+          }
+        }
+        .fixedSize()
+        .accessibilityIdentifier("card-text-size")
+      }
       SettingsCard(icon: "pin", title: "Pinned items", description: "Keep pins above or below recent copies.") {
         Picker("Pinned items", selection: $pinTo) {
           ForEach(PinsPosition.allCases) { position in
