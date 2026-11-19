@@ -1,0 +1,16 @@
+#!/bin/sh
+# Fails a push on the compile errors that would fail the CI "build and unit tests" job, in a minute
+# instead of a CI round. Built after 11 Nov, when CI run 43002011370 failed on
+# Maccy/Extensions/Defaults.Keys+Names.swift:29:14 "main actor-isolated default value in a
+# nonisolated context". Builds the app and test targets (build-for-testing, no test run) from the
+# working tree, so commit first. CI has no docs-only skip, so neither does this.
+# Enable once per clone; worktrees share it: git config core.hooksPath .githooks
+set -eu
+cd "$(git rev-parse --show-toplevel)"
+export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}"
+echo "pre-push: xcodebuild build-for-testing (scheme ClipVee, Debug)" >&2
+xcodebuild -project Maccy.xcodeproj -scheme ClipVee -configuration Debug \
+  -derivedDataPath .build/DerivedData \
+  -clonedSourcePackagesDirPath .build/SourcePackages -skipPackageUpdates \
+  CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
+  -quiet build-for-testing
