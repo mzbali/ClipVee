@@ -10,6 +10,7 @@ struct HistoryItemView: View {
   var index: Int
 
   @Environment(AppState.self) private var appState
+  @Default(.cardTextSize) private var cardTextSize
   @Default(.showHexColorSwatch) private var showHexColorSwatch
 
   private static let relativeDateFormatter: RelativeDateTimeFormatter = {
@@ -57,7 +58,7 @@ struct HistoryItemView: View {
                 .frame(width: 18, height: 18)
             }
             Text(verbatim: item.text.isEmpty ? item.title : item.text.removingScalarsUnsafeForTitleLayout())
-              .font(.system(size: 13))
+              .font(.system(size: CGFloat(cardTextSize.rawValue)))
               .lineLimit(4)
               .multilineTextAlignment(.leading)
               .frame(maxWidth: .infinity, minHeight: 46, alignment: .topLeading)

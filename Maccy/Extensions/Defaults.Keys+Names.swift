@@ -1,6 +1,8 @@
 import AppKit
 import Defaults
 
+nonisolated extension CardTextSize: Defaults.Serializable {}
+
 nonisolated struct StorageType: Sendable {
   static let files = StorageType(types: [.fileURL])
   static let images = StorageType(types: [.png, .tiff, .jpeg, .heic])
@@ -24,6 +26,7 @@ nonisolated extension Defaults.Keys {
   nonisolated(unsafe) private static let preferencesSuite: UserDefaults = .standard
 #endif
 
+  static let cardTextSize = Key<CardTextSize>("cardTextSize", default: .standard, suite: preferencesSuite)
   static let clearOnQuit = Key<Bool>("clearOnQuit", default: false, suite: preferencesSuite)
   static let clearSystemClipboard = Key<Bool>("clearSystemClipboard", default: false, suite: preferencesSuite)
   static let clipboardCheckInterval = Key<Double>("clipboardCheckInterval", default: 0.5, suite: preferencesSuite)
