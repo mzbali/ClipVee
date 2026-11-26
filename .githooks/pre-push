@@ -30,7 +30,11 @@ set -- -project Maccy.xcodeproj -scheme ClipVee -configuration Debug \
 # instead of a 45 s cold compile (measured 26 Nov). It gets no -derivedDataPath, since the hook needs no products back.
 if command -v xcslot >/dev/null 2>&1; then
   echo "pre-push: xcslot xcodebuild build-for-testing (scheme ClipVee, Debug)" >&2
-  exec xcslot xcodebuild "$@"
+  # xcslot's own failures (all slots busy, a failed mirror) exit 100 or above; xcodebuild's stay below.
+  # Those fall back to the plain build rather than blocking the push.
+  rc=0; xcslot xcodebuild --wait 120 "$@" || rc=$?
+  [ "$rc" -lt 100 ] && exit "$rc"
+  echo "pre-push: xcslot failed (exit $rc), building without it" >&2
 fi
 echo "pre-push: xcodebuild build-for-testing (scheme ClipVee, Debug)" >&2
 exec xcodebuild -derivedDataPath .build/DerivedData "$@"
