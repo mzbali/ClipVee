@@ -26,8 +26,8 @@ set -- -project Maccy.xcodeproj -scheme ClipVee -configuration Debug \
   -clonedSourcePackagesDirPath .build/SourcePackages -skipPackageUpdates \
   CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
   -quiet build-for-testing
-# With xcslot (see AGENTS.md) a fresh worktree's push builds in a warm slot: about 13 s instead of a
-# 45 s cold compile (measured 26 Nov). It gets no -derivedDataPath, since the hook needs no products back.
+# With xcslot (github.com/ertembiyik/xcslot) a fresh worktree's push builds in a warm slot: about 13 s
+# instead of a 45 s cold compile (measured 26 Nov). It gets no -derivedDataPath, since the hook needs no products back.
 if command -v xcslot >/dev/null 2>&1; then
   echo "pre-push: xcslot xcodebuild build-for-testing (scheme ClipVee, Debug)" >&2
   exec xcslot xcodebuild "$@"
